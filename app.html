@@ -1837,6 +1837,264 @@
             background: linear-gradient(180deg, #ccff00, #b3e600);
             box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
         }
+        
+        /* ================================================
+           AUTH MODAL (Cyber Design)
+           ================================================ */
+        
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .auth-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+        }
+        
+        .auth-modal-content {
+            position: relative;
+            background: linear-gradient(135deg, #001f3f, #002855);
+            border: 2px solid #00f0ff;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.5);
+            animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .auth-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: 2px solid #ff0055;
+            color: #ff0055;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .auth-modal-close:hover {
+            background: #ff0055;
+            color: #001f3f;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #003366;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 12px 20px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            letter-spacing: 1px;
+        }
+        
+        .auth-tab:hover {
+            color: #00f0ff;
+        }
+        
+        .auth-tab.active {
+            color: #00f0ff;
+            border-bottom-color: #00f0ff;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .auth-title {
+            color: #00f0ff;
+            font-size: 24px;
+            font-family: 'Consolas', monospace;
+            font-weight: bold;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        
+        .auth-subtitle {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 25px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .auth-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #003366;
+            color: #e2e8f0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .auth-input:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+        
+        .auth-input::placeholder {
+            color: #64748b;
+        }
+        
+        .auth-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .auth-checkbox input[type="checkbox"] {
+            margin-top: 2px;
+            accent-color: #00f0ff;
+        }
+        
+        .auth-checkbox a {
+            color: #00f0ff;
+            text-decoration: none;
+            border-bottom: 1px solid #00f0ff;
+        }
+        
+        .auth-checkbox a:hover {
+            color: #ccff00;
+            border-bottom-color: #ccff00;
+        }
+        
+        .auth-button {
+            width: 100%;
+            background: linear-gradient(135deg, #00f0ff, #00d4e6);
+            border: 2px solid #00f0ff;
+            color: #001f3f;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .auth-button:hover {
+            background: linear-gradient(135deg, #ccff00, #b3e600);
+            border-color: #ccff00;
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .auth-button:active {
+            transform: translateY(0);
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .auth-link {
+            display: block;
+            text-align: center;
+            color: #00f0ff;
+            font-size: 12px;
+            text-decoration: none;
+            font-family: 'Consolas', monospace;
+            margin-top: -5px;
+            transition: all 0.3s;
+        }
+        
+        .auth-link:hover {
+            color: #ccff00;
+        }
+        
+        .auth-error {
+            background: rgba(255, 0, 85, 0.1);
+            border: 1px solid #ff0055;
+            color: #ff0055;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-top: 15px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .auth-success {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-top: 15px;
+            font-family: 'Consolas', monospace;
+        }
     </style>
     
     <!-- Supabase Client -->
@@ -2343,6 +2601,355 @@
         let userSubscription = null;
         
         // ==========================================
+        // DEMO MODE SYSTEM
+        // ==========================================
+        
+        const DEMO_LIMITS = {
+            MAX_WAYPOINTS: 25,
+            MAX_DISTANCE_KM: 25,
+            MAX_API_CALLS: 50
+        };
+        
+        let demoMode = {
+            active: false,
+            waypointsUsed: 0,
+            distanceUsed: 0,
+            apiCallsUsed: 0,
+            routesCreated: 0
+        };
+        
+        // Initialize demo mode from localStorage
+        async function initDemoMode() {
+            // Check if user is logged in
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                // Not logged in = Demo Mode
+                demoMode.active = true;
+                
+                // Load from localStorage
+                const stored = localStorage.getItem('pixelruud_demo');
+                if (stored) {
+                    try {
+                        const data = JSON.parse(stored);
+                        demoMode = { ...demoMode, ...data, active: true };
+                        console.log('📊 Demo Mode loaded:', demoMode);
+                    } catch (e) {
+                        console.log('📊 Demo Mode: Fresh start');
+                    }
+                } else {
+                    console.log('📊 Demo Mode: New user');
+                }
+                
+                showDemoBanner();
+            } else {
+                // Logged in = Full Access
+                demoMode.active = false;
+                currentUser = user;
+                console.log('✅ Full Access Mode:', user.email);
+            }
+        }
+        
+        // Save demo state to localStorage
+        function saveDemoState() {
+            if (demoMode.active) {
+                localStorage.setItem('pixelruud_demo', JSON.stringify({
+                    waypointsUsed: demoMode.waypointsUsed,
+                    distanceUsed: demoMode.distanceUsed,
+                    apiCallsUsed: demoMode.apiCallsUsed,
+                    routesCreated: demoMode.routesCreated
+                }));
+            }
+        }
+        
+        // Check if demo limit reached
+        function checkDemoLimit(type, value) {
+            if (!demoMode.active) return true; // Full access
+            
+            switch(type) {
+                case 'waypoints':
+                    if (value > DEMO_LIMITS.MAX_WAYPOINTS) {
+                        showDemoLimitReached('waypoints');
+                        return false;
+                    }
+                    break;
+                    
+                case 'distance':
+                    if (value > DEMO_LIMITS.MAX_DISTANCE_KM) {
+                        showDemoLimitReached('distance');
+                        return false;
+                    }
+                    break;
+                    
+                case 'api_call':
+                    if (demoMode.apiCallsUsed >= DEMO_LIMITS.MAX_API_CALLS) {
+                        showDemoLimitReached('api_calls');
+                        return false;
+                    }
+                    demoMode.apiCallsUsed++;
+                    saveDemoState();
+                    updateDemoBanner();
+                    break;
+            }
+            
+            return true;
+        }
+        
+        // Show demo banner
+        function showDemoBanner() {
+            const banner = document.createElement('div');
+            banner.id = 'demo-banner';
+            banner.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                background: linear-gradient(135deg, #001f3f, #002855);
+                border: 2px solid #00f0ff;
+                border-radius: 8px;
+                padding: 12px 16px;
+                z-index: 10000;
+                box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+                font-family: 'Consolas', monospace;
+                color: #00f0ff;
+                font-size: 11px;
+                max-width: 280px;
+            `;
+            
+            updateDemoBannerContent(banner);
+            document.body.appendChild(banner);
+        }
+        
+        function updateDemoBanner() {
+            const banner = document.getElementById('demo-banner');
+            if (banner) {
+                updateDemoBannerContent(banner);
+            }
+        }
+        
+        function updateDemoBannerContent(banner) {
+            const wpLeft = DEMO_LIMITS.MAX_WAYPOINTS - waypoints.length;
+            const apiLeft = DEMO_LIMITS.MAX_API_CALLS - demoMode.apiCallsUsed;
+            
+            let urgency = '';
+            if (apiLeft < 10 || wpLeft < 5) {
+                urgency = '<div style="color: #ccff00; font-weight: bold; margin-top: 8px;">⚠️ Demo Limit Fast Erreicht!</div>';
+            }
+            
+            banner.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 8px; color: #ccff00;">🎮 DEMO MODE</div>
+                <div style="font-size: 10px; line-height: 1.6;">
+                    📍 Waypoints: ${waypoints.length}/${DEMO_LIMITS.MAX_WAYPOINTS}<br>
+                    🔄 API Calls: ${demoMode.apiCallsUsed}/${DEMO_LIMITS.MAX_API_CALLS}<br>
+                    📏 Max Distance: ${DEMO_LIMITS.MAX_DISTANCE_KM}km
+                </div>
+                ${urgency}
+                <button onclick="showLoginModal()" style="
+                    margin-top: 10px;
+                    width: 100%;
+                    padding: 8px;
+                    background: #00f0ff;
+                    color: #001f3f;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 10px;
+                    cursor: pointer;
+                    font-family: 'Consolas', monospace;
+                ">UNLOCK UNLIMITED →</button>
+            `;
+        }
+        
+        // Show demo limit reached modal
+        function showDemoLimitReached(limitType) {
+            const messages = {
+                waypoints: `Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_WAYPOINTS} Waypoints!\n\nRegistriere dich für unlimited Waypoints! 🚀`,
+                distance: `Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_DISTANCE_KM}km Route!\n\nRegistriere dich für unlimited Distance! 🚀`,
+                api_calls: `Demo Limit erreicht: ${DEMO_LIMITS.MAX_API_CALLS} API Calls verbraucht!\n\nRegistriere dich für unlimited Routing! 🚀`
+            };
+            
+            alert(messages[limitType] || 'Demo Limit erreicht!');
+            showLoginModal();
+        }
+        
+        // Show/Hide Auth Modal
+        function showLoginModal() {
+            document.getElementById('authModal').style.display = 'flex';
+            switchAuthTab('login');
+        }
+        
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            // Clear forms
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerPasswordConfirm').value = '';
+            document.getElementById('registerAgree').checked = false;
+            // Hide errors
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('registerError').style.display = 'none';
+            document.getElementById('registerSuccess').style.display = 'none';
+        }
+        
+        // Switch between Login/Register tabs
+        function switchAuthTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            
+            // Update forms
+            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+        }
+        
+        // Handle Login
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const button = document.getElementById('loginButtonText');
+            
+            // Validation
+            if (!email || !password) {
+                errorDiv.textContent = '❌ Please fill in all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Show loading
+            button.textContent = 'LOGGING IN...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                // Success!
+                console.log('✅ Login successful:', data.user.email);
+                
+                // Disable demo mode
+                demoMode.active = false;
+                localStorage.removeItem('pixelruud_demo');
+                
+                // Remove demo banner
+                const banner = document.getElementById('demo-banner');
+                if (banner) banner.remove();
+                
+                // Close modal
+                closeAuthModal();
+                
+                // Show success message
+                alert('🎉 Welcome back! You now have unlimited access!');
+                
+                // Reload to update UI
+                location.reload();
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                errorDiv.textContent = `❌ ${error.message}`;
+                errorDiv.style.display = 'block';
+                button.textContent = 'LOGIN →';
+            }
+        }
+        
+        // Handle Register
+        async function handleRegister() {
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            const agree = document.getElementById('registerAgree').checked;
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            const button = document.getElementById('registerButtonText');
+            
+            // Validation
+            if (!email || !password || !passwordConfirm) {
+                errorDiv.textContent = '❌ Please fill in all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = '❌ Password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                errorDiv.textContent = '❌ Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!agree) {
+                errorDiv.textContent = '❌ Please agree to the Privacy Policy';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Show loading
+            button.textContent = 'CREATING ACCOUNT...';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: 'https://pixelruud.com/app.html'
+                    }
+                });
+                
+                if (error) throw error;
+                
+                // Success!
+                console.log('✅ Registration successful:', data.user.email);
+                
+                successDiv.innerHTML = `
+                    ✅ <strong>Account created!</strong><br>
+                    Check your email (${email}) to verify your account.
+                `;
+                successDiv.style.display = 'block';
+                button.textContent = 'CREATE ACCOUNT →';
+                
+                // Clear form
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('registerPasswordConfirm').value = '';
+                
+            } catch (error) {
+                console.error('❌ Registration error:', error);
+                errorDiv.textContent = `❌ ${error.message}`;
+                errorDiv.style.display = 'block';
+                button.textContent = 'CREATE ACCOUNT →';
+            }
+        }
+        
+        // Handle Forgot Password
+        async function handleForgotPassword() {
+            const email = prompt('Enter your email address:');
+            if (!email) return;
+            
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: 'https://pixelruud.com/app.html'
+                });
+                
+                if (error) throw error;
+                
+                alert(`✅ Password reset email sent to ${email}!\n\nCheck your inbox.`);
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+        
+        // ==========================================
         // FEATURE FLAGS
         // ==========================================
         
@@ -2558,6 +3165,10 @@
             if (typeof L === 'undefined') { setTimeout(init, 50); return; }
             
             document.getElementById('loadingMessage').style.display = 'none';
+            
+            // Initialize Demo Mode System
+            initDemoMode();
+            
             map = L.map('map').setView([48.1351, 11.5820], 12);
             
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -4626,6 +5237,11 @@
         }
         
         function addWaypoint(lat, lng, engine = null) {
+            // Check demo limit
+            if (!checkDemoLimit('waypoints', waypoints.length + 1)) {
+                return; // Limit reached
+            }
+            
             // Generate unique ID
             const id = `wp_${Date.now()}_${waypointIdCounter++}`;
             
@@ -4638,6 +5254,11 @@
             };
             
             waypoints.push(waypoint);
+            
+            // Update demo banner
+            if (demoMode.active) {
+                updateDemoBanner();
+            }
             
             const getColor = (idx, total) => {
                 if (idx === 0) return 'green';
@@ -4840,6 +5461,13 @@
                     const start = waypoints[i], end = waypoints[i + 1];
                     const segmentKey = `${i}-${i+1}`;
                     
+                    // Check API call limit (demo mode)
+                    if (!checkDemoLimit('api_call')) {
+                        document.getElementById('loading').classList.remove('show');
+                        document.getElementById('calculateBtn').disabled = false;
+                        return;
+                    }
+                    
                     // Priority: 1) Segment override (right-click), 2) Start waypoint engine, 3) Default
                     const waypointEngine = start.engine || 'auto';
                     const engineForSegment = segmentOverrides[segmentKey] || waypointEngine;
@@ -4910,6 +5538,14 @@
                     }
                     
                     totalDist += route.distance;
+                    
+                    // Check distance limit (demo mode)
+                    if (!checkDemoLimit('distance', totalDist)) {
+                        document.getElementById('loading').classList.remove('show');
+                        document.getElementById('calculateBtn').disabled = false;
+                        clearRoutes();
+                        return;
+                    }
                     
                     const startIdx = i === 0 ? 0 : 1;
                     for (let j = startIdx; j < route.coordinates.length; j++) {
@@ -6550,5 +7186,58 @@
             console.log('✓ Proximity fading initialized');
         }
     </script>
+    <!-- LOGIN/REGISTER MODAL -->
+    <div id="authModal" class="auth-modal" style="display: none;">
+        <div class="auth-modal-overlay" onclick="closeAuthModal()"></div>
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" onclick="closeAuthModal()">✕</button>
+            
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">LOGIN</button>
+                <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">REGISTER</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <h2 class="auth-title">WELCOME BACK</h2>
+                <p class="auth-subtitle">Unlock unlimited routing power</p>
+                
+                <input type="email" id="loginEmail" class="auth-input" placeholder="Email" autocomplete="email">
+                <input type="password" id="loginPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
+                
+                <button class="auth-button" onclick="handleLogin()">
+                    <span id="loginButtonText">LOGIN →</span>
+                </button>
+                
+                <a href="#" class="auth-link" onclick="handleForgotPassword(); return false;">Forgot Password?</a>
+                
+                <div id="loginError" class="auth-error" style="display: none;"></div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form">
+                <h2 class="auth-title">JOIN PIXELRUUD</h2>
+                <p class="auth-subtitle">Unlimited waypoints • Unlimited distance • Unlimited routes</p>
+                
+                <input type="email" id="registerEmail" class="auth-input" placeholder="Email" autocomplete="email">
+                <input type="password" id="registerPassword" class="auth-input" placeholder="Password (min. 6 characters)" autocomplete="new-password">
+                <input type="password" id="registerPasswordConfirm" class="auth-input" placeholder="Confirm Password" autocomplete="new-password">
+                
+                <label class="auth-checkbox">
+                    <input type="checkbox" id="registerAgree">
+                    <span>I agree to the <a href="datenschutz.html" target="_blank">Privacy Policy</a></span>
+                </label>
+                
+                <button class="auth-button" onclick="handleRegister()">
+                    <span id="registerButtonText">CREATE ACCOUNT →</span>
+                </button>
+                
+                <div id="registerError" class="auth-error" style="display: none;"></div>
+                <div id="registerSuccess" class="auth-success" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
