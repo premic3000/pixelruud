@@ -141,6 +141,47 @@
                         inset 0 1px 0 rgba(255,255,255,0.35);
         }
         
+        /* Undo/Redo Buttons */
+        .btn-undo {
+            position: relative;
+            background: linear-gradient(135deg, #001f3f, #002855);
+            border: 2px solid #00f0ff;
+            color: #00f0ff;
+        }
+        
+        .btn-undo:hover:not(:disabled) {
+            border-color: #ccff00;
+            color: #ccff00;
+            background: linear-gradient(135deg, #002855, #003366);
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
+        }
+        
+        .btn-undo:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #003366;
+            color: #003366;
+        }
+        
+        .btn-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ccff00;
+            color: #001f3f;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            display: none;
+        }
+        
+        .btn-badge.show {
+            display: block;
+        }
+        
         .btn-success { 
             background: linear-gradient(145deg, #34d399 0%, #059669 100%); 
             color: white;
@@ -1860,6 +1901,45 @@
             to { opacity: 1; }
         }
         
+        @keyframes toastSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #001f3f, #002855);
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 10001;
+            animation: toastSlide 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .toast-undo {
+            color: #00f0ff;
+            border-color: #00f0ff;
+        }
+        
+        .toast-redo {
+            color: #ccff00;
+            border-color: #ccff00;
+        }
+        
         .auth-modal-overlay {
             position: absolute;
             top: 0;
@@ -2553,6 +2633,24 @@
             Löschen
         </button>
         
+        <button class="btn btn-undo" id="undoBtn" disabled title="Rückgängig (Strg+Z)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path>
+            </svg>
+            Undo
+            <span class="btn-badge" id="undoBadge">0</span>
+        </button>
+        
+        <button class="btn btn-undo" id="redoBtn" disabled title="Wiederherstellen (Strg+Y)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 7v6h-6"></path>
+                <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"></path>
+            </svg>
+            Redo
+            <span class="btn-badge" id="redoBadge">0</span>
+        </button>
+        
         <button class="btn btn-success" id="exportBtn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -2960,6 +3058,223 @@
                 alert(`❌ Error: ${error.message}`);
             }
         }
+        
+        // ==========================================
+        // UNDO/REDO SYSTEM
+        // ==========================================
+        
+        const history = {
+            undoStack: [],
+            redoStack: [],
+            maxSize: 50,
+            enabled: true
+        };
+        
+        const ACTION_TYPES = {
+            ADD_WAYPOINT: 'Wegpunkt hinzugefügt',
+            DELETE_WAYPOINT: 'Wegpunkt gelöscht',
+            MOVE_WAYPOINT: 'Wegpunkt verschoben',
+            REVERSE_ROUTE: 'Route umgekehrt',
+            CLEAR_ALL: 'Alles gelöscht',
+            CHANGE_ENGINE: 'Engine geändert'
+        };
+        
+        // Save current state before action
+        function saveState(actionType) {
+            if (!history.enabled) return;
+            
+            const state = {
+                action: actionType,
+                timestamp: Date.now(),
+                waypoints: JSON.parse(JSON.stringify(waypoints)),
+                segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
+            };
+            
+            history.undoStack.push(state);
+            history.redoStack = []; // Clear redo on new action
+            
+            // Limit stack size
+            if (history.undoStack.length > history.maxSize) {
+                history.undoStack.shift();
+            }
+            
+            updateUndoRedoButtons();
+            console.log(`💾 ${actionType}`);
+        }
+        
+        // Undo last action
+        function undo() {
+            if (history.undoStack.length === 0) return;
+            
+            history.enabled = false; // Prevent saving during restore
+            
+            // Save current to redo
+            const currentState = {
+                waypoints: JSON.parse(JSON.stringify(waypoints)),
+                segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
+            };
+            history.redoStack.push(currentState);
+            
+            // Restore previous
+            const previousState = history.undoStack.pop();
+            restoreState(previousState);
+            
+            history.enabled = true;
+            updateUndoRedoButtons();
+            showToast(`↶ ${previousState.action}`, 'undo');
+            console.log(`↶ Undo: ${previousState.action}`);
+        }
+        
+        // Redo last undone action
+        function redo() {
+            if (history.redoStack.length === 0) return;
+            
+            history.enabled = false;
+            
+            // Save current to undo
+            const currentState = {
+                waypoints: JSON.parse(JSON.stringify(waypoints)),
+                segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
+            };
+            history.undoStack.push(currentState);
+            
+            // Restore next
+            const nextState = history.redoStack.pop();
+            restoreState(nextState);
+            
+            history.enabled = true;
+            updateUndoRedoButtons();
+            showToast('↷ Wiederhergestellt', 'redo');
+            console.log('↷ Redo');
+        }
+        
+        // Restore state
+        function restoreState(state) {
+            // Clear current
+            clearRoutes();
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            
+            // Restore data
+            waypoints = JSON.parse(JSON.stringify(state.waypoints));
+            segmentOverrides = JSON.parse(JSON.stringify(state.segmentOverrides));
+            
+            // Recreate markers
+            waypoints.forEach((wp, idx) => {
+                const getColor = (i, total) => {
+                    if (i === 0) return 'green';
+                    if (i === total - 1) return 'red';
+                    return 'blue';
+                };
+                
+                const color = getColor(idx, waypoints.length);
+                const number = idx + 1;
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="
+                        background: ${color};
+                        width: 30px; height: 30px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 14px;
+                        border: 3px solid white;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        cursor: move;
+                    ">${number}</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+                
+                const marker = L.marker([wp.lat, wp.lng], { 
+                    icon: icon,
+                    draggable: true
+                }).addTo(map);
+                
+                // Drag handler
+                marker.on('dragend', e => {
+                    saveState(ACTION_TYPES.MOVE_WAYPOINT);
+                    waypoints[idx].lat = e.target.getLatLng().lat;
+                    waypoints[idx].lng = e.target.getLatLng().lng;
+                    if (waypoints.length >= 2) {
+                        calculateRoutes();
+                    }
+                });
+                
+                // Context menu
+                marker.on('contextmenu', e => {
+                    L.DomEvent.stopPropagation(e);
+                    if (idx < waypoints.length - 1) {
+                        showEngineContextMenu(e.originalEvent, `${idx}-${idx+1}`);
+                    }
+                });
+                
+                markers.push(marker);
+            });
+            
+            // Recalculate if needed
+            if (waypoints.length >= 2) {
+                calculateRoutes();
+            }
+            
+            updateList();
+            updateMarkerColors();
+        }
+        
+        // Update button states
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            const undoBadge = document.getElementById('undoBadge');
+            const redoBadge = document.getElementById('redoBadge');
+            
+            if (undoBtn) {
+                undoBtn.disabled = history.undoStack.length === 0;
+                if (undoBadge) {
+                    undoBadge.textContent = history.undoStack.length;
+                    undoBadge.className = history.undoStack.length > 0 ? 'btn-badge show' : 'btn-badge';
+                }
+            }
+            
+            if (redoBtn) {
+                redoBtn.disabled = history.redoStack.length === 0;
+                if (redoBadge) {
+                    redoBadge.textContent = history.redoStack.length;
+                    redoBadge.className = history.redoStack.length > 0 ? 'btn-badge show' : 'btn-badge';
+                }
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            }
+            if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
+                e.preventDefault();
+                redo();
+            }
+        });
         
         // ==========================================
         // FEATURE FLAGS
@@ -5332,6 +5647,9 @@
                 return; // Limit reached
             }
             
+            // Save state for undo
+            saveState(ACTION_TYPES.ADD_WAYPOINT);
+            
             // Generate unique ID
             const id = `wp_${Date.now()}_${waypointIdCounter++}`;
             
@@ -5478,6 +5796,9 @@
         };
         
         function removeWaypoint(idx) {
+            // Save state for undo
+            saveState(ACTION_TYPES.DELETE_WAYPOINT);
+            
             waypoints.splice(idx, 1);
             map.removeLayer(markers[idx]);
             markers.splice(idx, 1);
@@ -6404,6 +6725,9 @@
         }
         
         function reverseRoute() {
+            // Save state for undo
+            saveState(ACTION_TYPES.REVERSE_ROUTE);
+            
             waypoints.reverse();
             markers.forEach((m, i) => m.setLatLng([waypoints[i].lat, waypoints[i].lng]));
             updateList();
@@ -6411,6 +6735,9 @@
         }
         
         function clearAll() {
+            // Save state for undo
+            saveState(ACTION_TYPES.CLEAR_ALL);
+            
             waypoints = [];
             markers.forEach(m => map.removeLayer(m));
             markers = [];
