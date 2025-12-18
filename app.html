@@ -2190,8 +2190,12 @@
         <input type="text" 
                class="address-input" 
                id="addressInput" 
+               name="address-search"
                placeholder="Adresse suchen..."
                autocomplete="off"
+               autocorrect="off"
+               autocapitalize="off"
+               spellcheck="false"
                style="padding-left: 32px; background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.35-4.35%22/></svg>'); background-repeat: no-repeat; background-position: 8px center;">
         <div class="address-results" id="addressResults"></div>
     </div>
@@ -2844,6 +2848,12 @@
                 // Close modal
                 closeAuthModal();
                 
+                // Clear address search field (prevents email autofill)
+                setTimeout(() => {
+                    const addressInput = document.getElementById('addressInput');
+                    if (addressInput) addressInput.value = '';
+                }, 100);
+                
                 // Show success message
                 alert('🎉 Welcome back! You now have unlimited access!');
                 
@@ -3205,6 +3215,15 @@
                 // Initialize Demo Mode System
                 initDemoMode();
                 
+                // Clear address search field on load (prevents email autofill)
+                setTimeout(() => {
+                    const addressInput = document.getElementById('addressInput');
+                    if (addressInput && addressInput.value.includes('@')) {
+                        addressInput.value = '';
+                        console.log('🔧 Cleared email autofill from address search');
+                    }
+                }, 500);
+                
                 map = L.map('map').setView([48.1351, 11.5820], 12);
             
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -3232,9 +3251,9 @@
                 maxZoom: 18
             });
             
-            const hikeBikeLayer = L.tileLayer('https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png', {
-                attribution: '© Hike & Bike Map | © OpenStreetMap contributors',
-                maxZoom: 17
+            const hikeBikeLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors, Tiles courtesy of HOT',
+                maxZoom: 19
             });
             
             const sateliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -3248,7 +3267,7 @@
                 "⛰️ Topografisch": topoLayer,
                 "🚵 Waymarked Trails": waymarkedLayer,
                 "🇩🇪 OSM Deutschland": osmDeLayer,
-                "🥾 Hike & Bike": hikeBikeLayer,
+                "🌍 Humanitarian": hikeBikeLayer,
                 "🛰️ Satellit": sateliteLayer
             };
             
