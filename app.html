@@ -3162,58 +3162,93 @@
         let savedRoutes = [];
 
         (function init() {
-            if (typeof L === 'undefined') { setTimeout(init, 50); return; }
+            // Timeout counter to prevent infinite loading
+            if (!window.initAttempts) window.initAttempts = 0;
+            window.initAttempts++;
             
-            document.getElementById('loadingMessage').style.display = 'none';
+            // Check if Leaflet loaded
+            if (typeof L === 'undefined') {
+                // Max 100 attempts (5 seconds)
+                if (window.initAttempts > 100) {
+                    document.getElementById('loadingMessage').innerHTML = `
+                        <div style="color: #ff0055; font-family: Consolas;">
+                            ❌ <strong>Loading Error</strong><br>
+                            <span style="font-size: 12px;">
+                                Leaflet library failed to load.<br>
+                                Please check your connection or try another browser.<br><br>
+                                <button onclick="location.reload()" style="
+                                    padding: 8px 16px;
+                                    background: #00f0ff;
+                                    border: none;
+                                    border-radius: 4px;
+                                    color: #001f3f;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                    font-family: Consolas;
+                                ">Reload Page</button>
+                            </span>
+                        </div>
+                    `;
+                    console.error('❌ Leaflet failed to load after 100 attempts (5 seconds)');
+                    return;
+                }
+                
+                // Retry with 50ms delay
+                setTimeout(init, 50);
+                return;
+            }
             
-            // Initialize Demo Mode System
-            initDemoMode();
-            
-            map = L.map('map').setView([48.1351, 11.5820], 12);
+            try {
+                console.log('✅ Leaflet loaded, initializing map...');
+                document.getElementById('loadingMessage').style.display = 'none';
+                
+                // Initialize Demo Mode System
+                initDemoMode();
+                
+                map = L.map('map').setView([48.1351, 11.5820], 12);
             
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
+                attribution: '© OpenStreetMap contributors',
                 maxZoom: 19
             }).addTo(map);
             
             const cycleLayer = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
-                attribution: '© CyclOSM | © OpenStreetMap',
+                attribution: '© CyclOSM | © OpenStreetMap contributors',
                 maxZoom: 20
             });
             
             const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenTopoMap',
+                attribution: '© OpenTopoMap (CC-BY-SA) | © OpenStreetMap contributors',
                 maxZoom: 17
             });
             
-            const hikeBikeLayer = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors, CyclOSM',
-                maxZoom: 20,
-                subdomains: 'abc'
+            const waymarkedLayer = L.tileLayer('https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png', {
+                attribution: '© Waymarked Trails | © OpenStreetMap contributors',
+                maxZoom: 18
+            });
+            
+            const osmDeLayer = L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            });
+            
+            const hikeBikeLayer = L.tileLayer('https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png', {
+                attribution: '© Hike & Bike Map | © OpenStreetMap contributors',
+                maxZoom: 17
             });
             
             const sateliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '© Esri',
-                maxZoom: 19
-            });
-            
-            const outdoorsLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors, Tiles courtesy of HOT',
-                maxZoom: 19
-            });
-            
-            const cartoCDNLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap © CARTO',
+                attribution: '© Esri, Maxar, Earthstar Geographics',
                 maxZoom: 19
             });
             
             const baseMaps = {
-                "🗺️ Standard": osmLayer,
-                "🚴 Radkarte": cycleLayer,
+                "🗺️ Standard (OSM)": osmLayer,
+                "🚴 CyclOSM (Gravel)": cycleLayer,
                 "⛰️ Topografisch": topoLayer,
-                "🚲 CyclOSM": hikeBikeLayer,
-                "🌍 Humanitarian": outdoorsLayer,
-                "🌐 Light": cartoCDNLayer,
+                "🚵 Waymarked Trails": waymarkedLayer,
+                "🇩🇪 OSM Deutschland": osmDeLayer,
+                "🥾 Hike & Bike": hikeBikeLayer,
                 "🛰️ Satellit": sateliteLayer
             };
             
@@ -3265,6 +3300,30 @@
             setupProximityFading();
             
             console.log('✓ App initialisiert (inkl. POI + Adresssuche + Lupe + Route-Bibliothek)');
+            
+        } catch (error) {
+            // Catch any initialization errors
+            console.error('❌ Map initialization error:', error);
+            document.getElementById('loadingMessage').innerHTML = `
+                <div style="color: #ff0055; font-family: Consolas;">
+                    ❌ <strong>Initialization Error</strong><br>
+                    <span style="font-size: 12px;">
+                        ${error.message}<br><br>
+                        Please try refreshing the page.<br><br>
+                        <button onclick="location.reload()" style="
+                            padding: 8px 16px;
+                            background: #00f0ff;
+                            border: none;
+                            border-radius: 4px;
+                            color: #001f3f;
+                            font-weight: bold;
+                            cursor: pointer;
+                            font-family: Consolas;
+                        ">Reload Page</button>
+                    </span>
+                </div>
+            `;
+        }
         })();
         
         function setupPOI() {
