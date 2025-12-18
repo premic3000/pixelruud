@@ -2190,12 +2190,14 @@
         <input type="text" 
                class="address-input" 
                id="addressInput" 
-               name="address-search"
+               name="address-search-field-unique"
                placeholder="Adresse suchen..."
-               autocomplete="off"
+               autocomplete="new-password"
                autocorrect="off"
                autocapitalize="off"
                spellcheck="false"
+               readonly
+               onfocus="this.removeAttribute('readonly'); if(this.value.includes('@')) this.value='';"
                style="padding-left: 32px; background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2211%22 cy=%2211%22 r=%228%22/><path d=%22m21 21-4.35-4.35%22/></svg>'); background-repeat: no-repeat; background-position: 8px center;">
         <div class="address-results" id="addressResults"></div>
     </div>
@@ -3215,14 +3217,24 @@
                 // Initialize Demo Mode System
                 initDemoMode();
                 
-                // Clear address search field on load (prevents email autofill)
-                setTimeout(() => {
+                // AGGRESSIVE: Clear address search field on load (prevents email autofill)
+                // Check every 100ms for 5 seconds
+                let clearAttempts = 0;
+                const clearInterval = setInterval(() => {
+                    clearAttempts++;
                     const addressInput = document.getElementById('addressInput');
+                    
                     if (addressInput && addressInput.value.includes('@')) {
                         addressInput.value = '';
-                        console.log('🔧 Cleared email autofill from address search');
+                        console.log(`🔧 Cleared email autofill (attempt ${clearAttempts})`);
                     }
-                }, 500);
+                    
+                    // Stop after 5 seconds (50 attempts)
+                    if (clearAttempts >= 50) {
+                        clearInterval(clearInterval);
+                        console.log('✅ Email autofill prevention complete');
+                    }
+                }, 100);
                 
                 map = L.map('map').setView([48.1351, 11.5820], 12);
             
