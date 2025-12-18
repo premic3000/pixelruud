@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How To Pixel Yr Ruud - Pixelruud Guide</title>
+    
+    <!-- Plausible Analytics -->
+    <script async src="https://plausible.io/js/pa-2SZ-jZk5hQhg3hylIruPo.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
+    
+    <style>
+        :root {
+            --bg-deep: #001f3f;
+            --bg-panel: #002855;
+            --primary-cyan: #00f0ff;
+            --accent-lime: #ccff00;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --font-tech: 'Consolas', 'Courier New', monospace;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-tech);
+            line-height: 1.8;
+            padding-bottom: 60px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(180deg, #001f3f, #002855);
+            border-bottom: 2px solid var(--primary-cyan);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-cyan);
+            text-decoration: none;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, var(--bg-deep), var(--bg-panel));
+            border: 2px solid var(--primary-cyan);
+            color: var(--primary-cyan);
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: var(--primary-cyan);
+            color: var(--bg-deep);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        /* Hero */
+        .hero {
+            max-width: 1200px;
+            margin: 60px auto 40px;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            color: var(--primary-cyan);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Section */
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            color: var(--accent-lime);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-icon {
+            font-size: 36px;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, var(--bg-panel), #003366);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--accent-lime));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--accent-lime);
+            box-shadow: 0 8px 24px rgba(0, 240, 255, 0.3);
+            transform: translateY(-4px);
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            color: var(--primary-cyan);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+        
+        /* Keyboard Shortcut */
+        .kbd {
+            background: var(--bg-deep);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--primary-cyan);
+            font-weight: bold;
+            display: inline-block;
+            margin: 0 4px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--bg-panel), #003366);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin: 60px auto;
+            max-width: 800px;
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.3);
+        }
+        
+        .cta-title {
+            font-size: 32px;
+            color: var(--primary-cyan);
+            margin-bottom: 16px;
+        }
+        
+        .cta-text {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: var(--primary-cyan);
+            color: var(--bg-deep);
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 2px solid var(--primary-cyan);
+        }
+        
+        .cta-button:hover {
+            background: var(--accent-lime);
+            border-color: var(--accent-lime);
+            box-shadow: 0 0 24px rgba(204, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 2px solid #003366;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        footer a {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            margin: 0 12px;
+        }
+        
+        footer a:hover {
+            color: var(--accent-lime);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .section-title {
+                font-size: 24px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="logo">PIXEL<span style="color: var(--accent-lime);">RUUD</span></a>
+            <a href="index.html" class="back-btn">← Zurück</a>
+        </div>
+    </header>
+    
+    <!-- Hero -->
+    <div class="hero">
+        <h1>How To Pixel Yr Ruud</h1>
+        <p>Lerne alle Features von Pixelruud kennen – der professionelle Gravel Route Planner mit X-Ray Magnifier, präzisen Höhendaten und Surface-Analyse.</p>
+    </div>
+    
+    <div class="container">
+        
+        <!-- GRUNDFUNKTIONEN -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🎯</span>
+                Grundfunktionen
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Wegpunkte setzen</div>
+                    <div class="feature-desc">Klicke auf die Karte, um Wegpunkte zu setzen – die Route wird automatisch berechnet.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Route berechnen</div>
+                    <div class="feature-desc">Ab 2 Wegpunkten wird die Route automatisch mit präzisen Höhendaten berechnet.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Wegpunkte löschen</div>
+                    <div class="feature-desc">Klicke auf das ✕ neben einem Wegpunkt, um ihn zu entfernen.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Wegpunkte verschieben</div>
+                    <div class="feature-desc">Ziehe Wegpunkte auf der Karte, um die Route anzupassen – sie wird sofort neu berechnet.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Route umkehren</div>
+                    <div class="feature-desc">Der Reverse-Button kehrt Start und Ziel um – perfekt für Hin- und Rückfahrt.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Alles löschen</div>
+                    <div class="feature-desc">Der Clear-Button entfernt alle Wegpunkte und startet von vorne.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- GRAVEL-SPEZIFISCH -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🚴</span>
+                Gravel-Spezifisch
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Gravel vs. Road Profile</div>
+                    <div class="feature-desc">Wähle "Gravel" für unbefestigte Wege oder "Road" für asphaltierte Strecken.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Hilly vs. Flat</div>
+                    <div class="feature-desc">"Hilly" sucht Anstiege, "Flat" bevorzugt ebene Strecken – perfekt für dein Training.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Surface Analysis</div>
+                    <div class="feature-desc">CyclOSM-Karte zeigt dir Surface-Typen: Asphalt (schwarz), Schotter (braun), Trail (grün).</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- KARTEN -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🗺️</span>
+                Karten & Navigation
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">7 Karten-Layer</div>
+                    <div class="feature-desc">Wechsle zwischen Standard, CyclOSM, Topografisch, Waymarked Trails, OSM Deutschland, Humanitarian und Satellit.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">CyclOSM (Gravel)</div>
+                    <div class="feature-desc">Zeigt Surface-Typen und Fahrradwege – die beste Karte für Gravel-Planung.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Topografisch</div>
+                    <div class="feature-desc">Höhenlinien alle 10 Meter – perfekt für Alpen-Touren und Höhenplanung.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Waymarked Trails</div>
+                    <div class="feature-desc">Zeigt markierte Radrouten und MTB-Trails – ideal für neue Route-Inspiration.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Satellit</div>
+                    <div class="feature-desc">Echte Luftbilder zum Überprüfen der Oberfläche – siehst du, was dich erwartet.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ROUTING ENGINES -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🔧</span>
+                Routing-Engines
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Auto-Modus</div>
+                    <div class="feature-desc">Probiert BRouter, GraphHopper, Valhalla und OSRM automatisch – immer die beste Route.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Per-Waypoint Engine</div>
+                    <div class="feature-desc">Hover über einen Wegpunkt, um für dieses Segment eine spezielle Engine zu wählen.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">BRouter (Gravel/Road)</div>
+                    <div class="feature-desc">Spezialisiert auf Gravel mit 8 verschiedenen Profilen – die Engine für Off-Road.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Direct Line</div>
+                    <div class="feature-desc">Zeichnet eine gerade Linie – nützlich für Trail-Planung oder wenn kein Weg vorhanden.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ELEVATION -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">📊</span>
+                Elevation & Analyse
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Höhenprofil</div>
+                    <div class="feature-desc">Das interaktive Höhenprofil zeigt Anstiege, Gefälle und Höhenmeter auf einen Blick.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Gradient-Farben</div>
+                    <div class="feature-desc">Grün = flach, Gelb = moderat, Orange = steil, Rot = sehr steil – sofort erkennbar.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Hover-Informationen</div>
+                    <div class="feature-desc">Fahre mit der Maus über das Profil, um exakte Elevation und Gradient zu sehen.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Smoothing-Algorithmus</div>
+                    <div class="feature-desc">Intelligente Glättung der Höhendaten – präzise wie Komoot, ohne nervige Spitzen.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- X-RAY MAGNIFIER -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🔍</span>
+                X-Ray Magnifier
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Magnifier aktivieren</div>
+                    <div class="feature-desc">Hover mit der Maus über die Route – der X-Ray Magnifier zeigt alle Details.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Surface-Info</div>
+                    <div class="feature-desc">Siehst du sofort: Asphalt, Schotter, Trail, Unpaved – keine bösen Überraschungen.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Live-Elevation</div>
+                    <div class="feature-desc">Aktuelle Höhe und Gradient direkt am Mauszeiger – präzise wie ein GPS.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Mini-Profil</div>
+                    <div class="feature-desc">Zeigt die nächsten ±50 Trackpoints – perfekt für Intervall-Planung.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Freeze-Funktion</div>
+                    <div class="feature-desc">Klicke, um die Ansicht zu fixieren – analysiere knifflige Kreuzungen in Ruhe.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SPEICHERN & EXPORT -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">💾</span>
+                Speichern & Export
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Route speichern</div>
+                    <div class="feature-desc">Speichere deine Route mit Namen und Beschreibung – alle Routen bleiben erhalten.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">GPX Export</div>
+                    <div class="feature-desc">Exportiere als GPX für Garmin, Komoot, Wahoo oder andere GPS-Geräte.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">GPX Import</div>
+                    <div class="feature-desc">Importiere bestehende GPX-Dateien und passe sie in Pixelruud an.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Route Library</div>
+                    <div class="feature-desc">Alle gespeicherten Routen auf einen Blick – mit Heatmap-Visualisierung.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Heatmap</div>
+                    <div class="feature-desc">Siehst du, wo du am häufigsten fährst – deine persönliche Gravel-Karte.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- UNDO/REDO -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">↶</span>
+                Undo/Redo
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Undo <span class="kbd">Strg+Z</span></div>
+                    <div class="feature-desc">Mache die letzte Aktion rückgängig – Wegpunkt gelöscht? Einfach Undo!</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Redo <span class="kbd">Strg+Y</span></div>
+                    <div class="feature-desc">Stelle eine rückgängig gemachte Aktion wieder her – keine Angst vor Fehlern.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Badge-Counter</div>
+                    <div class="feature-desc">Zeigt an, wie viele Aktionen du rückgängig machen kannst – bis zu 50 Schritte zurück.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Toast-Benachrichtigungen</div>
+                    <div class="feature-desc">Jede Undo/Redo-Aktion wird kurz angezeigt – du weißt immer, was passiert.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- DEMO MODE -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🎮</span>
+                Demo Mode
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">25 Waypoints gratis</div>
+                    <div class="feature-desc">Teste Pixelruud mit bis zu 25 Wegpunkten – kein Login nötig.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">25km Route gratis</div>
+                    <div class="feature-desc">Plane Routen bis 25km kostenlos – perfekt für erste Tests.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">50 API Calls gratis</div>
+                    <div class="feature-desc">Berechne bis zu 50 Route-Segmente – ausreichend für mehrere Touren.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Unlimited mit Account</div>
+                    <div class="feature-desc">Registriere dich kostenlos für unbegrenzte Waypoints, Distanz und Routing.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2 class="cta-title">Bereit zu Starten?</h2>
+            <p class="cta-text">Teste alle Features kostenlos oder registriere dich für unlimited Zugang.</p>
+            <a href="app.html" class="cta-button">JETZT LOSLEGEN →</a>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Pixelruud Development</p>
+        <p>
+            <a href="impressum.html">Impressum</a>
+            <a href="datenschutz.html">Datenschutz</a>
+            <a href="index.html">Home</a>
+        </p>
+    </footer>
+    
+</body>
+</html>
