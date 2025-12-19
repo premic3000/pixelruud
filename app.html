@@ -2177,9 +2177,6 @@
         }
     </style>
     
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <!-- Plausible Analytics (Privacy-First) -->
     <script defer data-domain="pixelruud.com" src="https://plausible.io/js/script.js"></script>
 </head>
@@ -2677,6 +2674,10 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
+    <!-- Supabase Client (Async, optional) -->
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
         // ==========================================
         // PIXELRUUD CONFIGURATION
@@ -2697,8 +2698,18 @@
         const SUPABASE_URL = 'https://fwiakuwsyttnnrgexalb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3aWFrdXdzeXR0bm5yZ2V4YWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MzY0NzQsImV4cCI6MjA4MTExMjQ3NH0.8vbfsHld3aS48LSgorAFM1hNgF-YBUfKpbZeTchT3Dg';
         
-        // Initialize Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Supabase client (optional - app works without it)
+        let supabase = null;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase initialized');
+            } else {
+                console.warn('⚠️ Supabase not loaded - Demo Mode only');
+            }
+        } catch (error) {
+            console.warn('⚠️ Supabase init failed - Demo Mode only:', error);
+        }
         
         // Current user state
         let currentUser = null;
@@ -2725,6 +2736,11 @@
         // Initialize demo mode from localStorage
         async function initDemoMode() {
             try {
+                // Skip auth if Supabase not available
+                if (!supabase) {
+                    throw new Error('Supabase not available');
+                }
+                
                 // Check if user is logged in (with 3 second timeout)
                 const authPromise = supabase.auth.getUser();
                 const timeoutPromise = new Promise((_, reject) => 
