@@ -2724,33 +2724,57 @@
         
         // Initialize demo mode from localStorage
         async function initDemoMode() {
-            // Check if user is logged in
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (!user) {
-                // Not logged in = Demo Mode
+            try {
+                // Check if user is logged in (with 3 second timeout)
+                const authPromise = supabase.auth.getUser();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Auth timeout')), 3000)
+                );
+                
+                const { data: { user } } = await Promise.race([authPromise, timeoutPromise]);
+                
+                if (!user) {
+                    // Not logged in = Demo Mode
+                    demoMode.active = true;
+                    
+                    // Load from localStorage
+                    const stored = localStorage.getItem('pixelruud_demo');
+                    if (stored) {
+                        try {
+                            const data = JSON.parse(stored);
+                            demoMode = { ...demoMode, ...data, active: true };
+                            console.log('📊 Demo Mode loaded:', demoMode);
+                        } catch (e) {
+                            console.log('📊 Demo Mode: Fresh start');
+                        }
+                    } else {
+                        console.log('📊 Demo Mode: New user');
+                    }
+                    
+                    showDemoBanner();
+                } else {
+                    // Logged in = Full Access
+                    demoMode.active = false;
+                    currentUser = user;
+                    console.log('✅ Full Access Mode:', user.email);
+                }
+            } catch (error) {
+                // Auth failed or timeout = Default to Demo Mode
+                console.warn('⚠️ Auth check failed, defaulting to Demo Mode:', error.message);
                 demoMode.active = true;
                 
-                // Load from localStorage
+                // Try to load from localStorage anyway
                 const stored = localStorage.getItem('pixelruud_demo');
                 if (stored) {
                     try {
                         const data = JSON.parse(stored);
                         demoMode = { ...demoMode, ...data, active: true };
-                        console.log('📊 Demo Mode loaded:', demoMode);
                     } catch (e) {
-                        console.log('📊 Demo Mode: Fresh start');
+                        // Ignore
                     }
-                } else {
-                    console.log('📊 Demo Mode: New user');
                 }
                 
                 showDemoBanner();
-            } else {
-                // Logged in = Full Access
-                demoMode.active = false;
-                currentUser = user;
-                console.log('✅ Full Access Mode:', user.email);
             }
         }
         
@@ -3529,8 +3553,13 @@
                 console.log('✅ Leaflet loaded, initializing map...');
                 document.getElementById('loadingMessage').style.display = 'none';
                 
-                // Initialize Demo Mode System
-                initDemoMode();
+                // Initialize Demo Mode System (async, non-blocking)
+                initDemoMode().catch(err => {
+                    console.error('Demo Mode init failed:', err);
+                    // Default to demo mode on error
+                    demoMode.active = true;
+                    showDemoBanner();
+                });
                 
                 // AGGRESSIVE: Clear address search field on load (prevents email autofill)
                 // Check every 100ms for 5 seconds
