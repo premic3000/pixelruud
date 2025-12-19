@@ -3345,18 +3345,13 @@
         }
         
         // ==========================================
-        // USER AUTHENTICATION
+        // USER AUTHENTICATION (DISABLED)
         // ==========================================
         
         async function checkAuthState() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                await loadUserData();
-                updateUIForAuthState(true);
-            } else {
-                updateUIForAuthState(false);
-            }
+            // DISABLED - Demo Mode only
+            console.log('⚠️ Auth disabled - Demo Mode only');
+            updateUIForAuthState(false);
         }
         
         async function loadUserData() {
@@ -3483,18 +3478,9 @@
         // Initialize auth on load
         checkAuthState();
         
-        // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                currentUser = session.user;
-                loadUserData();
-                updateUIForAuthState(true);
-            } else if (event === 'SIGNED_OUT') {
-                currentUser = null;
-                userSubscription = null;
-                updateUIForAuthState(false);
-            }
-        });
+        // Listen for auth changes (DISABLED)
+        // supabase.auth.onAuthStateChange() disabled - Demo Mode only
+        console.log('⚠️ Auth listener disabled - Demo Mode only');
         
         // ==========================================
         // ORIGINAL APP CODE STARTS HERE
