@@ -3415,25 +3415,28 @@
         async function loadUserData() {
             if (!currentUser) return;
             
-            // Load user preferences
-            const { data: prefs } = await supabase
-                .from('user_preferences')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .single();
-            
-            if (prefs) {
-                applyUserPreferences(prefs);
-            }
-            
-            // Load subscription status (for premium later)
-            if (PIXELRUUD_CONFIG.PREMIUM_ENABLED) {
-                const { data: sub } = await supabase
-                    .from('subscriptions')
+            try {
+                // Load user preferences
+                const { data: prefs, error } = await supabase
+                    .from('user_preferences')
                     .select('*')
                     .eq('user_id', currentUser.id)
                     .single();
                 
+                if (error) {
+                    console.log('⚠️ User preferences not found (table may not exist)');
+                } else if (prefs) {
+                    applyUserPreferences(prefs);
+                }
+                
+                // Load subscription status (for premium later)
+                if (PIXELRUUD_CONFIG.PREMIUM_ENABLED) {
+                    const { data: sub } = await supabase
+                        .from('subscriptions')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .single();
+                    
                 userSubscription = sub;
             }
         }
@@ -3559,7 +3562,9 @@
                 try {
                     supabase.auth.onAuthStateChange((event, session) => {
                         console.log('Auth state changed:', event);
-                        if (event === 'SIGNED_IN') {
+                        
+                        // Only handle actual sign in/out events, ignore INITIAL_SESSION
+                        if (event === 'SIGNED_IN' && session) {
                             currentUser = session.user;
                             loadUserData();
                             updateUIForAuthState(true);
@@ -3568,6 +3573,7 @@
                             userSubscription = null;
                             updateUIForAuthState(false);
                         }
+                        // Ignore INITIAL_SESSION to prevent loops
                     });
                     console.log('✅ Auth listener initialized');
                 } catch (error) {
@@ -3655,7 +3661,7 @@
                 // AGGRESSIVE: Clear address search field on load (prevents email autofill)
                 // Check every 100ms for 5 seconds
                 let clearAttempts = 0;
-                const clearInterval = setInterval(() => {
+                const emailClearInterval = setInterval(() => {
                     clearAttempts++;
                     const addressInput = document.getElementById('addressInput');
                     
@@ -3666,7 +3672,7 @@
                     
                     // Stop after 5 seconds (50 attempts)
                     if (clearAttempts >= 50) {
-                        clearInterval(clearInterval);
+                        clearInterval(emailClearInterval);
                         console.log('✅ Email autofill prevention complete');
                     }
                 }, 100);
