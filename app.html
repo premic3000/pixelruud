@@ -2713,14 +2713,15 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3aWFrdXdzeXR0bm5yZ2V4YWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MzY0NzQsImV4cCI6MjA4MTExMjQ3NH0.8vbfsHld3aS48LSgorAFM1hNgF-YBUfKpbZeTchT3Dg';
         
         // Initialize Supabase client (will be set after script loads)
+        // Note: Use 'supabaseClient' to avoid conflict with window.supabase library
         let supabase = null;
         
         // Wait for Supabase to load, then initialize
         function initSupabase() {
             try {
-                if (typeof window.supabase !== 'undefined') {
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    console.log('✅ Supabase initialized');
+                    console.log('✅ Supabase client initialized');
                     return true;
                 } else {
                     console.warn('⚠️ Supabase library not loaded');
