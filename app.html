@@ -2676,7 +2676,7 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     
     <!-- Supabase Client -->
-    <script defer src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/sb.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
         // ==========================================
@@ -3572,7 +3572,7 @@
                 console.log('⚠️ Supabase not available - Demo Mode only');
                 updateUIForAuthState(false);
             }
-        }, 500); // Wait 500ms for Supabase script to load
+        }, 1000); // Wait 1 second for Supabase script to load
         
         // ==========================================
         // ORIGINAL APP CODE STARTS HERE
