@@ -3450,13 +3450,30 @@
             // Update UI based on login state
             const loginBtn = document.getElementById('loginBtn');
             const userInfo = document.getElementById('userInfo');
+            const demoBanner = document.getElementById('demo-banner');
             
             if (isLoggedIn && currentUser) {
                 if (loginBtn) loginBtn.textContent = 'Account';
                 if (userInfo) userInfo.textContent = currentUser.email;
+                
+                // Hide/Remove Demo Banner when logged in
+                if (demoBanner) {
+                    demoBanner.remove();
+                }
+                
+                // Disable demo mode
+                demoMode.active = false;
+                localStorage.removeItem('pixelruud_demo');
+                
+                console.log('✅ Full Access Mode activated');
             } else {
                 if (loginBtn) loginBtn.textContent = 'Login';
                 if (userInfo) userInfo.textContent = '';
+                
+                // Show Demo Banner when not logged in (if not exists)
+                if (!demoBanner && demoMode.active) {
+                    showDemoBanner();
+                }
             }
         }
         
