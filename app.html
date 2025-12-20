@@ -2675,7 +2675,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     
-    <!-- Supabase disabled temporarily for debugging -->
+    <!-- Supabase Client (loaded async, optional) -->
+    <script>
+        // Load Supabase async with timeout
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.async = true;
+            script.onload = function() {
+                console.log('✅ Supabase library loaded');
+            };
+            script.onerror = function() {
+                console.warn('⚠️ Supabase library failed to load - Demo Mode only');
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
     
     <script>
         // ==========================================
@@ -2691,11 +2706,31 @@
         };
         
         // ==========================================
-        // SUPABASE CONFIGURATION (DISABLED FOR NOW)
+        // SUPABASE CONFIGURATION
         // ==========================================
         
-        // SUPABASE TEMPORARILY DISABLED - DEMO MODE ONLY
-        const supabase = null;
+        const SUPABASE_URL = 'https://fwiakuwsyttnnrgexalb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3aWFrdXdzeXR0bm5yZ2V4YWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MzY0NzQsImV4cCI6MjA4MTExMjQ3NH0.8vbfsHld3aS48LSgorAFM1hNgF-YBUfKpbZeTchT3Dg';
+        
+        // Initialize Supabase client (will be set after script loads)
+        let supabase = null;
+        
+        // Wait for Supabase to load, then initialize
+        function initSupabase() {
+            try {
+                if (typeof window.supabase !== 'undefined') {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('✅ Supabase initialized');
+                    return true;
+                } else {
+                    console.warn('⚠️ Supabase library not loaded');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Supabase init error:', error);
+                return false;
+            }
+        }
         
         // Current user state
         let currentUser = null;
@@ -3345,13 +3380,36 @@
         }
         
         // ==========================================
-        // USER AUTHENTICATION (DISABLED)
+        // USER AUTHENTICATION
         // ==========================================
         
         async function checkAuthState() {
-            // DISABLED - Demo Mode only
-            console.log('⚠️ Auth disabled - Demo Mode only');
-            updateUIForAuthState(false);
+            try {
+                if (!supabase) {
+                    console.log('⚠️ Supabase not available - Demo Mode');
+                    updateUIForAuthState(false);
+                    return;
+                }
+                
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error('Auth check error:', error);
+                    updateUIForAuthState(false);
+                    return;
+                }
+                
+                if (session) {
+                    currentUser = session.user;
+                    await loadUserData();
+                    updateUIForAuthState(true);
+                } else {
+                    updateUIForAuthState(false);
+                }
+            } catch (error) {
+                console.error('checkAuthState failed:', error);
+                updateUIForAuthState(false);
+            }
         }
         
         async function loadUserData() {
@@ -3475,12 +3533,34 @@
             return userSubscription && userSubscription.status === 'active';
         }
         
-        // Initialize auth on load
-        checkAuthState();
-        
-        // Listen for auth changes (DISABLED)
-        // supabase.auth.onAuthStateChange() disabled - Demo Mode only
-        console.log('⚠️ Auth listener disabled - Demo Mode only');
+        // Initialize auth on load (after Supabase loads)
+        setTimeout(() => {
+            if (initSupabase()) {
+                checkAuthState();
+                
+                // Listen for auth changes
+                try {
+                    supabase.auth.onAuthStateChange((event, session) => {
+                        console.log('Auth state changed:', event);
+                        if (event === 'SIGNED_IN') {
+                            currentUser = session.user;
+                            loadUserData();
+                            updateUIForAuthState(true);
+                        } else if (event === 'SIGNED_OUT') {
+                            currentUser = null;
+                            userSubscription = null;
+                            updateUIForAuthState(false);
+                        }
+                    });
+                    console.log('✅ Auth listener initialized');
+                } catch (error) {
+                    console.error('Auth listener error:', error);
+                }
+            } else {
+                console.log('⚠️ Supabase not available - Demo Mode only');
+                updateUIForAuthState(false);
+            }
+        }, 500); // Wait 500ms for Supabase script to load
         
         // ==========================================
         // ORIGINAL APP CODE STARTS HERE
@@ -5979,13 +6059,7 @@
                     
                     totalDist += route.distance;
                     
-                    // Check distance limit (demo mode)
-                    if (!checkDemoLimit('distance', totalDist)) {
-                        document.getElementById('loading').classList.remove('show');
-                        document.getElementById('calculateBtn').disabled = false;
-                        clearRoutes();
-                        return;
-                    }
+                    // Distance limit will be checked AFTER all segments
                     
                     const startIdx = i === 0 ? 0 : 1;
                     for (let j = startIdx; j < route.coordinates.length; j++) {
@@ -6289,6 +6363,14 @@
                         console.log(`✓ Surface analysis: ${surfaceData.paved}% paved, ${surfaceData.gravel}% gravel, ${surfaceData.trail}% trail`);
                     }
                 });
+                
+                // Check TOTAL distance limit AFTER all segments calculated
+                if (demoMode.active && totalDist > DEMO_LIMITS.MAX_DISTANCE_KM * 1000) {
+                    clearRoutes();
+                    alert(`Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_DISTANCE_KM}km Route!\n\nDeine Route: ${(totalDist/1000).toFixed(1)}km\n\nRegistriere dich für unlimited Distance! 🚀`);
+                    showLoginModal();
+                    return;
+                }
                 
             } catch (e) {
                 alert('Fehler: ' + e.message);
