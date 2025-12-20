@@ -2675,22 +2675,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     
-    <!-- Supabase Client (loaded async, optional) -->
-    <script>
-        // Load Supabase async with timeout
-        (function() {
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@supabase/supabase-js@2';
-            script.async = true;
-            script.onload = function() {
-                console.log('✅ Supabase library loaded');
-            };
-            script.onerror = function() {
-                console.warn('⚠️ Supabase library failed to load - Demo Mode only');
-            };
-            document.head.appendChild(script);
-        })();
-    </script>
+    <!-- Supabase Client -->
+    <script defer src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/sb.js"></script>
     
     <script>
         // ==========================================
@@ -2712,15 +2698,14 @@
         const SUPABASE_URL = 'https://fwiakuwsyttnnrgexalb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3aWFrdXdzeXR0bm5yZ2V4YWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MzY0NzQsImV4cCI6MjA4MTExMjQ3NH0.8vbfsHld3aS48LSgorAFM1hNgF-YBUfKpbZeTchT3Dg';
         
-        // Initialize Supabase client (will be set after script loads)
-        // Note: Use 'supabaseClient' to avoid conflict with window.supabase library
-        let supabase = null;
+        // Supabase client - use 'sb' to avoid namespace conflict
+        let sb = null;
         
-        // Wait for Supabase to load, then initialize
+        // Wait for Supabase library to load, then initialize client
         function initSupabase() {
             try {
                 if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                     console.log('✅ Supabase client initialized');
                     return true;
                 } else {
@@ -2759,12 +2744,12 @@
         async function initDemoMode() {
             try {
                 // Skip auth if Supabase not available
-                if (!supabase) {
+                if (!sb) {
                     throw new Error('Supabase not available');
                 }
                 
                 // Check if user is logged in (with 3 second timeout)
-                const authPromise = supabase.auth.getUser();
+                const authPromise = sb.auth.getUser();
                 const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Auth timeout')), 3000)
                 );
@@ -2973,7 +2958,7 @@
         // Handle Login
         async function handleLogin() {
             // Skip if Supabase not available
-            if (!supabase) {
+            if (!sb) {
                 alert('⚠️ Login currently unavailable. Please use Demo Mode.');
                 return;
             }
@@ -2995,7 +2980,7 @@
             errorDiv.style.display = 'none';
             
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await sb.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
@@ -3077,7 +3062,7 @@
             successDiv.style.display = 'none';
             
             try {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await sb.auth.signUp({
                     email: email,
                     password: password,
                     options: {
@@ -3115,7 +3100,7 @@
             if (!email) return;
             
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                const { error } = await sb.auth.resetPasswordForEmail(email, {
                     redirectTo: 'https://pixelruud.com/app.html'
                 });
                 
@@ -3386,13 +3371,13 @@
         
         async function checkAuthState() {
             try {
-                if (!supabase) {
+                if (!sb) {
                     console.log('⚠️ Supabase not available - Demo Mode');
                     updateUIForAuthState(false);
                     return;
                 }
                 
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await sb.auth.getSession();
                 
                 if (error) {
                     console.error('Auth check error:', error);
@@ -3564,7 +3549,7 @@
                 
                 // Listen for auth changes
                 try {
-                    supabase.auth.onAuthStateChange((event, session) => {
+                    sb.auth.onAuthStateChange((event, session) => {
                         console.log('Auth state changed:', event);
                         
                         // Only handle actual sign in/out events, ignore INITIAL_SESSION
