@@ -3437,7 +3437,10 @@
                         .eq('user_id', currentUser.id)
                         .single();
                     
-                userSubscription = sub;
+                    userSubscription = sub;
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
             }
         }
         
