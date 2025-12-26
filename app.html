@@ -228,15 +228,140 @@
             filter: drop-shadow(0 0 3px currentColor);
         }
         .waypoint-list { 
-            max-height: 80px; 
+            position: fixed;
+            top: 42px;
+            right: 10px;
+            bottom: 250px; /* Platz für Elevation Profile + Control Panel */
+            width: 340px;
             overflow-y: auto; 
             background: linear-gradient(135deg, #001f3f, #002855);
             backdrop-filter: blur(10px); 
             border-radius: 12px; 
-            padding: 6px; 
+            padding: 12px; 
             border: 2px solid #00f0ff;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
-            min-width: 200px; 
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+            z-index: 1100; /* Höher als Elevation Profile (1001) */
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: width 0.3s ease, right 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+        
+        /* Faded state (like Stats Panel) */
+        .waypoint-list.faded {
+            opacity: 0.3;
+        }
+        
+        .waypoint-list.faded .waypoint-list-scroll,
+        .waypoint-list.faded .waypoint-list-header {
+            pointer-events: none;
+        }
+        
+        .waypoint-list:hover {
+            opacity: 1 !important;
+        }
+        
+        .waypoint-list:hover .waypoint-list-scroll,
+        .waypoint-list:hover .waypoint-list-header {
+            pointer-events: auto;
+        }
+        
+        /* Collapsed state */
+        .waypoint-list.collapsed {
+            width: 48px;
+            padding: 8px;
+        }
+        
+        .waypoint-list.collapsed .waypoint-list-scroll,
+        .waypoint-list.collapsed .waypoint-count {
+            display: none;
+        }
+        
+        .waypoint-list.collapsed .waypoint-list-header {
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .waypoint-list.collapsed .waypoint-list-title {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 11px;
+        }
+        
+        /* Expanded state */
+        .waypoint-list.expanded {
+            width: 480px;
+        }
+        
+        /* Header für Waypoint List */
+        .waypoint-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            gap: 8px;
+        }
+        
+        .waypoint-list-title {
+            color: #00f0ff;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .waypoint-count {
+            background: rgba(204, 255, 0, 0.2);
+            color: #ccff00;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .waypoint-list-controls {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .waypoint-list-btn {
+            background: transparent;
+            border: 1px solid #00f0ff40;
+            color: #00f0ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .waypoint-list-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #00f0ff;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+        
+        .waypoint-list-btn.active {
+            background: rgba(0, 240, 255, 0.3);
+            border-color: #ccff00;
+            color: #ccff00;
+        }
+        
+        /* Scrollable Container */
+        .waypoint-list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
         }
         .waypoint-item { display: flex; align-items: center; gap: 6px; padding: 3px 6px; background: #f8fafc; margin: 2px 0; border-radius: 6px; font-size: 11px; }
         .waypoint-number { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px; }
@@ -1858,6 +1983,250 @@
             padding-left: 2px;
         }
         
+        /* ========================================
+           MODERN WAYPOINT LIST STYLES
+           ======================================== */
+        
+        .waypoint-item-modern {
+            display: flex;
+            gap: 6px;
+            background: linear-gradient(135deg, #002855, #003366);
+            border: 1px solid #00f0ff40;
+            border-radius: 6px;
+            padding: 6px;
+            margin: 4px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: grab;
+            position: relative;
+        }
+        
+        .waypoint-item-modern:hover {
+            border-color: #00f0ff;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .waypoint-item-modern:active {
+            cursor: grabbing;
+        }
+        
+        .waypoint-item-modern.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .waypoint-drag-handle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            cursor: grab;
+            color: #00f0ff60;
+            transition: color 0.2s ease;
+        }
+        
+        .waypoint-drag-handle:hover {
+            color: #00f0ff;
+        }
+        
+        .waypoint-drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .drag-dots {
+            font-size: 16px;
+            line-height: 1;
+            user-select: none;
+        }
+        
+        .waypoint-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .waypoint-row-main {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .waypoint-number {
+            background: linear-gradient(135deg, #00f0ff, #00d4e6);
+            color: #001f3f;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 11px;
+            font-family: 'Consolas', monospace;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            flex-shrink: 0;
+        }
+        
+        .waypoint-coords {
+            flex: 1;
+            color: #00f0ff;
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.3px;
+        }
+        
+        .waypoint-distance {
+            color: #ccff00;
+            font-size: 9px;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+            padding: 2px 6px;
+            background: rgba(204, 255, 0, 0.1);
+            border-radius: 3px;
+            border: 1px solid rgba(204, 255, 0, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .waypoint-delete-btn {
+            background: transparent;
+            border: 1.5px solid #ff0055;
+            color: #ff0055;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        
+        .waypoint-delete-btn:hover {
+            background: #ff0055;
+            color: #001f3f;
+            box-shadow: 0 0 12px rgba(255, 0, 85, 0.6);
+            transform: scale(1.1);
+        }
+        
+        .waypoint-delete-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .delete-icon {
+            line-height: 1;
+            display: block;
+        }
+        
+        .waypoint-row-engine {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-left: 28px; /* Align with coords */
+        }
+        
+        .engine-label {
+            color: #00f0ff80;
+            font-size: 8px;
+            font-family: 'Consolas', monospace;
+            flex-shrink: 0;
+        }
+        
+        .engine-selector {
+            flex: 1;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid #00f0ff40;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .engine-selector:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: #00f0ff;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+        
+        .engine-current {
+            color: #00f0ff;
+            font-size: 9px;
+            font-family: 'Consolas', monospace;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .engine-arrow {
+            color: #00f0ff60;
+            font-size: 8px;
+            transition: transform 0.2s ease;
+        }
+        
+        .engine-selector:hover .engine-arrow {
+            color: #00f0ff;
+            transform: translateY(2px);
+        }
+        
+        .engine-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: #001f3f;
+            border: 1px solid #00f0ff;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.3);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .engine-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #00f0ff;
+            font-size: 10px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .engine-option:hover {
+            background: rgba(0, 240, 255, 0.15);
+        }
+        
+        .engine-option.active {
+            background: rgba(204, 255, 0, 0.1);
+            color: #ccff00;
+        }
+        
+        .engine-emoji {
+            font-size: 12px;
+            width: 16px;
+            text-align: center;
+        }
+        
+        .engine-name {
+            flex: 1;
+        }
+        
+        .engine-option .check {
+            color: #ccff00;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
         /* Cyber Scrollbar */
         .waypoint-list::-webkit-scrollbar {
             width: 8px;
@@ -2601,7 +2970,6 @@
             <input type="range" id="speedSlider" class="speed-slider" min="15" max="40" value="25" step="1">
             <div class="speed-value" id="speedValue">25 km/h</div>
         </div>
-        <div class="waypoint-list"><div id="waypointList"></div></div>
         <button class="btn btn-primary" id="calculateBtn" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -2669,6 +3037,24 @@
         <!-- Engine Selector -->
         
         <span class="loading" id="loading">⏳ Berechne...</span>
+    </div>
+    
+    <!-- Waypoint List Sidebar (rechts) -->
+    <div class="waypoint-list">
+        <div class="waypoint-list-header">
+            <div class="waypoint-list-title">
+                📍 WAYPOINTS
+                <span class="waypoint-count" id="waypointCount">0</span>
+            </div>
+            <div class="waypoint-list-controls">
+                <button class="waypoint-list-btn" onclick="toggleWaypointSize('small')" title="Klein">◀</button>
+                <button class="waypoint-list-btn active" onclick="toggleWaypointSize('normal')" title="Normal">▐</button>
+                <button class="waypoint-list-btn" onclick="toggleWaypointSize('large')" title="Groß">▐▐</button>
+            </div>
+        </div>
+        <div class="waypoint-list-scroll">
+            <div id="waypointList"></div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3129,7 +3515,8 @@
             MOVE_WAYPOINT: 'Wegpunkt verschoben',
             REVERSE_ROUTE: 'Route umgekehrt',
             CLEAR_ALL: 'Alles gelöscht',
-            CHANGE_ENGINE: 'Engine geändert'
+            CHANGE_ENGINE: 'Engine geändert',
+            ENGINE_CHANGE: 'Engine geändert'
         };
         
         // Save current state before action
@@ -3157,20 +3544,43 @@
         
         // Undo last action
         function undo() {
-            if (history.undoStack.length === 0) return;
+            console.log('🔍 UNDO CALLED');
+            console.log('  undoStack.length:', history.undoStack.length);
+            console.log('  Current waypoints:', waypoints.length);
+            
+            if (history.undoStack.length === 0) {
+                console.log('❌ UNDO: Stack empty, returning');
+                return;
+            }
             
             history.enabled = false; // Prevent saving during restore
             
-            // Save current to redo
-            const currentState = {
-                waypoints: JSON.parse(JSON.stringify(waypoints)),
-                segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
-            };
-            history.redoStack.push(currentState);
+            // Get previous state
+            const previousState = history.undoStack.pop();
+            console.log('✓ Popped state:', previousState);
+            console.log('  Previous waypoints:', previousState.waypoints.length);
+            
+            // Save CURRENT state to redo (before restoring)
+            // Only if it's different from what we're restoring
+            const currentWaypointsStr = JSON.stringify(waypoints);
+            const previousWaypointsStr = JSON.stringify(previousState.waypoints);
+            
+            console.log('  Current vs Previous different?', currentWaypointsStr !== previousWaypointsStr);
+            
+            if (currentWaypointsStr !== previousWaypointsStr) {
+                const currentState = {
+                    action: 'Redo',  // Will be used if user clicks redo
+                    waypoints: JSON.parse(JSON.stringify(waypoints)),
+                    segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
+                };
+                history.redoStack.push(currentState);
+                console.log('✓ Saved current to redo stack');
+            }
             
             // Restore previous
-            const previousState = history.undoStack.pop();
+            console.log('🔄 Calling restoreState...');
             restoreState(previousState);
+            console.log('✓ restoreState completed');
             
             history.enabled = true;
             updateUndoRedoButtons();
@@ -3184,15 +3594,23 @@
             
             history.enabled = false;
             
-            // Save current to undo
-            const currentState = {
-                waypoints: JSON.parse(JSON.stringify(waypoints)),
-                segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
-            };
-            history.undoStack.push(currentState);
+            // Get next state
+            const nextState = history.redoStack.pop();
+            
+            // Save CURRENT state to undo (before restoring)
+            const currentWaypointsStr = JSON.stringify(waypoints);
+            const nextWaypointsStr = JSON.stringify(nextState.waypoints);
+            
+            if (currentWaypointsStr !== nextWaypointsStr) {
+                const currentState = {
+                    action: 'Undo',
+                    waypoints: JSON.parse(JSON.stringify(waypoints)),
+                    segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
+                };
+                history.undoStack.push(currentState);
+            }
             
             // Restore next
-            const nextState = history.redoStack.pop();
             restoreState(nextState);
             
             history.enabled = true;
@@ -3203,14 +3621,20 @@
         
         // Restore state
         function restoreState(state) {
+            console.log('🔄 RESTORE STATE CALLED');
+            console.log('  Restoring waypoints:', state.waypoints.length);
+            
             // Clear current
             clearRoutes();
             markers.forEach(m => map.removeLayer(m));
             markers = [];
+            console.log('✓ Cleared current markers');
             
             // Restore data
             waypoints = JSON.parse(JSON.stringify(state.waypoints));
             segmentOverrides = JSON.parse(JSON.stringify(state.segmentOverrides));
+            console.log('✓ Restored waypoints:', waypoints.length);
+            console.log('✓ Restored segmentOverrides:', Object.keys(segmentOverrides).length);
             
             // Recreate markers
             waypoints.forEach((wp, idx) => {
@@ -3271,11 +3695,15 @@
             
             // Recalculate if needed
             if (waypoints.length >= 2) {
+                console.log('🔄 Recalculating routes...');
                 calculateRoutes();
             }
             
             updateList();
             updateMarkerColors();
+            console.log('✓ RESTORE STATE COMPLETED');
+            console.log('  Final waypoints:', waypoints.length);
+            console.log('  Final markers:', markers.length);
         }
         
         // Update button states
@@ -3728,6 +4156,8 @@
             document.getElementById('clearBtn').onclick = clearAll;
             document.getElementById('exportBtn').onclick = exportGPX;
             document.getElementById('saveBtn').onclick = promptSaveRoute;
+            document.getElementById('undoBtn').onclick = undo;
+            document.getElementById('redoBtn').onclick = redo;
             document.getElementById('gravelBtn').onclick = () => setProfile('gravel');
             document.getElementById('roadBtn').onclick = () => setProfile('road');
             document.getElementById('speedSlider').oninput = e => updateSpeed(e.target.value);
@@ -4333,6 +4763,21 @@
                     elevationProfile.classList.add('faded');
                 }
             });
+            
+            // Auto-transparency for Waypoint List
+            const waypointList = document.querySelector('.waypoint-list');
+            if (waypointList) {
+                // Start faded by default
+                waypointList.classList.add('faded');
+                
+                waypointList.addEventListener('mouseenter', () => {
+                    waypointList.classList.remove('faded');
+                });
+                
+                waypointList.addEventListener('mouseleave', () => {
+                    waypointList.classList.add('faded');
+                });
+            }
             
             console.log('✓ Panel toggles initialized');
         }
@@ -5865,55 +6310,279 @@
             const list = document.getElementById('waypointList');
             if (!list) return;
             
+            // Calculate cumulative distances from segment distances
+            let cumulativeDist = 0;
+            const distances = [0]; // First waypoint is always 0km
+            
+            console.log('🔍 DEBUG: routes array:', routes);
+            console.log('🔍 DEBUG: routes.length:', routes.length);
+            if (routes.length > 0) {
+                console.log('🔍 DEBUG: routes[0]:', routes[0]);
+                console.log('🔍 DEBUG: routes[0].segmentDistances:', routes[0].segmentDistances);
+            }
+            
+            if (routes.length > 0 && routes[0].segmentDistances) {
+                console.log('✓ Using segmentDistances:', routes[0].segmentDistances);
+                routes[0].segmentDistances.forEach((segDist, idx) => {
+                    cumulativeDist += segDist;
+                    distances.push(cumulativeDist);
+                    console.log(`  Segment ${idx}: ${segDist}m → Cumulative: ${cumulativeDist}m (${(cumulativeDist/1000).toFixed(2)}km)`);
+                });
+            }
+            
+            console.log('🔍 DEBUG: Final distances array:', distances);
+            
             list.innerHTML = waypoints.map((wp, i) => {
                 const engineOptions = [
-                    { value: 'auto', label: '🔄 Auto', title: 'Automatisch (BRouter → GraphHopper → Valhalla → OSRM)' },
-                    { value: 'brouter', label: '🚴 BRouter', title: 'BRouter (Gravel-optimiert)' },
-                    { value: 'graphhopper', label: '🗺️ GraphHopper', title: 'GraphHopper (API Key erforderlich)' },
-                    { value: 'valhalla', label: '⛰️ Valhalla', title: 'Valhalla (API Key erforderlich)' },
-                    { value: 'osrm', label: '🌍 OSRM', title: 'OSRM (kostenlos)' },
-                    { value: 'direct', label: '📏 Direct', title: 'Direkte Linie (Luftlinie)' }
+                    { value: 'auto', emoji: '🔄', label: 'Auto' },
+                    { value: 'brouter', emoji: '🚴', label: 'BRouter' },
+                    { value: 'graphhopper', emoji: '🗺️', label: 'GraphHopper' },
+                    { value: 'valhalla', emoji: '⛰️', label: 'Valhalla' },
+                    { value: 'osrm', emoji: '🌍', label: 'OSRM' },
+                    { value: 'direct', emoji: '📏', label: 'Direct' }
                 ];
                 
                 const currentEngine = wp.engine || 'auto';
+                const currentEngineData = engineOptions.find(e => e.value === currentEngine);
                 const isLast = i === waypoints.length - 1;
                 
+                // Safe distance calculation with fallback
+                const distValue = distances[i] !== undefined ? distances[i] : 0;
+                const dist = (distValue / 1000).toFixed(2);
+                
                 return `
-                    <div class="waypoint-item-cyber" data-wp-id="${wp.id}">
-                        <div class="waypoint-header">
-                            <div class="waypoint-number-cyber">${i+1}</div>
-                            <div class="waypoint-coords-cyber">${wp.lat.toFixed(4)}°, ${wp.lng.toFixed(4)}°</div>
-                            <button class="waypoint-delete-cyber" onclick="removeWaypoint(${i})" title="Wegpunkt löschen">✕</button>
+                    <div class="waypoint-item-modern" 
+                         data-wp-index="${i}" 
+                         data-wp-id="${wp.id}"
+                         draggable="true"
+                         ondragstart="handleWaypointDragStart(event, ${i})"
+                         ondragover="handleWaypointDragOver(event)"
+                         ondrop="handleWaypointDrop(event, ${i})"
+                         ondragend="handleWaypointDragEnd(event)">
+                        
+                        <!-- Drag Handle -->
+                        <div class="waypoint-drag-handle" title="Drag to reorder">
+                            <div class="drag-dots">⋮⋮</div>
                         </div>
-                        ${!isLast ? `
-                        <div class="waypoint-engine">
-                            <select class="engine-dropdown-cyber" onchange="updateWaypointEngine(${i}, this.value)" title="Engine für Segment ${i+1}→${i+2}">
-                                ${engineOptions.map(opt => 
-                                    `<option value="${opt.value}" ${currentEngine === opt.value ? 'selected' : ''} title="${opt.title}">${opt.label}</option>`
-                                ).join('')}
-                            </select>
-                            <div class="segment-info">→ Segment ${i+1}→${i+2}</div>
+                        
+                        <!-- Main Content -->
+                        <div class="waypoint-content">
+                            <!-- Header Row -->
+                            <div class="waypoint-row-main">
+                                <div class="waypoint-number">${i + 1}</div>
+                                <div class="waypoint-coords">${wp.lat.toFixed(4)}°, ${wp.lng.toFixed(4)}°</div>
+                                <div class="waypoint-distance">${dist} km</div>
+                                <button class="waypoint-delete-btn" 
+                                        onclick="removeWaypoint(${i})"
+                                        title="Delete waypoint">
+                                    <span class="delete-icon">×</span>
+                                </button>
+                            </div>
+                            
+                            <!-- Engine Selector (only if not last) -->
+                            ${!isLast ? `
+                                <div class="waypoint-row-engine">
+                                    <div class="engine-label">→ To WP ${i + 2}:</div>
+                                    <div class="engine-selector" onclick="toggleEngineDropdown(${i})">
+                                        <span class="engine-current">
+                                            ${currentEngineData.emoji} ${currentEngineData.label}
+                                        </span>
+                                        <span class="engine-arrow">▾</span>
+                                    </div>
+                                    <div class="engine-dropdown" id="engine-dropdown-${i}" style="display: none;">
+                                        ${engineOptions.map(opt => `
+                                            <div class="engine-option ${currentEngine === opt.value ? 'active' : ''}"
+                                                 onclick="selectEngine(${i}, '${opt.value}')">
+                                                <span class="engine-emoji">${opt.emoji}</span>
+                                                <span class="engine-name">${opt.label}</span>
+                                                ${currentEngine === opt.value ? '<span class="check">✓</span>' : ''}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
-                        ` : ''}
                     </div>
                 `;
             }).join('');
+            
+            // Update waypoint count in header
+            const countBadge = document.getElementById('waypointCount');
+            if (countBadge) {
+                countBadge.textContent = waypoints.length;
+            }
+            
+            // Add drag & drop event listeners
+            initWaypointDragAndDrop();
         }
         
-        // New function to update waypoint engine
-        window.updateWaypointEngine = function(index, engine) {
+        // Toggle waypoint list size
+        window.toggleWaypointSize = function(size) {
+            const list = document.querySelector('.waypoint-list');
+            const buttons = document.querySelectorAll('.waypoint-list-btn');
+            
+            // Remove all size classes
+            list.classList.remove('collapsed', 'expanded');
+            
+            // Remove active from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Apply new size
+            if (size === 'small') {
+                list.classList.add('collapsed');
+                buttons[0].classList.add('active');
+            } else if (size === 'large') {
+                list.classList.add('expanded');
+                buttons[2].classList.add('active');
+            } else {
+                // Normal (default)
+                buttons[1].classList.add('active');
+            }
+            
+            // Save preference
+            localStorage.setItem('waypoint-list-size', size);
+        };
+        
+        // Restore saved size on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSize = localStorage.getItem('waypoint-list-size') || 'normal';
+            toggleWaypointSize(savedSize);
+        });
+        
+        // Toggle engine dropdown
+        window.toggleEngineDropdown = function(index) {
+            const dropdown = document.getElementById(`engine-dropdown-${index}`);
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.engine-dropdown').forEach(d => {
+                if (d.id !== `engine-dropdown-${index}`) {
+                    d.style.display = 'none';
+                }
+            });
+            
+            // Toggle this one
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        };
+        
+        // Select engine
+        window.selectEngine = function(index, engine) {
             if (waypoints[index]) {
-                waypoints[index].engine = engine;
-                console.log(`✓ Waypoint ${index+1} engine set to: ${engine}`);
+                // Save state for undo
+                saveState(ACTION_TYPES.ENGINE_CHANGE);
                 
-                // Recalculate if route exists
+                waypoints[index].engine = engine;
+                console.log(`✓ Waypoint ${index + 1} engine: ${engine}`);
+                
+                // Update UI
+                updateList();
+                
+                // Recalculate route
                 if (routes.length > 0) {
-                    console.log('🔄 Recalculating route with new engine...');
                     calculateRoutes();
                 }
                 
-                trackEvent('Waypoint Engine Changed', { index: index, engine: engine });
+                trackEvent('Engine Changed', { index, engine });
             }
+        };
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.engine-selector') && !e.target.closest('.engine-dropdown')) {
+                document.querySelectorAll('.engine-dropdown').forEach(d => {
+                    d.style.display = 'none';
+                });
+            }
+        });
+        
+        // Drag & Drop Variables
+        let draggedWaypointIndex = null;
+        
+        window.handleWaypointDragStart = function(event, index) {
+            draggedWaypointIndex = index;
+            event.target.style.opacity = '0.5';
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/html', event.target.innerHTML);
+        };
+        
+        window.handleWaypointDragOver = function(event) {
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
+            event.dataTransfer.dropEffect = 'move';
+            
+            // Add visual indicator
+            const target = event.target.closest('.waypoint-item-modern');
+            if (target) {
+                target.style.borderTop = '2px solid #00f0ff';
+            }
+            
+            return false;
+        };
+        
+        window.handleWaypointDrop = function(event, targetIndex) {
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            }
+            
+            const target = event.target.closest('.waypoint-item-modern');
+            if (target) {
+                target.style.borderTop = '';
+            }
+            
+            if (draggedWaypointIndex !== null && draggedWaypointIndex !== targetIndex) {
+                // Save state for undo
+                saveState(ACTION_TYPES.WAYPOINT_MOVE);
+                
+                // Reorder waypoints
+                const movedWaypoint = waypoints[draggedWaypointIndex];
+                const movedMarker = markers[draggedWaypointIndex];
+                
+                // Remove from old position
+                waypoints.splice(draggedWaypointIndex, 1);
+                markers.splice(draggedWaypointIndex, 1);
+                
+                // Insert at new position
+                const insertIndex = draggedWaypointIndex < targetIndex ? targetIndex - 1 : targetIndex;
+                waypoints.splice(insertIndex, 0, movedWaypoint);
+                markers.splice(insertIndex, 0, movedMarker);
+                
+                // Update marker labels and colors
+                updateMarkerColors();
+                
+                // Update UI
+                updateList();
+                updateButtons();
+                
+                // Recalculate route
+                if (routes.length > 0) {
+                    calculateRoutes();
+                }
+                
+                console.log(`✓ Moved waypoint ${draggedWaypointIndex + 1} to position ${insertIndex + 1}`);
+                trackEvent('Waypoint Reordered', { from: draggedWaypointIndex, to: insertIndex });
+            }
+            
+            return false;
+        };
+        
+        window.handleWaypointDragEnd = function(event) {
+            event.target.style.opacity = '';
+            draggedWaypointIndex = null;
+            
+            // Remove all visual indicators
+            document.querySelectorAll('.waypoint-item-modern').forEach(item => {
+                item.style.borderTop = '';
+            });
+        };
+        
+        function initWaypointDragAndDrop() {
+            // Additional initialization if needed
+            console.log('✓ Drag & Drop initialized');
+        }
+        
+        // Legacy function for backward compatibility
+        window.updateWaypointEngine = function(index, engine) {
+            selectEngine(index, engine);
         };
         
         function removeWaypoint(idx) {
@@ -5988,6 +6657,7 @@
             
             try {
                 let totalDist = 0, allCoords = [], allGeometry = [], allElevations = [];
+                const segmentDistances = []; // Track distance for each segment
                 
                 for (let i = 0; i < waypoints.length - 1; i++) {
                     const start = waypoints[i], end = waypoints[i + 1];
@@ -6070,6 +6740,7 @@
                     }
                     
                     totalDist += route.distance;
+                    segmentDistances.push(route.distance); // Store segment distance
                     
                     // Distance limit will be checked AFTER all segments
                     
@@ -6118,7 +6789,8 @@
                     coordinates: allCoords, 
                     geometry: allGeometry,
                     elevations: elevations,
-                    stats: stats
+                    stats: stats,
+                    segmentDistances: segmentDistances // Store for waypoint list
                 }];
                 
                 // Function to draw route with surface colors
@@ -6390,6 +7062,9 @@
             } finally {
                 document.getElementById('loading').classList.remove('show');
                 document.getElementById('calculateBtn').disabled = false;
+                
+                // Update waypoint list to show distances
+                updateList();
             }
         }
         
