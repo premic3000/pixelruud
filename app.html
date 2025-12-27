@@ -2117,6 +2117,50 @@
             transform: scale(0.95);
         }
         
+        /* Lock Button Styles (ROUTE PRESERVATION) */
+        .lock-btn {
+            background: transparent;
+            border: 1.5px solid;
+            border-radius: 4px;
+            padding: 3px 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+        }
+        
+        .lock-btn.locked {
+            border-color: #00ff88;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .lock-btn.locked:hover {
+            background: rgba(0, 255, 136, 0.15);
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .lock-btn.unlocked {
+            border-color: #ffa500;
+            color: #ffa500;
+            background: rgba(255, 165, 0, 0.05);
+        }
+        
+        .lock-btn.unlocked:hover {
+            background: rgba(255, 165, 0, 0.15);
+            box-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .lock-btn:active {
+            transform: scale(0.95);
+        }
+        
         .delete-icon {
             line-height: 1;
             display: block;
@@ -4475,14 +4519,19 @@
             // Clear existing routes
             clearRoutes();
             
-            // Create route object
+            // Create route object with segment distances from waypoints
             const stats = calculateElevationStats(elevations);
+            const segmentDistances = waypoints
+                .filter(wp => wp.segmentToNext)
+                .map(wp => wp.segmentToNext.distance);
+            
             routes = [{
                 distance: totalDistance,
                 coordinates: coordinates,
                 geometry: geometry,
                 elevations: elevations,
-                stats: stats
+                stats: stats,
+                segmentDistances: segmentDistances  // For waypoint list display
             }];
             
             // Draw route on map
@@ -4596,7 +4645,51 @@
             
             waypointIndices.forEach((idx, wpIdx) => {
                 const coord = coordinates[idx];
-                const wp = { lat: coord[0], lng: coord[1] };
+                
+                // Create waypoint with segment geometry storage
+                const wp = { 
+                    lat: coord[0], 
+                    lng: coord[1],
+                    segmentToNext: null  // Will store segment to next waypoint
+                };
+                
+                // If not the last waypoint, store segment geometry to next waypoint
+                if (wpIdx < waypointIndices.length - 1) {
+                    const nextIdx = waypointIndices[wpIdx + 1];
+                    const segmentCoords = coordinates.slice(idx, nextIdx + 1);
+                    const segmentGeometry = geometry.slice(idx, nextIdx + 1);
+                    const segmentElevations = elevations.slice(idx, nextIdx + 1);
+                    
+                    // Calculate segment distance
+                    let segmentDistance = 0;
+                    for (let i = idx; i < nextIdx; i++) {
+                        const p1 = coordinates[i];
+                        const p2 = coordinates[i + 1];
+                        const R = 6371;
+                        const lat1 = p1[0] * Math.PI / 180;
+                        const lat2 = p2[0] * Math.PI / 180;
+                        const dLat = (p2[0] - p1[0]) * Math.PI / 180;
+                        const dLon = (p2[1] - p1[1]) * Math.PI / 180;
+                        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                 Math.cos(lat1) * Math.cos(lat2) *
+                                 Math.sin(dLon/2) * Math.sin(dLon/2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        segmentDistance += R * c * 1000; // Convert to meters
+                    }
+                    
+                    // Store original segment geometry - LOCKED by default!
+                    wp.segmentToNext = {
+                        coordinates: segmentCoords,
+                        geometry: segmentGeometry,
+                        elevations: segmentElevations,
+                        distance: segmentDistance,
+                        locked: true,  // AUTO-LOCKED for GPX imports!
+                        source: 'gpx-import'
+                    };
+                    
+                    console.log(`🔒 Segment ${wpIdx}→${wpIdx+1}: Locked (${(segmentDistance/1000).toFixed(2)} km from GPX)`);
+                }
+                
                 waypoints.push(wp);
                 
                 // Color coding: green = start, red = end, blue = intermediate
@@ -4621,6 +4714,20 @@
                     const newPos = e.target.getLatLng();
                     waypoints[wpIdx].lat = newPos.lat;
                     waypoints[wpIdx].lng = newPos.lng;
+                    
+                    // Auto-unlock affected segments (ROUTE PRESERVATION)
+                    if (wpIdx > 0 && waypoints[wpIdx - 1].segmentToNext) {
+                        waypoints[wpIdx - 1].segmentToNext.locked = false;
+                        console.log(`🔓 Auto-unlocked segment ${wpIdx-1}→${wpIdx} (GPX waypoint moved)`);
+                    }
+                    if (waypoints[wpIdx].segmentToNext) {
+                        waypoints[wpIdx].segmentToNext.locked = false;
+                        console.log(`🔓 Auto-unlocked segment ${wpIdx}→${wpIdx+1} (GPX waypoint moved)`);
+                    }
+                    
+                    // Update list to show lock status
+                    updateList();
+                    
                     // Enable recalculation after dragging
                     document.getElementById('calculateBtn').disabled = false;
                 });
@@ -6219,12 +6326,13 @@
             // Generate unique ID
             const id = `wp_${Date.now()}_${waypointIdCounter++}`;
             
-            // Create waypoint object with engine setting
+            // Create waypoint object with engine setting and segment storage
             const waypoint = {
                 id: id,
                 lat: lat,
                 lng: lng,
-                engine: engine || currentEngine // Use provided engine or current default
+                engine: engine || currentEngine, // Use provided engine or current default
+                segmentToNext: null  // Will store route geometry to next waypoint
             };
             
             waypoints.push(waypoint);
@@ -6261,7 +6369,18 @@
                 const idx = markers.indexOf(marker);
                 // Update position but keep ID and engine
                 waypoints[idx].lat = e.target.getLatLng().lat;
-                waypoints[idx].lng = e.target.getLatLng().lng; 
+                waypoints[idx].lng = e.target.getLatLng().lng;
+                
+                // Auto-unlock affected segments (ROUTE PRESERVATION)
+                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
+                    waypoints[idx - 1].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${idx-1}→${idx} (waypoint moved)`);
+                }
+                if (waypoints[idx].segmentToNext) {
+                    waypoints[idx].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${idx}→${idx+1} (waypoint moved)`);
+                }
+                
                 updateList();
                 
                 // Auto-recalculate if we have enough waypoints
@@ -6383,6 +6502,16 @@
                             ${!isLast ? `
                                 <div class="waypoint-row-engine">
                                     <div class="engine-label">→ To WP ${i + 2}:</div>
+                                    
+                                    <!-- Lock/Unlock Button (ROUTE PRESERVATION) -->
+                                    ${wp.segmentToNext ? `
+                                        <button class="lock-btn ${wp.segmentToNext.locked ? 'locked' : 'unlocked'}"
+                                                onclick="toggleSegmentLock(${i})"
+                                                title="${wp.segmentToNext.locked ? 'Locked - Original route preserved' : 'Unlocked - Will recalculate'}">
+                                            ${wp.segmentToNext.locked ? '🔒' : '🔓'}
+                                        </button>
+                                    ` : ''}
+                                    
                                     <div class="engine-selector" onclick="toggleEngineDropdown(${i})">
                                         <span class="engine-current">
                                             ${currentEngineData.emoji} ${currentEngineData.label}
@@ -6473,6 +6602,12 @@
                 waypoints[index].engine = engine;
                 console.log(`✓ Waypoint ${index + 1} engine: ${engine}`);
                 
+                // Unlock segment when changing engine
+                if (waypoints[index].segmentToNext) {
+                    waypoints[index].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${index}→${index+1} (engine changed)`);
+                }
+                
                 // Update UI
                 updateList();
                 
@@ -6482,6 +6617,27 @@
                 }
                 
                 trackEvent('Engine Changed', { index, engine });
+            }
+        };
+        
+        // Toggle segment lock/unlock (ROUTE PRESERVATION)
+        window.toggleSegmentLock = function(index) {
+            const wp = waypoints[index];
+            
+            if (wp && wp.segmentToNext) {
+                wp.segmentToNext.locked = !wp.segmentToNext.locked;
+                
+                const icon = wp.segmentToNext.locked ? '🔒' : '🔓';
+                const status = wp.segmentToNext.locked ? 'Locked' : 'Unlocked';
+                console.log(`${icon} Segment ${index}→${index+1}: ${status}`);
+                
+                // Update UI
+                updateList();
+                
+                trackEvent('Segment Lock Toggled', { 
+                    index, 
+                    locked: wp.segmentToNext.locked 
+                });
             }
         };
         
@@ -6589,6 +6745,12 @@
             // Save state for undo
             saveState(ACTION_TYPES.DELETE_WAYPOINT);
             
+            // Auto-unlock affected segments (ROUTE PRESERVATION)
+            if (idx > 0 && waypoints[idx - 1].segmentToNext) {
+                waypoints[idx - 1].segmentToNext.locked = false;
+                console.log(`🔓 Auto-unlocked segment ${idx-1}→${idx} (waypoint deleted)`);
+            }
+            
             waypoints.splice(idx, 1);
             map.removeLayer(markers[idx]);
             markers.splice(idx, 1);
@@ -6663,7 +6825,30 @@
                     const start = waypoints[i], end = waypoints[i + 1];
                     const segmentKey = `${i}-${i+1}`;
                     
-                    // Check API call limit (demo mode)
+                    // ===== ROUTE PRESERVATION CHECK =====
+                    // If segment is locked, use saved geometry instead of recalculating
+                    if (start.segmentToNext && start.segmentToNext.locked) {
+                        console.log(`🔒 Segment ${segmentKey}: Using saved route (locked)`);
+                        
+                        const savedSegment = start.segmentToNext;
+                        totalDist += savedSegment.distance;
+                        segmentDistances.push(savedSegment.distance);
+                        
+                        // Use saved coordinates
+                        const startIdx = i === 0 ? 0 : 1;
+                        for (let j = startIdx; j < savedSegment.coordinates.length; j++) {
+                            allCoords.push(savedSegment.coordinates[j]);
+                            allGeometry.push(savedSegment.geometry[j] || savedSegment.coordinates[j]);
+                            allElevations.push(savedSegment.elevations && savedSegment.elevations[j] 
+                                ? savedSegment.elevations[j] 
+                                : null);
+                        }
+                        
+                        continue; // Skip routing for this segment!
+                    }
+                    // ===== END ROUTE PRESERVATION =====
+                    
+                    // Check API call limit (demo mode) - only for unlocked segments!
                     if (!checkDemoLimit('api_call')) {
                         document.getElementById('loading').classList.remove('show');
                         document.getElementById('calculateBtn').disabled = false;
@@ -6741,6 +6926,16 @@
                     
                     totalDist += route.distance;
                     segmentDistances.push(route.distance); // Store segment distance
+                    
+                    // Save segment geometry in waypoint for route preservation
+                    waypoints[i].segmentToNext = {
+                        coordinates: route.coordinates,
+                        geometry: route.geometry,
+                        elevations: route.elevations || [],
+                        distance: route.distance,
+                        locked: false,  // Newly calculated segments are unlocked
+                        source: 'calculated'
+                    };
                     
                     // Distance limit will be checked AFTER all segments
                     
@@ -7013,7 +7208,15 @@
                 document.getElementById('elevationProfile').classList.add('show');
                 document.getElementById('elevationToggle').classList.add('active');
                 
-                // Analyze surface
+                // Check TOTAL distance limit AFTER all segments calculated
+                if (demoMode.active && totalDist > DEMO_LIMITS.MAX_DISTANCE_KM * 1000) {
+                    clearRoutes();
+                    alert(`Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_DISTANCE_KM}km Route!\n\nDeine Route: ${(totalDist/1000).toFixed(1)}km\n\nRegistriere dich für unlimited Distance! 🚀`);
+                    showLoginModal();
+                    return;
+                }
+                
+                // Analyze surface (async, independent)
                 analyzeSurface(allGeometry).then(surfaceData => {
                     if (surfaceData) {
                         const difficultyInfo = getDifficultyLabel(surfaceData.difficulty);
@@ -7047,14 +7250,6 @@
                         console.log(`✓ Surface analysis: ${surfaceData.paved}% paved, ${surfaceData.gravel}% gravel, ${surfaceData.trail}% trail`);
                     }
                 });
-                
-                // Check TOTAL distance limit AFTER all segments calculated
-                if (demoMode.active && totalDist > DEMO_LIMITS.MAX_DISTANCE_KM * 1000) {
-                    clearRoutes();
-                    alert(`Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_DISTANCE_KM}km Route!\n\nDeine Route: ${(totalDist/1000).toFixed(1)}km\n\nRegistriere dich für unlimited Distance! 🚀`);
-                    showLoginModal();
-                    return;
-                }
                 
             } catch (e) {
                 alert('Fehler: ' + e.message);
