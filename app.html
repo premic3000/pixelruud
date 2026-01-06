@@ -22,12 +22,9 @@
     <meta property="twitter:description" content="Pixel-perfect gravel bike route planning with X-Ray Magnifier technology.">
     <meta property="twitter:image" content="https://pixelruud.com/og-image.jpg">
     
-    <!-- Privacy-friendly analytics by Plausible -->
-    <script async src="https://plausible.io/js/pa-2SZ-jZk5hQhg3hylIruPo.js"></script>
-    <script>
-      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-      plausible.init()
-    </script>
+    <!-- Privacy-friendly analytics by GoatCounter -->
+    <script data-goatcounter="https://pixelruud.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -2599,9 +2596,6 @@
             font-family: 'Consolas', monospace;
         }
     </style>
-    
-    <!-- Plausible Analytics (Privacy-First) -->
-    <script defer data-domain="pixelruud.com" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
@@ -3838,12 +3832,19 @@
         };
         
         // ==========================================
-        // ANALYTICS (Plausible.io)
+        // ANALYTICS (GoatCounter)
         // ==========================================
         
         function trackEvent(eventName, props = {}) {
-            if (window.plausible) {
-                window.plausible(eventName, { props });
+            if (window.goatcounter && window.goatcounter.count) {
+                // GoatCounter tracks pageviews automatically
+                // For custom events, we use the path parameter
+                const path = eventName;
+                window.goatcounter.count({
+                    path: path,
+                    title: eventName,
+                    event: true
+                });
             }
         }
         
@@ -4780,6 +4781,9 @@
             
             console.log(`✓ GPX Route geladen: ${totalDistance.toFixed(2)} km, ${points.length} Punkte → ${waypoints.length} Waypoints`);
             alert(`✓ GPX Route geladen!\n\n${filename}\n${totalDistance.toFixed(2)} km, ${Math.round(stats.elevationGain)} Höhenmeter\n\n→ Du kannst jetzt die ${waypoints.length} Wegpunkte verschieben und neu berechnen.`);
+            
+            // Track GPX import
+            trackEvent('gpx-imported');
         }
         
         // ========================================
@@ -7304,6 +7308,9 @@
                 
                 // Update waypoint list to show distances
                 updateList();
+                
+                // Track successful route calculation
+                trackEvent('route-calculated');
             }
         }
         
@@ -7793,6 +7800,9 @@
             a.href = URL.createObjectURL(blob);
             a.download = 'route.gpx';
             a.click();
+            
+            // Track GPX export
+            trackEvent('gpx-exported');
         }
         
         function setProfile(p) {
@@ -7800,6 +7810,9 @@
             document.getElementById('gravelBtn').classList.toggle('active', p === 'gravel');
             document.getElementById('roadBtn').classList.toggle('active', p === 'road');
             console.log(`✓ Bike profile: ${p}`);
+            
+            // Track profile change
+            trackEvent(`profile-${p}`);
         }
         
         function setElevationPreference(pref) {
@@ -7807,6 +7820,9 @@
             document.getElementById('flatElevBtn').classList.toggle('active', pref === 'flat');
             document.getElementById('hillyElevBtn').classList.toggle('active', pref === 'hilly');
             console.log(`✓ Elevation preference: ${pref}`);
+            
+            // Track elevation preference
+            trackEvent(`elevation-${pref}`);
         }
         
         function updateSpeed(v) {
@@ -7910,6 +7926,9 @@
             
             console.log(`✓ Route "${name}" saved`);
             alert(`✓ Route "${name}" gespeichert!`);
+            
+            // Track route save
+            trackEvent('route-saved');
         }
         
         function loadRoute(routeId) {
