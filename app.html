@@ -2117,13 +2117,13 @@
             transform: scale(0.95);
         }
         
-        /* Lock Button Styles (ROUTE PRESERVATION) */
+        /* Lock Button Styles (ROUTE PRESERVATION - User can click to toggle) */
         .lock-btn {
             background: transparent;
             border: 1.5px solid;
             border-radius: 4px;
             padding: 3px 6px;
-            cursor: pointer;
+            cursor: pointer;  /* Clickable! */
             font-size: 12px;
             transition: all 0.2s ease;
             flex-shrink: 0;
@@ -2145,20 +2145,30 @@
             transform: translateY(-1px);
         }
         
-        .lock-btn.unlocked {
-            border-color: #ffa500;
-            color: #ffa500;
-            background: rgba(255, 165, 0, 0.05);
-        }
-        
-        .lock-btn.unlocked:hover {
-            background: rgba(255, 165, 0, 0.15);
-            box-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
-            transform: translateY(-1px);
-        }
-        
         .lock-btn:active {
             transform: scale(0.95);
+        }
+        
+        /* Needs Calculation Indicator */
+        .lock-indicator.needs-calc {
+            background: transparent;
+            border: 1.5px solid #ffaa00;
+            border-radius: 4px;
+            padding: 3px 6px;
+            cursor: default;
+            font-size: 12px;
+            color: #ffaa00;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .delete-icon {
@@ -6367,29 +6377,27 @@
             
             marker.on('dragend', e => { 
                 const idx = markers.indexOf(marker);
+                
+                // SMART LOCK: Invalidate affected segments because coordinates changed
+                // Segment BEFORE this waypoint (i-1 → i)
+                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
+                    // The saved route goes to OLD position, now invalid!
+                    waypoints[idx - 1].segmentToNext = null;
+                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved)`);
+                }
+                
+                // Segment AFTER this waypoint (i → i+1)
+                if (waypoints[idx].segmentToNext) {
+                    // The saved route starts from OLD position, now invalid!
+                    waypoints[idx].segmentToNext = null;
+                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
+                }
+                
                 // Update position but keep ID and engine
                 waypoints[idx].lat = e.target.getLatLng().lat;
                 waypoints[idx].lng = e.target.getLatLng().lng;
                 
-                // Auto-unlock affected segments (ROUTE PRESERVATION)
-                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
-                    waypoints[idx - 1].segmentToNext.locked = false;
-                    console.log(`🔓 Auto-unlocked segment ${idx-1}→${idx} (waypoint moved)`);
-                }
-                if (waypoints[idx].segmentToNext) {
-                    waypoints[idx].segmentToNext.locked = false;
-                    console.log(`🔓 Auto-unlocked segment ${idx}→${idx+1} (waypoint moved)`);
-                }
-                
                 updateList();
-                
-                // Auto-recalculate if we have enough waypoints
-                if (waypoints.length >= 2) {
-                    console.log('🔄 Waypoint moved, recalculating route...');
-                    calculateRoutes();
-                } else {
-                    clearRoutes();
-                }
             });
             
             markers.push(marker);
@@ -6429,25 +6437,21 @@
             const list = document.getElementById('waypointList');
             if (!list) return;
             
-            // Calculate cumulative distances from segment distances
+            // Calculate cumulative distances from waypoint.segmentToNext (more accurate!)
             let cumulativeDist = 0;
             const distances = [0]; // First waypoint is always 0km
             
-            console.log('🔍 DEBUG: routes array:', routes);
-            console.log('🔍 DEBUG: routes.length:', routes.length);
-            if (routes.length > 0) {
-                console.log('🔍 DEBUG: routes[0]:', routes[0]);
-                console.log('🔍 DEBUG: routes[0].segmentDistances:', routes[0].segmentDistances);
-            }
-            
-            if (routes.length > 0 && routes[0].segmentDistances) {
-                console.log('✓ Using segmentDistances:', routes[0].segmentDistances);
-                routes[0].segmentDistances.forEach((segDist, idx) => {
-                    cumulativeDist += segDist;
+            // Build distances from individual waypoint segments
+            waypoints.forEach((wp, i) => {
+                if (i > 0 && waypoints[i-1].segmentToNext) {
+                    cumulativeDist += waypoints[i-1].segmentToNext.distance;
                     distances.push(cumulativeDist);
-                    console.log(`  Segment ${idx}: ${segDist}m → Cumulative: ${cumulativeDist}m (${(cumulativeDist/1000).toFixed(2)}km)`);
-                });
-            }
+                    console.log(`  Segment ${i-1}→${i}: ${waypoints[i-1].segmentToNext.distance}m → Cumulative: ${cumulativeDist}m (${(cumulativeDist/1000).toFixed(2)}km)`);
+                } else if (i > 0) {
+                    // No segment data yet (before first calculation)
+                    distances.push(0);
+                }
+            });
             
             console.log('🔍 DEBUG: Final distances array:', distances);
             
@@ -6504,13 +6508,18 @@
                                     <div class="engine-label">→ To WP ${i + 2}:</div>
                                     
                                     <!-- Lock/Unlock Button (ROUTE PRESERVATION) -->
-                                    ${wp.segmentToNext ? `
-                                        <button class="lock-btn ${wp.segmentToNext.locked ? 'locked' : 'unlocked'}"
+                                    ${wp.segmentToNext && wp.segmentToNext.locked ? `
+                                        <button class="lock-btn locked"
                                                 onclick="toggleSegmentLock(${i})"
-                                                title="${wp.segmentToNext.locked ? 'Locked - Original route preserved' : 'Unlocked - Will recalculate'}">
-                                            ${wp.segmentToNext.locked ? '🔒' : '🔓'}
+                                                title="🔒 Locked - Original route preserved. Click to unlock for recalculation.">
+                                            🔒
                                         </button>
-                                    ` : ''}
+                                    ` : `
+                                        <span class="lock-indicator needs-calc"
+                                              title="⚡ Will be calculated">
+                                            ⚡
+                                        </span>
+                                    `}
                                     
                                     <div class="engine-selector" onclick="toggleEngineDropdown(${i})">
                                         <span class="engine-current">
@@ -6624,20 +6633,15 @@
         window.toggleSegmentLock = function(index) {
             const wp = waypoints[index];
             
-            if (wp && wp.segmentToNext) {
-                wp.segmentToNext.locked = !wp.segmentToNext.locked;
-                
-                const icon = wp.segmentToNext.locked ? '🔒' : '🔓';
-                const status = wp.segmentToNext.locked ? 'Locked' : 'Unlocked';
-                console.log(`${icon} Segment ${index}→${index+1}: ${status}`);
+            if (wp && wp.segmentToNext && wp.segmentToNext.locked) {
+                // Can only UNLOCK (invalidate), not re-lock
+                wp.segmentToNext = null;
+                console.log(`🔓 Segment ${index}→${index+1}: Unlocked (will recalculate)`);
                 
                 // Update UI
                 updateList();
                 
-                trackEvent('Segment Lock Toggled', { 
-                    index, 
-                    locked: wp.segmentToNext.locked 
-                });
+                trackEvent('Segment Unlocked', { index });
             }
         };
         
@@ -6693,6 +6697,17 @@
                 const movedWaypoint = waypoints[draggedWaypointIndex];
                 const movedMarker = markers[draggedWaypointIndex];
                 
+                // ROUTE PRESERVATION: Unlock affected segments before reorder
+                // Unlock segments around the dragged waypoint
+                if (draggedWaypointIndex > 0 && waypoints[draggedWaypointIndex - 1].segmentToNext) {
+                    waypoints[draggedWaypointIndex - 1].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${draggedWaypointIndex-1}→${draggedWaypointIndex} (reordering)`);
+                }
+                if (waypoints[draggedWaypointIndex].segmentToNext) {
+                    waypoints[draggedWaypointIndex].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${draggedWaypointIndex}→${draggedWaypointIndex+1} (reordering)`);
+                }
+                
                 // Remove from old position
                 waypoints.splice(draggedWaypointIndex, 1);
                 markers.splice(draggedWaypointIndex, 1);
@@ -6701,6 +6716,16 @@
                 const insertIndex = draggedWaypointIndex < targetIndex ? targetIndex - 1 : targetIndex;
                 waypoints.splice(insertIndex, 0, movedWaypoint);
                 markers.splice(insertIndex, 0, movedMarker);
+                
+                // Unlock segments around the new position too
+                if (insertIndex > 0 && waypoints[insertIndex - 1].segmentToNext) {
+                    waypoints[insertIndex - 1].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${insertIndex-1}→${insertIndex} (after reorder)`);
+                }
+                if (waypoints[insertIndex].segmentToNext) {
+                    waypoints[insertIndex].segmentToNext.locked = false;
+                    console.log(`🔓 Auto-unlocked segment ${insertIndex}→${insertIndex+1} (after reorder)`);
+                }
                 
                 // Update marker labels and colors
                 updateMarkerColors();
@@ -6745,10 +6770,11 @@
             // Save state for undo
             saveState(ACTION_TYPES.DELETE_WAYPOINT);
             
-            // Auto-unlock affected segments (ROUTE PRESERVATION)
+            // SMART LOCK: Invalidate segment before deleted waypoint
+            // Old: A→DELETED→C, New: A→C (needs recalculation)
             if (idx > 0 && waypoints[idx - 1].segmentToNext) {
-                waypoints[idx - 1].segmentToNext.locked = false;
-                console.log(`🔓 Auto-unlocked segment ${idx-1}→${idx} (waypoint deleted)`);
+                waypoints[idx - 1].segmentToNext = null;
+                console.log(`🔓 Invalidated segment ${idx-1}→${idx+1} (waypoint ${idx} deleted)`);
             }
             
             waypoints.splice(idx, 1);
@@ -6758,11 +6784,8 @@
             updateButtons();
             updateMarkerColors();
             
-            // Auto-recalculate if we still have enough waypoints
-            if (waypoints.length >= 2 && routes.length > 0) {
-                console.log('🔄 Waypoint removed, recalculating route...');
-                calculateRoutes();
-            } else {
+            // User must click "Berechnen" to recalculate
+            if (waypoints.length < 2) {
                 clearRoutes();
             }
         }
@@ -6933,7 +6956,7 @@
                         geometry: route.geometry,
                         elevations: route.elevations || [],
                         distance: route.distance,
-                        locked: false,  // Newly calculated segments are unlocked
+                        locked: true,  // Lock immediately after calculation to preserve route
                         source: 'calculated'
                     };
                     
@@ -7118,7 +7141,16 @@
                         map.removeLayer(dragMarker);
                         
                         if (dragSegmentIndex >= 0 && dragSegmentIndex < waypoints.length - 1) {
-                            const newWaypoint = { lat: newPoint.lat, lng: newPoint.lng };
+                            // SMART LOCK: Invalidate the segment being split
+                            // Old segment A→B is replaced by A→NEW→B
+                            if (waypoints[dragSegmentIndex].segmentToNext) {
+                                waypoints[dragSegmentIndex].segmentToNext = null;
+                                console.log(`🔓 Invalidated segment ${dragSegmentIndex}→${dragSegmentIndex+1} (inserting waypoint)`);
+                            }
+                            
+                            const newWaypoint = { lat: newPoint.lat, lng: newPoint.lng, segmentToNext: null };
+                            
+                            // Insert waypoint
                             waypoints.splice(dragSegmentIndex + 1, 0, newWaypoint);
                             
                             const icon = L.divIcon({
@@ -7137,18 +7169,32 @@
                             
                             marker.on('dragend', function(e) {
                                 const idx = markers.indexOf(marker);
+                                
+                                // SMART LOCK: Invalidate affected segments
+                                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
+                                    waypoints[idx - 1].segmentToNext = null;
+                                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved)`);
+                                }
+                                if (waypoints[idx].segmentToNext) {
+                                    waypoints[idx].segmentToNext = null;
+                                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
+                                }
+                                
                                 // Update position but keep ID and engine
                                 waypoints[idx].lat = e.target.getLatLng().lat;
                                 waypoints[idx].lng = e.target.getLatLng().lng;
                                 marker.setPopupContent(`<b>Wegpunkt ${idx + 1}</b><br>${waypoints[idx].lat.toFixed(5)}°, ${waypoints[idx].lng.toFixed(5)}°`);
+                                
                                 updateList();
-                                setTimeout(() => calculateRoutes(), 500);
                             });
                             
                             markers.splice(dragSegmentIndex + 1, 0, marker);
                             updateList();
                             updateMarkerColors();
-                            setTimeout(() => calculateRoutes(), 500);
+                            
+                            console.log(`✓ Waypoint inserted at position ${dragSegmentIndex + 2}`);
+                            console.log(`  Total waypoints: ${waypoints.length}`);
+                            console.log(`  Click "Berechnen" to calculate new segments`);
                         }
                     }
                     
@@ -7755,6 +7801,7 @@
             currentProfile = p;
             document.getElementById('gravelBtn').classList.toggle('active', p === 'gravel');
             document.getElementById('roadBtn').classList.toggle('active', p === 'road');
+            console.log(`✓ Bike profile: ${p}`);
         }
         
         function setElevationPreference(pref) {
