@@ -6378,24 +6378,22 @@
             marker.on('dragend', e => { 
                 const idx = markers.indexOf(marker);
                 
+                // Update position FIRST
+                waypoints[idx].lat = e.target.getLatLng().lat;
+                waypoints[idx].lng = e.target.getLatLng().lng;
+                
                 // SMART LOCK: Invalidate affected segments because coordinates changed
                 // Segment BEFORE this waypoint (i-1 → i)
                 if (idx > 0 && waypoints[idx - 1].segmentToNext) {
-                    // The saved route goes to OLD position, now invalid!
                     waypoints[idx - 1].segmentToNext = null;
-                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved)`);
+                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved to ${waypoints[idx].lat.toFixed(5)}, ${waypoints[idx].lng.toFixed(5)})`);
                 }
                 
                 // Segment AFTER this waypoint (i → i+1)
                 if (waypoints[idx].segmentToNext) {
-                    // The saved route starts from OLD position, now invalid!
                     waypoints[idx].segmentToNext = null;
-                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
+                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved from old position)`);
                 }
-                
-                // Update position but keep ID and engine
-                waypoints[idx].lat = e.target.getLatLng().lat;
-                waypoints[idx].lng = e.target.getLatLng().lng;
                 
                 updateList();
             });
@@ -7170,6 +7168,11 @@
                             marker.on('dragend', function(e) {
                                 const idx = markers.indexOf(marker);
                                 
+                                // Update position FIRST
+                                waypoints[idx].lat = e.target.getLatLng().lat;
+                                waypoints[idx].lng = e.target.getLatLng().lng;
+                                marker.setPopupContent(`<b>Wegpunkt ${idx + 1}</b><br>${waypoints[idx].lat.toFixed(5)}°, ${waypoints[idx].lng.toFixed(5)}°`);
+                                
                                 // SMART LOCK: Invalidate affected segments
                                 if (idx > 0 && waypoints[idx - 1].segmentToNext) {
                                     waypoints[idx - 1].segmentToNext = null;
@@ -7179,11 +7182,6 @@
                                     waypoints[idx].segmentToNext = null;
                                     console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
                                 }
-                                
-                                // Update position but keep ID and engine
-                                waypoints[idx].lat = e.target.getLatLng().lat;
-                                waypoints[idx].lng = e.target.getLatLng().lng;
-                                marker.setPopupContent(`<b>Wegpunkt ${idx + 1}</b><br>${waypoints[idx].lat.toFixed(5)}°, ${waypoints[idx].lng.toFixed(5)}°`);
                                 
                                 updateList();
                             });
