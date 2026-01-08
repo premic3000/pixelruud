@@ -1724,6 +1724,94 @@
             font-weight: 700;
         }
         
+        /* Weather Forecast Panel */
+        .weather-forecast-panel {
+            background: rgba(241, 245, 249, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .weather-forecast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        
+        .weather-forecast-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .weather-forecast-display {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+        
+        .weather-forecast-item {
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            border-radius: 6px;
+            padding: 8px;
+            min-width: 70px;
+            text-align: center;
+            font-size: 10px;
+        }
+        
+        .weather-forecast-item.rain-warning {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .weather-forecast-time {
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        
+        .weather-forecast-icon {
+            font-size: 20px;
+            margin: 4px 0;
+        }
+        
+        .weather-forecast-temp {
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .weather-forecast-rain {
+            color: #3b82f6;
+            font-size: 9px;
+            margin-top: 2px;
+        }
+        
+        .weather-forecast-wind {
+            color: #64748b;
+            font-size: 9px;
+            margin-top: 2px;
+        }
+        
+        .weather-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #dc2626;
+            font-weight: 600;
+            text-align: center;
+        }
+        
         #elevationChart {
             width: 100%;
             height: 140px;
@@ -2595,6 +2683,11 @@
             margin-top: 15px;
             font-family: 'Consolas', monospace;
         }
+        
+        /* ==========================================
+           WEATHER LAYER CONTROLS
+           ========================================== */
+        
     </style>
 </head>
 <body>
@@ -2976,6 +3069,38 @@
                 </svg>
                 Surface
             </button>
+            <button class="chart-toggle-btn" id="toggleWeatherChart" title="Wetter-Vorhersage anzeigen/ausblenden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                </svg>
+                Wetter
+            </button>
+        </div>
+        
+        <!-- Weather Forecast Panel -->
+        <div class="weather-forecast-panel" id="weatherForecastPanel" style="display: none;">
+            <div class="weather-forecast-header">
+                <div class="weather-forecast-controls">
+                    <label style="font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                        🕐 Start:
+                        <select id="weatherStartTime" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: #e2e8f0; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-family: 'Consolas', monospace;">
+                            <option value="now">Jetzt</option>
+                            <option value="1h">+1 Stunde</option>
+                            <option value="2h">+2 Stunden</option>
+                            <option value="3h">+3 Stunden</option>
+                            <option value="tomorrow">Morgen 10:00</option>
+                        </select>
+                    </label>
+                    <button id="refreshWeather" style="background: rgba(0, 240, 255, 0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-family: 'Consolas', monospace;">
+                        🔄 Update
+                    </button>
+                </div>
+            </div>
+            <div class="weather-forecast-display" id="weatherForecastDisplay">
+                <div style="text-align: center; padding: 10px; color: #64748b; font-size: 11px;">
+                    Wetter wird geladen...
+                </div>
+            </div>
         </div>
         
         <canvas id="elevationChart"></canvas>
@@ -4277,6 +4402,242 @@
             `;
         }
         })();
+        
+        // ==========================================
+        // WEATHER FORECAST ON ELEVATION PROFILE
+        // ==========================================
+        
+        let weatherForecastData = null;
+        let weatherForecastEnabled = false;
+        
+        // Toggle weather forecast panel
+        document.getElementById('toggleWeatherChart').addEventListener('click', function() {
+            weatherForecastEnabled = !weatherForecastEnabled;
+            this.classList.toggle('active');
+            
+            const panel = document.getElementById('weatherForecastPanel');
+            if (weatherForecastEnabled) {
+                panel.style.display = 'block';
+                loadWeatherForecast();
+            } else {
+                panel.style.display = 'none';
+            }
+            
+            console.log(`🌦️ Weather forecast ${weatherForecastEnabled ? 'enabled' : 'disabled'}`);
+        });
+        
+        // Refresh weather button
+        document.getElementById('refreshWeather').addEventListener('click', () => {
+            if (weatherForecastEnabled) {
+                loadWeatherForecast();
+            }
+        });
+        
+        // Start time selector change
+        document.getElementById('weatherStartTime').addEventListener('change', () => {
+            if (weatherForecastEnabled) {
+                loadWeatherForecast();
+            }
+        });
+        
+        // Load weather forecast for route
+        async function loadWeatherForecast() {
+            console.log('🌦️ loadWeatherForecast() called');
+            console.log('  - Enabled:', weatherForecastEnabled);
+            console.log('  - Has route:', !!routes[0]);
+            
+            if (!routes[0] || !routes[0].coordinates || routes[0].coordinates.length === 0) {
+                document.getElementById('weatherForecastDisplay').innerHTML = 
+                    '<div style="text-align: center; padding: 10px; color: #ef4444; font-size: 11px;">⚠️ Keine Route vorhanden!</div>';
+                return;
+            }
+            
+            document.getElementById('weatherForecastDisplay').innerHTML = 
+                '<div style="text-align: center; padding: 10px; color: #64748b; font-size: 11px;">🔄 Lade Wetter...</div>';
+            
+            const route = routes[0];
+            const speed = parseFloat(document.getElementById('speedSlider').value);
+            const startTimeOption = document.getElementById('weatherStartTime').value;
+            
+            // Calculate start time
+            let startTime = new Date();
+            if (startTimeOption === '1h') {
+                startTime.setHours(startTime.getHours() + 1);
+            } else if (startTimeOption === '2h') {
+                startTime.setHours(startTime.getHours() + 2);
+            } else if (startTimeOption === '3h') {
+                startTime.setHours(startTime.getHours() + 3);
+            } else if (startTimeOption === 'tomorrow') {
+                startTime.setDate(startTime.getDate() + 1);
+                startTime.setHours(10, 0, 0, 0);
+            }
+            
+            // Sample 5-8 points along route for weather
+            const numSamples = Math.min(8, Math.max(5, Math.floor(route.coordinates.length / 50)));
+            const sampleIndices = [];
+            for (let i = 0; i < numSamples; i++) {
+                const index = Math.floor(i * route.coordinates.length / (numSamples - 1));
+                sampleIndices.push(Math.min(index, route.coordinates.length - 1));
+            }
+            
+            // Calculate distance for each sample point
+            const samples = [];
+            let totalDist = 0;
+            let prevCoord = route.coordinates[0];
+            
+            for (let i = 0; i < route.coordinates.length; i++) {
+                if (i > 0) {
+                    const curr = route.coordinates[i];
+                    const R = 6371;
+                    const lat1 = prevCoord[0] * Math.PI / 180;
+                    const lat2 = curr[0] * Math.PI / 180;
+                    const dLat = (curr[0] - prevCoord[0]) * Math.PI / 180;
+                    const dLon = (curr[1] - prevCoord[1]) * Math.PI / 180;
+                    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                             Math.cos(lat1) * Math.cos(lat2) *
+                             Math.sin(dLon/2) * Math.sin(dLon/2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    totalDist += R * c;
+                    prevCoord = curr;
+                }
+                
+                if (sampleIndices.includes(i)) {
+                    const coord = route.coordinates[i];
+                    const timeOffset = (totalDist / speed) * 3600000; // ms
+                    const time = new Date(startTime.getTime() + timeOffset);
+                    
+                    samples.push({
+                        lat: coord[0],
+                        lng: coord[1],
+                        distance: totalDist,
+                        time: time
+                    });
+                }
+            }
+            
+            // Fetch weather data for all sample points
+            try {
+                const weatherPromises = samples.map(sample => 
+                    fetchWeatherForPoint(sample.lat, sample.lng, sample.time)
+                );
+                
+                const weatherResults = await Promise.all(weatherPromises);
+                
+                // Combine samples with weather
+                const forecastData = samples.map((sample, i) => ({
+                    ...sample,
+                    weather: weatherResults[i]
+                }));
+                
+                weatherForecastData = forecastData;
+                displayWeatherForecast(forecastData);
+                
+                console.log('✅ Weather forecast loaded:', forecastData);
+            } catch (error) {
+                console.error('❌ Weather forecast error:', error);
+                document.getElementById('weatherForecastDisplay').innerHTML = 
+                    '<div style="text-align: center; padding: 10px; color: #ef4444; font-size: 11px;">❌ Fehler beim Laden!</div>';
+            }
+        }
+        
+        // Fetch weather for a single point using Open-Meteo API (FREE!)
+        async function fetchWeatherForPoint(lat, lng, time) {
+            const dateStr = time.toISOString().split('T')[0];
+            const hour = time.getHours();
+            
+            const url = `https://api.open-meteo.com/v1/forecast?` +
+                `latitude=${lat.toFixed(4)}&` +
+                `longitude=${lng.toFixed(4)}&` +
+                `hourly=temperature_2m,precipitation,weathercode,windspeed_10m&` +
+                `timezone=auto`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Find closest hour in forecast
+            const targetTime = time.getTime();
+            let closestIndex = 0;
+            let minDiff = Infinity;
+            
+            data.hourly.time.forEach((t, i) => {
+                const forecastTime = new Date(t).getTime();
+                const diff = Math.abs(forecastTime - targetTime);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = i;
+                }
+            });
+            
+            return {
+                temp: data.hourly.temperature_2m[closestIndex],
+                precipitation: data.hourly.precipitation[closestIndex],
+                weathercode: data.hourly.weathercode[closestIndex],
+                windspeed: data.hourly.windspeed_10m[closestIndex]
+            };
+        }
+        
+        // Display weather forecast
+        function displayWeatherForecast(forecastData) {
+            const display = document.getElementById('weatherForecastDisplay');
+            const panel = document.getElementById('weatherForecastPanel');
+            
+            // WICHTIG: Lösche alle alten Warnungen zuerst!
+            const oldWarnings = panel.querySelectorAll('.weather-warning');
+            oldWarnings.forEach(warning => warning.remove());
+            
+            let html = '';
+            let hasRain = false;
+            let rainStartKm = null;
+            
+            forecastData.forEach(data => {
+                const icon = getWeatherIcon(data.weather.weathercode);
+                const isRain = data.weather.precipitation > 0.5;
+                
+                if (isRain && !hasRain) {
+                    hasRain = true;
+                    rainStartKm = data.distance;
+                }
+                
+                html += `
+                    <div class="weather-forecast-item ${isRain ? 'rain-warning' : ''}">
+                        <div class="weather-forecast-time">${data.time.getHours()}:${String(data.time.getMinutes()).padStart(2,'0')}</div>
+                        <div class="weather-forecast-icon">${icon}</div>
+                        <div class="weather-forecast-temp">${Math.round(data.weather.temp)}°C</div>
+                        <div class="weather-forecast-rain">💧 ${data.weather.precipitation.toFixed(1)}mm</div>
+                        <div class="weather-forecast-wind">💨 ${Math.round(data.weather.windspeed)}km/h</div>
+                        <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">${data.distance.toFixed(0)}km</div>
+                    </div>
+                `;
+            });
+            
+            display.innerHTML = html;
+            
+            // Show rain warning (nur EINE!)
+            if (hasRain) {
+                const warning = document.createElement('div');
+                warning.className = 'weather-warning';
+                warning.innerHTML = `⚠️ REGEN AB ${rainStartKm.toFixed(0)} KM (${forecastData.find(d => d.distance >= rainStartKm).time.getHours()}:${String(forecastData.find(d => d.distance >= rainStartKm).time.getMinutes()).padStart(2,'0')} UHR)!<br>💡 Regenjacke einpacken!`;
+                panel.appendChild(warning);
+            }
+        }
+        
+        // Get weather icon from WMO weather code
+        function getWeatherIcon(code) {
+            // WMO Weather interpretation codes
+            if (code === 0) return '☀️'; // Clear sky
+            if (code <= 3) return '🌤️'; // Partly cloudy
+            if (code <= 48) return '🌫️'; // Fog
+            if (code <= 57) return '🌧️'; // Drizzle
+            if (code <= 67) return '🌧️'; // Rain
+            if (code <= 77) return '🌨️'; // Snow
+            if (code <= 82) return '🌧️'; // Rain showers
+            if (code <= 86) return '🌨️'; // Snow showers
+            if (code <= 99) return '⛈️'; // Thunderstorm
+            return '☁️'; // Default
+        }
+        
+        console.log('✅ Weather Forecast initialized');
+        
         
         function setupPOI() {
             const waterBtn = document.getElementById('waterBtn');
