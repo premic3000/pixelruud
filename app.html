@@ -179,6 +179,72 @@
             display: block;
         }
         
+        /* Auto-Calc Checkbox - Compact Inline Version */
+        .auto-calc-checkbox-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 3px 6px;
+            background: rgba(0, 31, 63, 0.3);
+            border: 1px solid #00f0ff40;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            user-select: none;
+            margin-left: 4px;
+        }
+        
+        .auto-calc-checkbox-inline:hover {
+            background: rgba(0, 40, 85, 0.5);
+            border-color: #00f0ff80;
+        }
+        
+        .auto-calc-checkbox-inline input[type="checkbox"] {
+            display: none;
+        }
+        
+        .checkbox-custom-inline {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #00f0ff;
+            border-radius: 3px;
+            position: relative;
+            transition: all 0.2s ease;
+            background: transparent;
+            flex-shrink: 0;
+        }
+        
+        .auto-calc-checkbox-inline input:checked + .checkbox-custom-inline {
+            background: linear-gradient(135deg, #00f0ff, #ccff00);
+            border-color: #ccff00;
+        }
+        
+        .auto-calc-checkbox-inline input:checked + .checkbox-custom-inline::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #001f3f;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .checkbox-label-inline {
+            color: #00f0ff;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-family: 'Consolas', monospace;
+            white-space: nowrap;
+        }
+        
+        .auto-calc-checkbox-inline input:checked ~ .checkbox-label-inline {
+            color: #ccff00;
+        }
+        
         .btn-success { 
             background: linear-gradient(145deg, #34d399 0%, #059669 100%); 
             color: white;
@@ -224,25 +290,9 @@
             height: 14px;
             filter: drop-shadow(0 0 3px currentColor);
         }
+        /* Waypoint list - hidden, used as data source only */
         .waypoint-list { 
-            position: fixed;
-            top: 42px;
-            right: 10px;
-            bottom: 250px; /* Platz für Elevation Profile + Control Panel */
-            width: 340px;
-            overflow-y: auto; 
-            background: linear-gradient(135deg, #001f3f, #002855);
-            backdrop-filter: blur(10px); 
-            border-radius: 12px; 
-            padding: 12px; 
-            border: 2px solid #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
-            z-index: 1100; /* Höher als Elevation Profile (1001) */
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            transition: width 0.3s ease, right 0.3s ease, opacity 0.3s ease;
-            opacity: 1;
+            /* Styling removed - element is hidden via inline style */
         }
         
         /* Faded state (like Stats Panel) */
@@ -265,32 +315,6 @@
         }
         
         /* Collapsed state */
-        .waypoint-list.collapsed {
-            width: 48px;
-            padding: 8px;
-        }
-        
-        .waypoint-list.collapsed .waypoint-list-scroll,
-        .waypoint-list.collapsed .waypoint-count {
-            display: none;
-        }
-        
-        .waypoint-list.collapsed .waypoint-list-header {
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .waypoint-list.collapsed .waypoint-list-title {
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            font-size: 11px;
-        }
-        
-        /* Expanded state */
-        .waypoint-list.expanded {
-            width: 480px;
-        }
         
         /* Header für Waypoint List */
         .waypoint-list-header {
@@ -329,29 +353,6 @@
             gap: 4px;
         }
         
-        .waypoint-list-btn {
-            background: transparent;
-            border: 1px solid #00f0ff40;
-            color: #00f0ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            transition: all 0.2s ease;
-            font-family: 'Consolas', monospace;
-        }
-        
-        .waypoint-list-btn:hover {
-            background: rgba(0, 240, 255, 0.2);
-            border-color: #00f0ff;
-            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
-        }
-        
-        .waypoint-list-btn.active {
-            background: rgba(0, 240, 255, 0.3);
-            border-color: #ccff00;
-            color: #ccff00;
-        }
         
         /* Scrollable Container */
         .waypoint-list-scroll {
@@ -1345,10 +1346,10 @@
         }
         
         .magnifier-toggle-switch {
-            width: 36px;
-            height: 18px;
+            width: 28px; /* 36 → 28px (kleiner) */
+            height: 16px; /* 18 → 16px */
             background: rgba(71, 85, 105, 0.8);
-            border-radius: 9px;
+            border-radius: 8px; /* 9 → 8px */
             position: relative;
             transition: all 0.3s;
         }
@@ -1356,11 +1357,11 @@
         .magnifier-toggle-switch::after {
             content: '';
             position: absolute;
-            width: 14px;
-            height: 14px;
+            width: 11px; /* 14 → 11px */
+            height: 11px; /* 14 → 11px */
             border-radius: 50%;
             background: #475569;
-            top: 2px;
+            top: 2.5px; /* 2 → 2.5px */
             left: 2px;
             transition: all 0.3s;
         }
@@ -1370,7 +1371,7 @@
         }
         
         .magnifier-feature-toggle.active .magnifier-toggle-switch::after {
-            left: 20px;
+            left: 15px; /* 20 → 15px */
             background: white;
         }
         
@@ -1624,10 +1625,11 @@
         
         /* Elevation Profile Styles */
         .elevation-profile {
-            position: absolute;
+            position: fixed;
             bottom: 95px;
             left: 12px;
-            right: 12px;
+            width: calc(100vw - 24px);
+            max-width: calc(100vw - 24px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 10px;
@@ -2083,6 +2085,12 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: grab;
             position: relative;
+            z-index: 1; /* Base z-index */
+        }
+        
+        /* Bring waypoint item to front when dropdown is open */
+        .waypoint-item-modern.dropdown-open {
+            z-index: 1001;
         }
         
         .waypoint-item-modern:hover {
@@ -2685,6 +2693,397 @@
         }
         
         /* ==========================================
+           FLOATING TOOLBAR V3.0
+           ========================================== */
+        
+        .floating-toolbar {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(0, 31, 63, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 16px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                        0 0 20px rgba(0, 240, 255, 0.2);
+            z-index: 10000;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: default;
+            width: 56px;
+            max-height: calc(100vh - 260px); /* Platz für Elevation (140px + 95px bottom + 25px margin) */
+            overflow-y: auto; /* Scrollbar wenn zu viele Buttons */
+            overflow-x: hidden;
+        }
+        
+        /* Custom scrollbar for toolbar */
+        .floating-toolbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .floating-toolbar::-webkit-scrollbar-track {
+            background: rgba(0, 31, 63, 0.3);
+            border-radius: 2px;
+        }
+        
+        .floating-toolbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.5);
+            border-radius: 2px;
+        }
+        
+        .floating-toolbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.7);
+        }
+        
+        .floating-toolbar.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .toolbar-drag-handle {
+            padding: 8px;
+            cursor: grab;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            margin-bottom: 4px;
+            user-select: none;
+        }
+        
+        .toolbar-drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .drag-dots {
+            color: rgba(0, 240, 255, 0.5);
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: color 0.2s ease;
+        }
+        
+        .toolbar-drag-handle:hover .drag-dots {
+            color: #00f0ff;
+        }
+        
+        .toolbar-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(0, 40, 85, 0.5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .toolbar-btn svg {
+            width: 20px;
+            height: 20px;
+            color: rgba(0, 240, 255, 0.7);
+            transition: all 0.2s ease;
+        }
+        
+        .toolbar-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .toolbar-btn:hover svg {
+            color: #00f0ff;
+        }
+        
+        .toolbar-btn.active {
+            background: linear-gradient(135deg, #00f0ff, #ccff00);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
+        
+        .toolbar-btn.active svg {
+            color: #001f3f;
+        }
+        
+        .toolbar-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Floating Panels */
+        .floating-panel {
+            position: fixed;
+            background: rgba(0, 31, 63, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                        0 0 30px rgba(0, 240, 255, 0.3);
+            z-index: 9999;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: visible; /* No scrollbar on panel itself */
+            animation: panelSlideIn 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes panelSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .floating-panel.closing {
+            animation: panelSlideOut 0.2s ease-in;
+        }
+        
+        @keyframes panelSlideOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+        }
+        
+        .panel-title {
+            color: #00f0ff;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .panel-close {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 0, 85, 0.2);
+            color: #ff0055;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+        
+        .panel-close:hover {
+            background: #ff0055;
+            color: white;
+        }
+        
+        .panel-content {
+            color: #00f0ff;
+            font-size: 13px;
+            line-height: 1.6;
+            flex: 1;
+            overflow-y: auto; /* Allow scrolling when content is too large */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Important for flex scrolling */
+            padding-right: 8px; /* Space for scrollbar */
+        }
+        
+        .panel-content > div {
+            flex: 0 0 auto; /* Don't flex shrink - let it scroll instead */
+            display: flex;
+            flex-direction: column;
+            padding-right: 4px; /* Additional space to avoid text cutoff */
+        }
+        
+        /* Panel Waypoint Styles */
+        .panel-waypoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        
+        .waypoint-count-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .waypoint-count-display .waypoint-count {
+            background: linear-gradient(135deg, #00f0ff, #ccff00);
+            color: #001f3f;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .panel-waypoint-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0; /* Important for flex scrolling */
+        }
+        
+        /* Magnifier Panel Styles */
+        .magnifier-mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .magnifier-mode-btn-grid {
+            padding: 10px;
+            background: rgba(0, 40, 85, 0.5);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            color: rgba(0, 240, 255, 0.7);
+            cursor: default;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .magnifier-mode-btn-grid:hover {
+            background: rgba(0, 60, 120, 0.6);
+            border-color: rgba(0, 240, 255, 0.5);
+        }
+        
+        .magnifier-mode-btn-grid.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-color: #60a5fa;
+            color: white;
+        }
+        
+        .magnifier-features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .feature-toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0, 20, 40, 0.4);
+            border-radius: 8px;
+        }
+        
+        .feature-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+        }
+        
+        .feature-toggle-label span:first-child {
+            font-size: 16px;
+        }
+        
+        /* iOS-style Toggle Switch */
+        .feature-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 32px !important; /* Force smaller size */
+            height: 18px !important;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        
+        .feature-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: default;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .3s;
+            border-radius: 18px !important;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 12px !important;
+            width: 12px !important;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        .feature-toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        .feature-toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(14px) !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .floating-toolbar {
+                right: 10px;
+                width: 48px;
+            }
+            
+            .toolbar-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .toolbar-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .floating-panel {
+                max-width: calc(100vw - 80px);
+            }
+        }
+        
+        /* ==========================================
            WEATHER LAYER CONTROLS
            ========================================== */
         
@@ -2693,6 +3092,115 @@
 <body>
     <div id="loadingMessage">Lade Karte...</div>
     <div id="map"></div>
+    
+    <!-- ========================================== -->
+    <!-- FLOATING TOOLBAR V3.0 -->
+    <!-- ========================================== -->
+    <div class="floating-toolbar" id="floatingToolbar">
+        <div class="toolbar-drag-handle" id="toolbarDragHandle">
+            <div class="drag-dots">⋮⋮</div>
+        </div>
+        
+        <!-- 1. Waypoints -->
+        <button class="toolbar-btn" data-panel="waypoints" title="Waypoints">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+        </button>
+        
+        <!-- 2. Magnifier (HIGHLIGHT - X-Ray Icon) -->
+        <button class="toolbar-btn" data-panel="magnifier" title="X-Ray Magnifier">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <circle cx="15.5" cy="8.5" r="1.5"></circle>
+                <path d="M12 12v4"></path>
+                <path d="M12 16h-2m4 0h-2"></path>
+                <polyline points="7 12 12 7 17 12"></polyline>
+            </svg>
+        </button>
+        
+        <!-- 3. Elevation Profile -->
+        <button class="toolbar-btn" data-panel="elevation" title="Elevation Profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+        </button>
+        
+        <!-- 4. Statistics -->
+        <button class="toolbar-btn" data-panel="stats" title="Statistics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+        </button>
+        
+        <!-- 5. POI & Layers (Stack/Layers Icon) -->
+        <button class="toolbar-btn" data-panel="poi" title="POI">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+        </button>
+        
+        <!-- 5b. Map Layers -->
+        <button class="toolbar-btn" data-panel="layers" title="Karten-Layer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+        </button>
+        
+        <!-- 6. Adresse suchen (Search/Magnifying Glass) -->
+        <button class="toolbar-btn" data-panel="search" title="Adresse suchen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+        
+        <!-- 7. GPX Export -->
+        <button class="toolbar-btn" data-panel="export" title="GPX Export">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        </button>
+        
+        <!-- 8. Import GPX -->
+        <button class="toolbar-btn" data-panel="import" title="Import GPX">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        </button>
+        
+        <!-- 9. Saved Routes (Heatmap) -->
+        <button class="toolbar-btn" data-panel="routes" title="Saved Routes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+        </button>
+        
+        <!-- 10. API Settings -->
+        <button class="toolbar-btn" data-panel="api" title="API Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Floating Panels Container -->
+    <div class="floating-panels" id="floatingPanels"></div>
     
     <!-- MAGNIFIER CONTAINER - AUSSERHALB DER MAP -->
     <div class="magnifier-container">
@@ -2712,37 +3220,8 @@
     </div>
     
     <!-- Stats Tab Button -->
-    <div class="stats-tab" id="statsToggle" title="Statistiken ein/ausblenden">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-        </svg>
-        Stats
-    </div>
-    
-    <!-- API Settings Toggle -->
-    <div class="api-settings-toggle" id="apiSettingsToggle" title="API Einstellungen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
-        </svg>
-        API
-    </div>
-    
-    <!-- GPX Import Button -->
-    <div class="gpx-import-toggle" id="gpxImportToggle" title="GPX-Route importieren">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-        Import
-    </div>
-    <input type="file" id="gpxImportInput" class="gpx-import-input" accept=".gpx" />
-    
     <!-- API Settings Panel -->
-    <div class="api-settings-panel" id="apiSettingsPanel">
+    <div class="api-settings-panel" id="apiSettingsPanel" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
         <h4>🔑 API Einstellungen</h4>
         <div class="api-key-input">
             <label>GraphHopper API Key (optional)</label>
@@ -2760,7 +3239,7 @@
         </div>
     </div>
     
-    <div class="stats-panel" id="statsPanel">
+    <div class="stats-panel" id="statsPanel" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
         <h3>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -2773,7 +3252,7 @@
     </div>
     
     <!-- Address Search Panel -->
-    <div class="address-search" id="addressSearch">
+    <div class="address-search" id="addressSearch" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
         <input type="text" 
                class="address-input" 
                id="addressInput" 
@@ -2790,7 +3269,7 @@
     </div>
     
     <!-- POI Toggle Panel -->
-    <div class="poi-toggle" id="poiToggle">
+    <div class="poi-toggle" id="poiToggle" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
         <button class="poi-btn" id="waterBtn" title="Trinkwasserbrunnen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
                 <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
@@ -2826,12 +3305,12 @@
     </div>
     
     <!-- X-Ray Magnifier Toggle Button -->
-    <div class="magnifier-toggle" id="magnifierToggle" title="X-Ray Lupe aktivieren (L-Taste)">
+    <div class="magnifier-toggle" id="magnifierToggle" title="X-Ray Lupe aktivieren (L-Taste)" style="display: none !important;">
         <div class="magnifier-toggle-icon">🔬</div>
     </div>
     
     <!-- Magnifier Settings Toggle -->
-    <div class="magnifier-settings-toggle" id="magnifierSettingsToggle" title="Lupen-Einstellungen">
+    <div class="magnifier-settings-toggle" id="magnifierSettingsToggle" title="Lupen-Einstellungen" style="display: none !important;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
@@ -2840,7 +3319,7 @@
     </div>
     
     <!-- Magnifier Settings Panel -->
-    <div class="magnifier-settings" id="magnifierSettings">
+    <div class="magnifier-settings" id="magnifierSettings" style="display: none !important;">
         <h4>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -2968,14 +3447,6 @@
     </div>
     
     <!-- Route Library Toggle -->
-    <div class="library-toggle" id="libraryToggle" title="Route-Bibliothek">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-        Routen
-    </div>
-    
     <!-- Route Library Panel -->
     <div class="route-library" id="routeLibrary">
         <button class="route-library-close" id="libraryCloseBtn" title="Schließen">
@@ -3014,13 +3485,6 @@
     </div>
     
     <!-- Elevation Tab Button -->
-    <div class="elevation-tab" id="elevationToggle" title="Höhenprofil ein/ausblenden">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-        </svg>
-        Profil
-    </div>
-    
     <!-- Elevation Profile -->
     <div class="elevation-profile" id="elevationProfile">
         <!-- Header: Überschrift + Legende in einer Zeile -->
@@ -3213,16 +3677,19 @@
     </div>
     
     <!-- Waypoint List Sidebar (rechts) -->
-    <div class="waypoint-list">
+    <!-- Hidden waypoint list - data source for panel -->
+    <div class="waypoint-list" style="display: none !important; visibility: hidden; position: absolute; left: -9999px;">
         <div class="waypoint-list-header">
             <div class="waypoint-list-title">
                 📍 WAYPOINTS
                 <span class="waypoint-count" id="waypointCount">0</span>
             </div>
             <div class="waypoint-list-controls">
-                <button class="waypoint-list-btn" onclick="toggleWaypointSize('small')" title="Klein">◀</button>
-                <button class="waypoint-list-btn active" onclick="toggleWaypointSize('normal')" title="Normal">▐</button>
-                <button class="waypoint-list-btn" onclick="toggleWaypointSize('large')" title="Groß">▐▐</button>
+                <label class="auto-calc-checkbox-inline" title="Auto-Berechnung aktivieren">
+                    <input type="checkbox" id="autoCalcToggle">
+                    <span class="checkbox-custom-inline"></span>
+                    <span class="checkbox-label-inline">Auto</span>
+                </label>
             </div>
         </div>
         <div class="waypoint-list-scroll">
@@ -4206,6 +4673,13 @@
         let heatmapLayer = null;
         let savedRoutes = [];
 
+        // ==========================================
+        // AUTO-CALCULATION SYSTEM - VARIABLES
+        // ==========================================
+        // Define BEFORE init() to avoid "Cannot access before initialization" error
+        let autoCalcEnabled = localStorage.getItem('pixelruud_autoCalc') !== 'false';
+        let autoCalcTimeout = null;
+
         (function init() {
             // Timeout counter to prevent infinite loading
             if (!window.initAttempts) window.initAttempts = 0;
@@ -4327,7 +4801,11 @@
                 "🛰️ Satellit": sateliteLayer
             };
             
-            L.control.layers(baseMaps).addTo(map);
+            // Make map and baseMaps globally available for layer switching
+            window.mainMap = map;
+            window.baseMaps = baseMaps;
+            
+            // L.control.layers(baseMaps).addTo(map); // Removed - now in floating toolbar
             
             map.on('click', e => addWaypoint(e.latlng.lat, e.latlng.lng));
             
@@ -4341,6 +4819,9 @@
             document.getElementById('gravelBtn').onclick = () => setProfile('gravel');
             document.getElementById('roadBtn').onclick = () => setProfile('road');
             document.getElementById('speedSlider').oninput = e => updateSpeed(e.target.value);
+            
+            // Auto-Calc Toggle
+            setupAutoCalc();
             
             // Elevation Preference Buttons (2 options)
             document.getElementById('flatElevBtn').onclick = () => setElevationPreference('flat');
@@ -4686,8 +5167,8 @@
             console.log('✓ Address search initialized');
         }
         
-        async function searchAddress(query) {
-            const addressResults = document.getElementById('addressResults');
+        async function searchAddress(query, targetElement = null) {
+            const addressResults = targetElement || document.getElementById('addressResults');
             
             try {
                 addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: #64748b;">Suche...</div>';
@@ -4711,8 +5192,14 @@
                         ? result.display_name.substring(0, 60) + '...' 
                         : result.display_name;
                     
-                    return `<div class="address-result-item" 
-                                 onclick="selectAddress(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')">
+                    return `<div class="address-result" 
+                                 data-lat="${result.lat}"
+                                 data-lng="${result.lon}"
+                                 data-name="${result.display_name.replace(/"/g, '&quot;')}"
+                                 style="padding: 8px; cursor: default; font-size: 11px; color: #e2e8f0; border-bottom: 1px solid #334155;"
+                                 onmouseover="this.style.background='rgba(0,240,255,0.1)'"
+                                 onmouseout="this.style.background='transparent'"
+                                 onclick="window.selectAddress(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}'); this.parentElement.innerHTML=''; this.parentElement.classList.remove('show');">
                         📍 ${displayName}
                     </div>`;
                 }).join('');
@@ -4725,9 +5212,20 @@
             }
         }
         
+        // Make search functions globally available
+        window.searchAddress = searchAddress;
+        
         function selectAddress(lat, lng, displayName) {
-            const addressResults = document.getElementById('addressResults');
-            const addressInput = document.getElementById('addressInput');
+            // Clear all addressResults (original and panels)
+            document.querySelectorAll('#addressResults').forEach(el => {
+                el.classList.remove('show');
+                el.innerHTML = '';
+            });
+            
+            // Clear all addressInput fields
+            document.querySelectorAll('#addressInput').forEach(el => {
+                el.value = '';
+            });
             
             // Add waypoint at selected address
             addWaypoint(parseFloat(lat), parseFloat(lng));
@@ -4735,13 +5233,12 @@
             // Center map on location
             map.setView([lat, lng], 15, { animate: true });
             
-            // Clear search
-            addressInput.value = '';
-            addressResults.classList.remove('show');
-            addressResults.innerHTML = '';
-            
             console.log(`✓ Selected address: ${displayName}`);
         }
+        
+        // Make selectAddress globally available
+        window.selectAddress = selectAddress;
+        
         
         
         // ========================================
@@ -5136,9 +5633,11 @@
             showElevationProfile();
             analyzeSurface(geometry);
             
-            // Show toggle buttons
-            document.getElementById('statsToggle').classList.add('show');
-            document.getElementById('elevationToggle').classList.add('show');
+            // Show toggle buttons (if they exist)
+            const statsToggle = document.getElementById('statsToggle');
+            const elevationToggle = document.getElementById('elevationToggle');
+            if (statsToggle) statsToggle.classList.add('show');
+            if (elevationToggle) elevationToggle.classList.add('show');
             
             console.log(`✓ GPX Route geladen: ${totalDistance.toFixed(2)} km, ${points.length} Punkte → ${waypoints.length} Waypoints`);
             alert(`✓ GPX Route geladen!\n\n${filename}\n${totalDistance.toFixed(2)} km, ${Math.round(stats.elevationGain)} Höhenmeter\n\n→ Du kannst jetzt die ${waypoints.length} Wegpunkte verschieben und neu berechnen.`);
@@ -5157,6 +5656,11 @@
             const saveBtn = document.getElementById('apiSaveBtn');
             const ghInput = document.getElementById('graphhopperKeyInput');
             const valInput = document.getElementById('valhallaKeyInput');
+            
+            if (!toggle || !panel || !saveBtn || !ghInput || !valInput) {
+                console.log('⚠️ API Settings UI not found (using floating toolbar)');
+                return;
+            }
             
             // Load saved keys
             ghInput.value = apiKeys.graphhopper;
@@ -5200,40 +5704,51 @@
             const elevationToggle = document.getElementById('elevationToggle');
             const elevationProfile = document.getElementById('elevationProfile');
             
+            if (!statsToggle || !elevationToggle) {
+                console.log('⚠️ Panel toggles not found (using floating toolbar)');
+                return;
+            }
+            
             // Stats Toggle
-            statsToggle.addEventListener('click', () => {
-                const isShown = statsPanel.classList.contains('show');
-                if (isShown) {
-                    statsPanel.classList.remove('show');
-                    statsToggle.classList.remove('active');
-                } else {
-                    statsPanel.classList.add('show');
-                    statsToggle.classList.add('active');
-                }
-            });
+            if (statsToggle && statsPanel) {
+                statsToggle.addEventListener('click', () => {
+                    const isShown = statsPanel.classList.contains('show');
+                    if (isShown) {
+                        statsPanel.classList.remove('show');
+                        statsToggle.classList.remove('active');
+                    } else {
+                        statsPanel.classList.add('show');
+                        statsToggle.classList.add('active');
+                    }
+                });
+            }
             
             // Elevation Toggle
-            elevationToggle.addEventListener('click', () => {
-                const isShown = elevationProfile.classList.contains('show');
-                if (isShown) {
-                    elevationProfile.classList.remove('show');
-                    elevationToggle.classList.remove('active');
-                } else {
-                    elevationProfile.classList.add('show');
-                    elevationToggle.classList.add('active');
-                }
-            });
+            if (elevationToggle && elevationProfile) {
+                elevationToggle.addEventListener('click', () => {
+                    const isShown = elevationProfile.classList.contains('show');
+                    if (isShown) {
+                        elevationProfile.classList.remove('show');
+                        elevationToggle.classList.remove('active');
+                    } else {
+                        elevationProfile.classList.add('show');
+                        elevationToggle.classList.add('active');
+                    }
+                });
+            }
             
             // Auto-transparency for Stats Panel
-            statsPanel.addEventListener('mouseenter', () => {
-                statsPanel.classList.remove('faded');
-            });
-            
-            statsPanel.addEventListener('mouseleave', () => {
-                if (statsPanel.classList.contains('show')) {
-                    statsPanel.classList.add('faded');
-                }
-            });
+            if (statsPanel) {
+                statsPanel.addEventListener('mouseenter', () => {
+                    statsPanel.classList.remove('faded');
+                });
+                
+                statsPanel.addEventListener('mouseleave', () => {
+                    if (statsPanel.classList.contains('show')) {
+                        statsPanel.classList.add('faded');
+                    }
+                });
+            }
             
             // Auto-transparency for Elevation Profile
             elevationProfile.addEventListener('mouseenter', () => {
@@ -5271,32 +5786,38 @@
                 const elevationChartCanvas = document.getElementById('elevationChart');
                 
                 if (!toggleElevationBtn || !toggleSurfaceBtn) {
-                    console.error('Chart toggle buttons not found');
+                    console.warn('⚠️ Chart toggle buttons not found yet, will retry when profile shows');
                     return;
                 }
                 
+                // Remove old listeners (if any)
+                const newElevationBtn = toggleElevationBtn.cloneNode(true);
+                const newSurfaceBtn = toggleSurfaceBtn.cloneNode(true);
+                toggleElevationBtn.parentNode.replaceChild(newElevationBtn, toggleElevationBtn);
+                toggleSurfaceBtn.parentNode.replaceChild(newSurfaceBtn, toggleSurfaceBtn);
+                
                 // Toggle Elevation Chart
-                toggleElevationBtn.addEventListener('click', () => {
-                    const isActive = toggleElevationBtn.classList.contains('active');
+                newElevationBtn.addEventListener('click', () => {
+                    const isActive = newElevationBtn.classList.contains('active');
                     
                     if (isActive) {
-                        toggleElevationBtn.classList.remove('active');
-                        elevationChartCanvas.style.display = 'none';
+                        newElevationBtn.classList.remove('active');
+                        if (elevationChartCanvas) elevationChartCanvas.style.display = 'none';
                     } else {
-                        toggleElevationBtn.classList.add('active');
-                        elevationChartCanvas.style.display = 'block';
+                        newElevationBtn.classList.add('active');
+                        if (elevationChartCanvas) elevationChartCanvas.style.display = 'block';
                     }
                     
-                    console.log(`Elevation chart ${isActive ? 'hidden' : 'shown'}`);
+                    console.log(`📈 Elevation chart ${isActive ? 'hidden' : 'shown'}`);
                 });
                 
                 // Toggle Surface Chart
-                toggleSurfaceBtn.addEventListener('click', () => {
-                    const isActive = toggleSurfaceBtn.classList.contains('active');
+                newSurfaceBtn.addEventListener('click', () => {
+                    const isActive = newSurfaceBtn.classList.contains('active');
                     const legend = document.getElementById('surfaceLegend');
                     
                     if (isActive) {
-                        toggleSurfaceBtn.classList.remove('active');
+                        newSurfaceBtn.classList.remove('active');
                         if (legend) legend.style.display = 'none';
                         
                         // Redraw map route in blue
@@ -5304,7 +5825,7 @@
                             window.redrawMapRoute(false);
                         }
                     } else {
-                        toggleSurfaceBtn.classList.add('active');
+                        newSurfaceBtn.classList.add('active');
                         if (legend) legend.style.display = 'flex';
                         
                         // Redraw map route in surface colors
@@ -5313,12 +5834,7 @@
                         }
                     }
                     
-                    // Redraw elevation chart to show/hide surface line via plugin
-                    if (elevationChart) {
-                        elevationChart.update();
-                    }
-                    
-                    console.log(`Surface ${isActive ? 'hidden' : 'shown'} (chart + map)`);
+                    console.log(`🎨 Surface colors ${isActive ? 'hidden' : 'shown'}`);
                 });
                 
                 console.log('✓ Chart toggles initialized');
@@ -6535,6 +7051,9 @@
             }
         }
         
+        // Make togglePOI globally available
+        window.togglePOI = togglePOI;
+        
         // Calculate distance between two lat/lon points in km (Haversine formula)
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Earth radius in km
@@ -6761,12 +7280,18 @@
                 }
                 
                 updateList();
+                
+                // Trigger auto-calculation after drag
+                triggerAutoCalc(1000);
             });
             
             markers.push(marker);
             updateList();
             updateButtons();
             updateMarkerColors();
+            
+            // Trigger auto-calculation after adding waypoint
+            triggerAutoCalc(1000);
         }
         
         function updateMarkerColors() {
@@ -6884,7 +7409,7 @@
                                         </span>
                                     `}
                                     
-                                    <div class="engine-selector" onclick="toggleEngineDropdown(${i})">
+                                    <div class="engine-selector" onclick="event.stopPropagation(); toggleEngineDropdown(${i})">
                                         <span class="engine-current">
                                             ${currentEngineData.emoji} ${currentEngineData.label}
                                         </span>
@@ -6893,7 +7418,7 @@
                                     <div class="engine-dropdown" id="engine-dropdown-${i}" style="display: none;">
                                         ${engineOptions.map(opt => `
                                             <div class="engine-option ${currentEngine === opt.value ? 'active' : ''}"
-                                                 onclick="selectEngine(${i}, '${opt.value}')">
+                                                 onclick="event.stopPropagation(); selectEngine(${i}, '${opt.value}'); toggleEngineDropdown(${i});">
                                                 <span class="engine-emoji">${opt.emoji}</span>
                                                 <span class="engine-name">${opt.label}</span>
                                                 ${currentEngine === opt.value ? '<span class="check">✓</span>' : ''}
@@ -6918,61 +7443,47 @@
         }
         
         // Toggle waypoint list size
-        window.toggleWaypointSize = function(size) {
-            const list = document.querySelector('.waypoint-list');
-            const buttons = document.querySelectorAll('.waypoint-list-btn');
-            
-            // Remove all size classes
-            list.classList.remove('collapsed', 'expanded');
-            
-            // Remove active from all buttons
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Apply new size
-            if (size === 'small') {
-                list.classList.add('collapsed');
-                buttons[0].classList.add('active');
-            } else if (size === 'large') {
-                list.classList.add('expanded');
-                buttons[2].classList.add('active');
-            } else {
-                // Normal (default)
-                buttons[1].classList.add('active');
-            }
-            
-            // Save preference
-            localStorage.setItem('waypoint-list-size', size);
-        };
-        
-        // Restore saved size on load
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedSize = localStorage.getItem('waypoint-list-size') || 'normal';
-            toggleWaypointSize(savedSize);
-        });
         
         // Toggle engine dropdown
         window.toggleEngineDropdown = function(index) {
             const dropdown = document.getElementById(`engine-dropdown-${index}`);
+            const waypointItem = dropdown.closest('.waypoint-item-modern');
             
             // Close all other dropdowns
             document.querySelectorAll('.engine-dropdown').forEach(d => {
                 if (d.id !== `engine-dropdown-${index}`) {
                     d.style.display = 'none';
+                    // Remove dropdown-open class from other items
+                    const otherItem = d.closest('.waypoint-item-modern');
+                    if (otherItem) otherItem.classList.remove('dropdown-open');
                 }
             });
             
             // Toggle this one
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            const isOpen = dropdown.style.display === 'block';
+            dropdown.style.display = isOpen ? 'none' : 'block';
+            
+            // Add/remove dropdown-open class to bring item to front
+            if (waypointItem) {
+                if (isOpen) {
+                    waypointItem.classList.remove('dropdown-open');
+                } else {
+                    waypointItem.classList.add('dropdown-open');
+                }
+            }
         };
         
         // Select engine
         window.selectEngine = function(index, engine) {
+            console.log(`🎯 selectEngine called: index=${index}, engine=${engine}`);
+            console.log(`🎯 Current waypoint:`, waypoints[index]);
+            
             if (waypoints[index]) {
                 // Save state for undo
                 saveState(ACTION_TYPES.ENGINE_CHANGE);
                 
                 waypoints[index].engine = engine;
-                console.log(`✓ Waypoint ${index + 1} engine: ${engine}`);
+                console.log(`✓ Waypoint ${index + 1} engine changed to: ${engine}`);
                 
                 // Unlock segment when changing engine
                 if (waypoints[index].segmentToNext) {
@@ -6989,6 +7500,8 @@
                 }
                 
                 trackEvent('Engine Changed', { index, engine });
+            } else {
+                console.error(`❌ Waypoint ${index} not found!`);
             }
         };
         
@@ -7013,6 +7526,9 @@
             if (!e.target.closest('.engine-selector') && !e.target.closest('.engine-dropdown')) {
                 document.querySelectorAll('.engine-dropdown').forEach(d => {
                     d.style.display = 'none';
+                    // Remove dropdown-open class
+                    const item = d.closest('.waypoint-item-modern');
+                    if (item) item.classList.remove('dropdown-open');
                 });
             }
         });
@@ -7147,9 +7663,11 @@
             updateButtons();
             updateMarkerColors();
             
-            // User must click "Berechnen" to recalculate
+            // Auto-calculate after deletion
             if (waypoints.length < 2) {
                 clearRoutes();
+            } else {
+                triggerAutoCalc(500); // Shorter delay for deletion
             }
         }
         
@@ -7173,17 +7691,17 @@
             // Clear segment overrides (they're now invalid)
             segmentOverrides = {};
             
-            document.getElementById('statsPanel').classList.remove('show');
-            document.getElementById('statsToggle').classList.remove('show', 'active');
+            // Stats Panel
+            const statsPanel = document.getElementById('statsPanel');
+            if (statsPanel) statsPanel.classList.remove('show');
             
             // Update magnifier
             if (typeof window.updateMagnifierRoute === 'function') {
                 window.updateMagnifierRoute();
             }
             
-            // Hide elevation profile and toggle
+            // Hide elevation profile
             hideElevationProfile();
-            document.getElementById('elevationToggle').classList.remove('show', 'active');
             
             console.log('✓ All routes cleared');
         }
@@ -7214,23 +7732,43 @@
                     // ===== ROUTE PRESERVATION CHECK =====
                     // If segment is locked, use saved geometry instead of recalculating
                     if (start.segmentToNext && start.segmentToNext.locked) {
-                        console.log(`🔒 Segment ${segmentKey}: Using saved route (locked)`);
-                        
                         const savedSegment = start.segmentToNext;
-                        totalDist += savedSegment.distance;
-                        segmentDistances.push(savedSegment.distance);
                         
-                        // Use saved coordinates
-                        const startIdx = i === 0 ? 0 : 1;
-                        for (let j = startIdx; j < savedSegment.coordinates.length; j++) {
-                            allCoords.push(savedSegment.coordinates[j]);
-                            allGeometry.push(savedSegment.geometry[j] || savedSegment.coordinates[j]);
-                            allElevations.push(savedSegment.elevations && savedSegment.elevations[j] 
-                                ? savedSegment.elevations[j] 
-                                : null);
+                        // VALIDATION: Check if saved data is valid
+                        const isValid = savedSegment.coordinates && 
+                                       savedSegment.coordinates.length >= 2 &&
+                                       savedSegment.geometry && 
+                                       savedSegment.geometry.length >= 2 &&
+                                       savedSegment.distance > 0;
+                        
+                        if (!isValid) {
+                            console.log(`⚠️ Segment ${segmentKey}: Locked but invalid data! Unlocking and recalculating...`);
+                            console.log(`   - Coords: ${savedSegment.coordinates ? savedSegment.coordinates.length : 'null'}`);
+                            console.log(`   - Geometry: ${savedSegment.geometry ? savedSegment.geometry.length : 'null'}`);
+                            console.log(`   - Distance: ${savedSegment.distance || 'null'}`);
+                            
+                            // Auto-unlock corrupted segment
+                            start.segmentToNext = null;
+                            
+                            // Continue to normal routing calculation below (don't use continue statement)
+                        } else {
+                            console.log(`🔒 Segment ${segmentKey}: Using saved route (locked, ${savedSegment.coordinates.length} coords)`);
+                            
+                            totalDist += savedSegment.distance;
+                            segmentDistances.push(savedSegment.distance);
+                            
+                            // Use saved coordinates
+                            const startIdx = i === 0 ? 0 : 1;
+                            for (let j = startIdx; j < savedSegment.coordinates.length; j++) {
+                                allCoords.push(savedSegment.coordinates[j]);
+                                allGeometry.push(savedSegment.geometry[j] || savedSegment.coordinates[j]);
+                                allElevations.push(savedSegment.elevations && savedSegment.elevations[j] 
+                                    ? savedSegment.elevations[j] 
+                                    : null);
+                            }
+                            
+                            continue; // Skip routing for this segment!
                         }
-                        
-                        continue; // Skip routing for this segment!
                     }
                     // ===== END ROUTE PRESERVATION =====
                     
@@ -7558,6 +8096,9 @@
                             console.log(`✓ Waypoint inserted at position ${dragSegmentIndex + 2}`);
                             console.log(`  Total waypoints: ${waypoints.length}`);
                             console.log(`  Click "Berechnen" to calculate new segments`);
+                            
+                            // Trigger auto-calculation after inserting waypoint
+                            triggerAutoCalc(1000);
                         }
                     }
                     
@@ -7607,15 +8148,24 @@
                 // Show elevation profile
                 showElevationProfile();
                 
-                // Show toggle buttons
-                document.getElementById('statsToggle').classList.add('show');
-                document.getElementById('elevationToggle').classList.add('show');
+                // Show toggle buttons (if they exist)
+                const statsToggle = document.getElementById('statsToggle');
+                const elevationToggle = document.getElementById('elevationToggle');
+                const statsPanel = document.getElementById('statsPanel');
+                const elevationProfile = document.getElementById('elevationProfile');
+                
+                if (statsToggle) {
+                    statsToggle.classList.add('show');
+                    statsToggle.classList.add('active');
+                }
+                if (elevationToggle) {
+                    elevationToggle.classList.add('show');
+                    elevationToggle.classList.add('active');
+                }
                 
                 // Auto-show both panels
-                document.getElementById('statsPanel').classList.add('show');
-                document.getElementById('statsToggle').classList.add('active');
-                document.getElementById('elevationProfile').classList.add('show');
-                document.getElementById('elevationToggle').classList.add('active');
+                if (statsPanel) statsPanel.classList.add('show');
+                if (elevationProfile) elevationProfile.classList.add('show');
                 
                 // Check TOTAL distance limit AFTER all segments calculated
                 if (demoMode.active && totalDist > DEMO_LIMITS.MAX_DISTANCE_KM * 1000) {
@@ -8139,6 +8689,81 @@
             clearRoutes();
         }
         
+        // ==========================================
+        // AUTO-CALCULATION SYSTEM - FUNCTIONS
+        // ==========================================
+        
+        function setupAutoCalc() {
+            console.log('🔧 setupAutoCalc() called!');
+            const checkbox = document.getElementById('autoCalcToggle');
+            console.log('📦 Checkbox element:', checkbox);
+            
+            if (!checkbox) {
+                console.error('❌ Checkbox not found! ID: autoCalcToggle');
+                return;
+            }
+            
+            // Set initial state from localStorage
+            checkbox.checked = autoCalcEnabled;
+            console.log(`🔄 Auto-Calc initial state: ${autoCalcEnabled ? 'ON' : 'OFF'}`);
+            console.log(`✅ Checkbox checked state: ${checkbox.checked}`);
+            
+            // Change event handler for checkbox
+            checkbox.addEventListener('change', (e) => {
+                console.log('🎯 Checkbox change event fired!');
+                console.log(`   Old value: ${autoCalcEnabled}`);
+                console.log(`   New value: ${e.target.checked}`);
+                
+                autoCalcEnabled = e.target.checked;
+                localStorage.setItem('pixelruud_autoCalc', autoCalcEnabled);
+                
+                console.log(`   Saved to localStorage: ${localStorage.getItem('pixelruud_autoCalc')}`);
+                
+                if (autoCalcEnabled) {
+                    console.log('✅ Auto-Berechnung aktiviert');
+                } else {
+                    console.log('⏸️ Auto-Berechnung deaktiviert');
+                    
+                    // Cancel pending calculation
+                    if (autoCalcTimeout) {
+                        clearTimeout(autoCalcTimeout);
+                        autoCalcTimeout = null;
+                        console.log('❌ Pending auto-calc cancelled');
+                    }
+                }
+            });
+            
+            console.log('✅ setupAutoCalc() completed!');
+        }
+        
+        function triggerAutoCalc(delay = 1000) {
+            console.log(`🎯 triggerAutoCalc called: enabled=${autoCalcEnabled}, waypoints=${waypoints.length}`);
+            
+            if (!autoCalcEnabled) {
+                console.log('⏸️ Auto-Calc disabled, skipping...');
+                return;
+            }
+            
+            if (waypoints.length < 2) {
+                console.log('⚠️ Not enough waypoints (need 2+), skipping...');
+                return;
+            }
+            
+            // Cancel previous timeout
+            if (autoCalcTimeout) {
+                clearTimeout(autoCalcTimeout);
+                console.log('❌ Cancelled previous auto-calc timer');
+            }
+            
+            // Schedule new calculation
+            console.log(`⏰ Auto-Calc scheduled in ${delay}ms...`);
+            autoCalcTimeout = setTimeout(() => {
+                console.log('🔄 Auto-Calc: Starting calculation NOW!');
+                calculateRoutes();
+                autoCalcTimeout = null;
+            }, delay);
+        }
+        
         function clearAll() {
             // Save state for undo
             saveState(ACTION_TYPES.CLEAR_ALL);
@@ -8165,6 +8790,9 @@
             // Track GPX export
             trackEvent('gpx-exported');
         }
+        
+        // Make exportGPX globally available
+        window.exportGPX = exportGPX;
         
         function setProfile(p) {
             currentProfile = p;
@@ -8201,21 +8829,30 @@
             const libraryCloseBtn = document.getElementById('libraryCloseBtn');
             const heatmapToggle = document.getElementById('heatmapToggle');
             
+            if (!libraryToggle) {
+                console.log('⚠️ Library toggle not found (using floating toolbar)');
+                return;
+            }
+            
             // Toggle library
             libraryToggle.addEventListener('click', () => {
                 routeLibrary.classList.toggle('show');
             });
             
             // Close button
-            libraryCloseBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent event bubbling
-                routeLibrary.classList.remove('show');
-            });
+            if (libraryCloseBtn) {
+                libraryCloseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent event bubbling
+                    routeLibrary.classList.remove('show');
+                });
+            }
             
             // Auto-transparency when mouse leaves
-            routeLibrary.addEventListener('mouseenter', () => {
-                routeLibrary.classList.remove('faded');
-            });
+            if (routeLibrary) {
+                routeLibrary.addEventListener('mouseenter', () => {
+                    routeLibrary.classList.remove('faded');
+                });
+            }
             
             routeLibrary.addEventListener('mouseleave', () => {
                 if (routeLibrary.classList.contains('show')) {
@@ -8430,6 +9067,9 @@
             const profile = document.getElementById('elevationProfile');
             profile.classList.add('show');
             
+            // Setup chart toggles now that profile is visible
+            setupChartToggles();
+            
             const route = routes[0];
             const elevations = route.elevations;
             const coordinates = route.coordinates;
@@ -8527,12 +9167,26 @@
             
             // Find waypoint positions in the route
             const waypointDistances = [];
+            
+            console.log(`📍 Finding waypoint positions in route with ${coordinates.length} coordinates and ${waypoints.length} waypoints`);
+            
+            // For each waypoint, find its position by searching ONLY in relevant range
+            let searchStartIdx = 0;
+            
             waypoints.forEach((wp, wpIdx) => {
-                let closestIdx = 0;
+                let closestIdx = searchStartIdx;
                 let minDist = Infinity;
                 
-                // Find closest coordinate to this waypoint
-                coordinates.forEach((coord, idx) => {
+                // Calculate search window - make it bigger for safety
+                const avgSegmentSize = Math.floor(coordinates.length / waypoints.length);
+                const searchWindowSize = Math.max(100, avgSegmentSize * 2); // Double the average segment size
+                const searchEndIdx = Math.min(coordinates.length, searchStartIdx + searchWindowSize);
+                
+                console.log(`  WP${wpIdx + 1} search: idx ${searchStartIdx} to ${searchEndIdx} (window: ${searchWindowSize})`);
+                
+                // Search in window
+                for (let idx = searchStartIdx; idx < searchEndIdx; idx++) {
+                    const coord = coordinates[idx];
                     const dist = Math.sqrt(
                         Math.pow(coord[0] - wp.lat, 2) + 
                         Math.pow(coord[1] - wp.lng, 2)
@@ -8541,7 +9195,12 @@
                         minDist = dist;
                         closestIdx = idx;
                     }
-                });
+                }
+                
+                console.log(`  WP${wpIdx + 1} found at idx ${closestIdx}, dist=${(distances[closestIdx]/1000).toFixed(2)}km, minDist=${minDist.toFixed(6)}`);
+                
+                // Update search start for next waypoint (jump forward but not too far back)
+                searchStartIdx = Math.max(searchStartIdx, closestIdx - 20); // Don't go back more than 20 points
                 
                 waypointDistances.push({
                     distance: distances[closestIdx],
@@ -9073,6 +9732,1325 @@
             </div>
         </div>
     </div>
+
+    <script>
+    // ==========================================
+    // FLOATING TOOLBAR V3.0 - DRAG & DROP
+    // ==========================================
+    
+    (function initFloatingToolbar() {
+        const toolbar = document.getElementById('floatingToolbar');
+        const dragHandle = document.getElementById('toolbarDragHandle');
+        const panelsContainer = document.getElementById('floatingPanels');
+        
+        let isDragging = false;
+        let currentX, currentY, initialX, initialY;
+        
+        // Load saved position
+        const savedPos = JSON.parse(localStorage.getItem('toolbarPosition')) || { x: null, y: null };
+        if (savedPos.x !== null && savedPos.y !== null) {
+            toolbar.style.right = 'auto';
+            toolbar.style.top = 'auto';
+            toolbar.style.left = savedPos.x + 'px';
+            toolbar.style.top = savedPos.y + 'px';
+            toolbar.style.transform = 'none';
+        }
+        
+        // Drag functionality
+        dragHandle.addEventListener('mousedown', dragStart);
+        dragHandle.addEventListener('touchstart', dragStart);
+        
+        function dragStart(e) {
+            if (e.type === 'touchstart') {
+                initialX = e.touches[0].clientX - (savedPos.x || toolbar.offsetLeft);
+                initialY = e.touches[0].clientY - (savedPos.y || toolbar.offsetTop);
+            } else {
+                initialX = e.clientX - (savedPos.x || toolbar.offsetLeft);
+                initialY = e.clientY - (savedPos.y || toolbar.offsetTop);
+            }
+            
+            isDragging = true;
+            toolbar.classList.add('dragging');
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            if (e.type === 'touchmove') {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+            
+            // Boundary checks
+            const maxX = window.innerWidth - toolbar.offsetWidth - 20;
+            const maxY = window.innerHeight - toolbar.offsetHeight - 20;
+            
+            currentX = Math.max(20, Math.min(currentX, maxX));
+            currentY = Math.max(20, Math.min(currentY, maxY));
+            
+            toolbar.style.right = 'auto';
+            toolbar.style.transform = 'none';
+            toolbar.style.left = currentX + 'px';
+            toolbar.style.top = currentY + 'px';
+        }
+        
+        function dragEnd() {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            toolbar.classList.remove('dragging');
+            
+            // Save position
+            localStorage.setItem('toolbarPosition', JSON.stringify({
+                x: currentX,
+                y: currentY
+            }));
+            
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+            
+            console.log('🎯 Toolbar position saved:', currentX, currentY);
+        }
+        
+        // Panel management
+        const toolbarButtons = toolbar.querySelectorAll('.toolbar-btn');
+        
+        toolbarButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const panelType = btn.getAttribute('data-panel');
+                togglePanel(panelType, btn);
+            });
+        });
+        
+        function togglePanel(type, button) {
+            // Check if panel already exists
+            const existingPanel = Array.from(panelsContainer.children).find(
+                p => p.dataset.type === type
+            );
+            
+            if (existingPanel) {
+                // Close existing panel
+                closePanel(existingPanel);
+                button.classList.remove('active');
+                return;
+            }
+            
+            // Open new panel (multiple panels allowed now!)
+            button.classList.add('active');
+            openPanel(type);
+        }
+        
+        function openPanel(type) {
+            const panel = document.createElement('div');
+            panel.className = 'floating-panel';
+            panel.dataset.type = type;
+            
+            // Smart positioning - stack panels if multiple
+            const existingPanels = panelsContainer.children.length;
+            const toolbarRect = toolbar.getBoundingClientRect();
+            const position = calculatePanelPosition(toolbarRect, existingPanels);
+            
+            panel.style.left = position.left + 'px';
+            panel.style.top = position.top + 'px';
+            
+            // Panel content
+            panel.innerHTML = getPanelContent(type);
+            
+            panelsContainer.appendChild(panel);
+            
+            // Make panel draggable
+            makePanelDraggable(panel);
+            
+            // Close button handler
+            const closeBtn = panel.querySelector('.panel-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    closePanel(panel);
+                    toolbarButtons.forEach(b => {
+                        if (b.getAttribute('data-panel') === type) {
+                            b.classList.remove('active');
+                        }
+                    });
+                });
+            }
+            
+            // Initialize panel-specific functionality
+            initPanelFunctionality(type, panel);
+            
+            console.log('📂 Panel opened:', type);
+        }
+        
+        function makePanelDraggable(panel) {
+            const header = panel.querySelector('.panel-header');
+            if (!header) return;
+            
+            let isDragging = false;
+            let currentX, currentY, initialX, initialY;
+            
+            header.style.cursor = 'grab';
+            
+            header.addEventListener('mousedown', dragStart);
+            header.addEventListener('touchstart', dragStart);
+            
+            function dragStart(e) {
+                // Don't drag if clicking close button
+                if (e.target.closest('.panel-close')) return;
+                
+                const rect = panel.getBoundingClientRect();
+                
+                if (e.type === 'touchstart') {
+                    initialX = e.touches[0].clientX - rect.left;
+                    initialY = e.touches[0].clientY - rect.top;
+                } else {
+                    initialX = e.clientX - rect.left;
+                    initialY = e.clientY - rect.top;
+                }
+                
+                isDragging = true;
+                header.style.cursor = 'grabbing';
+                panel.style.transition = 'none'; // Disable animation during drag
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+                
+                // Boundary checks
+                const maxX = window.innerWidth - panel.offsetWidth;
+                const maxY = window.innerHeight - panel.offsetHeight;
+                
+                currentX = Math.max(0, Math.min(currentX, maxX));
+                currentY = Math.max(0, Math.min(currentY, maxY));
+                
+                panel.style.left = currentX + 'px';
+                panel.style.top = currentY + 'px';
+            }
+            
+            function dragEnd() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                header.style.cursor = 'grab';
+                panel.style.transition = ''; // Re-enable transitions
+                
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
+            }
+        }
+        
+        function closePanel(panel) {
+            if (!panel) return;
+            
+            panel.classList.add('closing');
+            setTimeout(() => {
+                panel.remove();
+            }, 200);
+        }
+        
+        function calculatePanelPosition(toolbarRect, existingPanels) {
+            const panelWidth = 350;
+            const panelHeight = 400;
+            const margin = 16;
+            const stackOffset = 40; // Offset for stacked panels
+            
+            let left, top;
+            
+            // Horizontal positioning
+            if (toolbarRect.left > window.innerWidth / 2) {
+                // Toolbar on right side - open panel to the left
+                left = toolbarRect.left - panelWidth - margin;
+            } else {
+                // Toolbar on left side - open panel to the right
+                left = toolbarRect.right + margin;
+            }
+            
+            // Vertical positioning - center with toolbar, then stack
+            top = toolbarRect.top + (toolbarRect.height / 2) - (panelHeight / 2);
+            
+            // Add offset for multiple panels (cascade effect)
+            if (existingPanels > 0) {
+                left += (existingPanels * stackOffset);
+                top += (existingPanels * stackOffset);
+            }
+            
+            // Boundary checks
+            left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
+            top = Math.max(margin, Math.min(top, window.innerHeight - panelHeight - margin));
+            
+            return { left, top };
+        }
+        
+        function getPanelContent(type) {
+            const panels = {
+                waypoints: `
+                    <div class="panel-header">
+                        <div class="panel-title">📍 Waypoints</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelWaypointList"></div>
+                    </div>
+                `,
+                api: `
+                    <div class="panel-header">
+                        <div class="panel-title">🔌 API Settings</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelApiSettings"></div>
+                    </div>
+                `,
+                import: `
+                    <div class="panel-header">
+                        <div class="panel-title">📥 Import GPX</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelImport"></div>
+                    </div>
+                `,
+                routes: `
+                    <div class="panel-header">
+                        <div class="panel-title">💾 Saved Routes</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelRoutes"></div>
+                    </div>
+                `,
+                magnifier: `
+                    <div class="panel-header">
+                        <div class="panel-title">🔍 Magnifier</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelMagnifier"></div>
+                    </div>
+                `,
+                poi: `
+                    <div class="panel-header">
+                        <div class="panel-title">🗺️ POI & Layers</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelPoi"></div>
+                    </div>
+                `,
+                stats: `
+                    <div class="panel-header">
+                        <div class="panel-title">📊 Statistics</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelStats"></div>
+                    </div>
+                `,
+                elevation: `
+                    <div class="panel-header">
+                        <div class="panel-title">📈 Elevation</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelElevation"></div>
+                    </div>
+                `,
+                search: `
+                    <div class="panel-header">
+                        <div class="panel-title">🔍 Adresse suchen</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelSearch"></div>
+                    </div>
+                `,
+                export: `
+                    <div class="panel-header">
+                        <div class="panel-title">📤 GPX Export</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelExport"></div>
+                    </div>
+                `,
+                layers: `
+                    <div class="panel-header">
+                        <div class="panel-title">🗺️ Karten-Layer</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelLayers"></div>
+                    </div>
+                `
+            };
+            
+            return panels[type] || '<div class="panel-content">Coming soon...</div>';
+        }
+        
+        function initPanelFunctionality(type, panel) {
+            console.log('🔧 Initializing panel:', type);
+            
+            const panelContent = panel.querySelector('.panel-content > div');
+            
+            switch(type) {
+                case 'waypoints':
+                    initWaypointsPanel(panelContent);
+                    break;
+                case 'magnifier':
+                    initMagnifierPanel(panelContent);
+                    break;
+                case 'elevation':
+                    initElevationPanel(panelContent);
+                    break;
+                case 'stats':
+                    initStatsPanel(panelContent);
+                    break;
+                case 'poi':
+                    initPOIPanel(panelContent);
+                    break;
+                case 'search':
+                    initSearchPanel(panelContent);
+                    break;
+                case 'import':
+                    initImportPanel(panelContent);
+                    break;
+                case 'export':
+                    initExportPanel(panelContent);
+                    break;
+                case 'routes':
+                    initRoutesPanel(panelContent);
+                    break;
+                case 'api':
+                    initAPIPanel(panelContent);
+                    break;
+                case 'layers':
+                    initLayersPanel(panelContent);
+                    break;
+            }
+        }
+        
+        function initWaypointsPanel(container) {
+            // Move existing waypoint list into panel
+            const oldWaypointList = document.querySelector('.waypoint-list');
+            if (!oldWaypointList) {
+                container.innerHTML = '<p style="color: #00f0ff;">Waypoint list not found</p>';
+                return;
+            }
+            
+            // Clone the waypoint list content
+            const header = oldWaypointList.querySelector('.waypoint-list-header');
+            const scroll = oldWaypointList.querySelector('.waypoint-list-scroll');
+            
+            if (header && scroll) {
+                // Add header content
+                container.innerHTML = `
+                    <div class="panel-waypoint-header">
+                        <div class="waypoint-count-display">
+                            <span class="waypoint-count" id="panelWaypointCount">0</span>
+                            <span style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin-left: 4px;">Waypoints</span>
+                        </div>
+                        <div class="waypoint-list-controls" style="display: flex; gap: 4px; align-items: center;">
+                            <label class="auto-calc-checkbox-inline" title="Auto-Berechnung aktivieren">
+                                <input type="checkbox" id="panelAutoCalcToggle">
+                                <span class="checkbox-custom-inline"></span>
+                                <span class="checkbox-label-inline">Auto</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="panel-waypoint-list" id="panelWaypointListContent"></div>
+                `;
+                
+                // Sync the new auto-calc checkbox with the original one
+                const panelCheckbox = container.querySelector('#panelAutoCalcToggle');
+                const originalCheckbox = document.querySelector('#autoCalcToggle');
+                
+                if (panelCheckbox && originalCheckbox) {
+                    panelCheckbox.checked = originalCheckbox.checked;
+                    
+                    // Sync checkbox changes
+                    panelCheckbox.addEventListener('change', (e) => {
+                        originalCheckbox.checked = e.target.checked;
+                        originalCheckbox.dispatchEvent(new Event('change'));
+                    });
+                    
+                    originalCheckbox.addEventListener('change', (e) => {
+                        panelCheckbox.checked = e.target.checked;
+                    });
+                }
+                
+                // Update the waypoint list to render into panel
+                window.updateWaypointListTarget = function() {
+                    const targetList = document.querySelector('#panelWaypointListContent');
+                    const originalList = document.querySelector('#waypointList');
+                    
+                    if (targetList && originalList) {
+                        targetList.innerHTML = originalList.innerHTML;
+                        
+                        // Update counter
+                        const count = document.querySelector('#waypointCount')?.textContent || '0';
+                        const panelCount = document.querySelector('#panelWaypointCount');
+                        if (panelCount) panelCount.textContent = count;
+                    }
+                };
+                
+                // Initial sync
+                window.updateWaypointListTarget();
+                
+                // Watch for changes in original list
+                const observer = new MutationObserver(() => {
+                    if (window.updateWaypointListTarget) {
+                        window.updateWaypointListTarget();
+                    }
+                });
+                
+                const originalList = document.querySelector('#waypointList');
+                if (originalList) {
+                    observer.observe(originalList, { childList: true, subtree: true });
+                }
+                
+                console.log('✅ Waypoints panel initialized');
+            }
+        }
+        
+        function initMagnifierPanel(container) {
+            // Move the existing magnifier settings into the panel
+            const oldSettings = document.querySelector('#magnifierSettings');
+            if (!oldSettings) {
+                container.innerHTML = '<p style="color: #00f0ff;">Magnifier settings not found</p>';
+                return;
+            }
+            
+            // Clone the content
+            container.innerHTML = oldSettings.innerHTML;
+            
+            // Sync all controls with original controls
+            
+            // Size slider - sync with original
+            const panelSizeSlider = container.querySelector('#magSizeSlider');
+            const originalSizeSlider = oldSettings.querySelector('#magSizeSlider');
+            
+            if (panelSizeSlider && originalSizeSlider) {
+                panelSizeSlider.value = originalSizeSlider.value;
+                
+                panelSizeSlider.addEventListener('input', (e) => {
+                    originalSizeSlider.value = e.target.value;
+                    originalSizeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            }
+            
+            // Zoom slider - sync with original
+            const panelZoomSlider = container.querySelector('#magZoomSlider');
+            const originalZoomSlider = oldSettings.querySelector('#magZoomSlider');
+            
+            if (panelZoomSlider && originalZoomSlider) {
+                panelZoomSlider.value = originalZoomSlider.value;
+                
+                panelZoomSlider.addEventListener('input', (e) => {
+                    originalZoomSlider.value = e.target.value;
+                    originalZoomSlider.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            }
+            
+            // Mode buttons - sync with original
+            const panelModeButtons = container.querySelectorAll('.magnifier-mode-btn[data-mode]');
+            
+            panelModeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const mode = btn.getAttribute('data-mode');
+                    const originalBtn = oldSettings.querySelector(`.magnifier-mode-btn[data-mode="${mode}"]`);
+                    
+                    if (originalBtn) {
+                        originalBtn.click();
+                        
+                        // Update active state in panel
+                        panelModeButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    }
+                });
+            });
+            
+            // Feature toggles - sync with original
+            const featureIds = [
+                'featureRoute',
+                'featureSurface',
+                'featurePOI',
+                'featureCoords',
+                'featureProfile',
+                'featureMeasure',
+                'featureSmartFocus'
+            ];
+            
+            featureIds.forEach(id => {
+                const panelElement = container.querySelector('#' + id);
+                const originalElement = oldSettings.querySelector('#' + id);
+                
+                if (panelElement && originalElement) {
+                    // Sync initial state
+                    if (originalElement.classList.contains('active')) {
+                        panelElement.classList.add('active');
+                    }
+                    
+                    // Click panel element → trigger original
+                    panelElement.addEventListener('click', () => {
+                        originalElement.click();
+                        
+                        // Sync visual state
+                        if (originalElement.classList.contains('active')) {
+                            panelElement.classList.add('active');
+                        } else {
+                            panelElement.classList.remove('active');
+                        }
+                    });
+                }
+            });
+            
+            console.log('✅ Magnifier panel initialized and synced with original controls');
+        }
+        
+        function initElevationPanel(container) {
+            // Show toggle button instead of panel content
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <p style="color: rgba(0, 240, 255, 0.8); margin-bottom: 20px;">
+                        Elevation Profile wird unten am Bildschirm angezeigt
+                    </p>
+                    <button id="toggleElevationFromPanel" style="
+                        background: linear-gradient(135deg, #00f0ff, #ccff00);
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        color: #001f3f;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 2px 8px rgba(0, 240, 255, 0.3);
+                    ">
+                        📈 Elevation anzeigen/ausblenden
+                    </button>
+
+                </div>
+            `;
+            
+            // Bind toggle button - toggle elevation profile directly
+            const toggleBtn = container.querySelector('#toggleElevationFromPanel');
+            const elevationProfile = document.querySelector('#elevationProfile');
+            
+            if (toggleBtn && elevationProfile) {
+                // Hover effects
+                toggleBtn.addEventListener('mouseenter', () => {
+                    toggleBtn.style.transform = 'translateY(-2px)';
+                    toggleBtn.style.boxShadow = '0 4px 16px rgba(0, 240, 255, 0.5)';
+                });
+                
+                toggleBtn.addEventListener('mouseleave', () => {
+                    toggleBtn.style.transform = 'translateY(0)';
+                    toggleBtn.style.boxShadow = '0 2px 8px rgba(0, 240, 255, 0.3)';
+                });
+                
+                // Active/Click effect
+                toggleBtn.addEventListener('mousedown', () => {
+                    toggleBtn.style.transform = 'scale(0.95)';
+                });
+                
+                toggleBtn.addEventListener('mouseup', () => {
+                    toggleBtn.style.transform = 'translateY(-2px)';
+                });
+                
+                // Toggle functionality
+                toggleBtn.addEventListener('click', () => {
+                    elevationProfile.classList.toggle('show');
+                    console.log('📈 Elevation profile toggled');
+                });
+            }
+            
+            console.log('✅ Elevation panel initialized (toggles original)');
+        }
+        
+        function initStatsPanel(container) {
+            // Move the existing stats panel into the panel
+            const oldStats = document.querySelector('#statsPanel');
+            if (!oldStats) {
+                container.innerHTML = '<p style="color: #00f0ff;">Statistics panel not found</p>';
+                return;
+            }
+            
+            // Clone the content
+            container.innerHTML = oldStats.innerHTML;
+            
+            // Watch for changes in original statsContent and sync
+            const panelStatsContent = container.querySelector('#statsContent');
+            const originalStatsContent = oldStats.querySelector('#statsContent');
+            
+            if (panelStatsContent && originalStatsContent) {
+                // Initial sync
+                panelStatsContent.innerHTML = originalStatsContent.innerHTML;
+                
+                // Watch for updates
+                const observer = new MutationObserver(() => {
+                    panelStatsContent.innerHTML = originalStatsContent.innerHTML;
+                });
+                
+                observer.observe(originalStatsContent, { 
+                    childList: true, 
+                    subtree: true,
+                    characterData: true 
+                });
+            }
+            
+            console.log('✅ Stats panel initialized and synced');
+        }
+        
+        function initPOIPanel(container) {
+            // Move POI controls into panel
+            const oldPOI = document.querySelector('#poiToggle');
+            if (!oldPOI) {
+                container.innerHTML = '<p style="color: #00f0ff;">POI controls not found</p>';
+                return;
+            }
+            
+            // Clone content
+            container.innerHTML = oldPOI.innerHTML;
+            
+            // Sync POI buttons - call togglePOI directly
+            const poiMap = {
+                'waterBtn': 'water',
+                'cafeBtn': 'cafe',
+                'shopBtn': 'shop',
+                'bikeBtn': 'bike'
+            };
+            
+            Object.keys(poiMap).forEach(btnId => {
+                const panelBtn = container.querySelector('#' + btnId);
+                const originalBtn = oldPOI.querySelector('#' + btnId);
+                const poiType = poiMap[btnId];
+                
+                if (panelBtn && originalBtn) {
+                    // Sync initial state
+                    if (originalBtn.classList.contains('active')) {
+                        panelBtn.classList.add('active');
+                    }
+                    
+                    // Click panel → toggle POI directly
+                    panelBtn.addEventListener('click', () => {
+                        // Call togglePOI function if it exists
+                        if (typeof window.togglePOI === 'function') {
+                            window.togglePOI(poiType, originalBtn);
+                            
+                            // Sync visual state
+                            if (originalBtn.classList.contains('active')) {
+                                panelBtn.classList.add('active');
+                            } else {
+                                panelBtn.classList.remove('active');
+                            }
+                        } else {
+                            // Fallback: click original button
+                            originalBtn.click();
+                            setTimeout(() => {
+                                if (originalBtn.classList.contains('active')) {
+                                    panelBtn.classList.add('active');
+                                } else {
+                                    panelBtn.classList.remove('active');
+                                }
+                            }, 100);
+                        }
+                    });
+                }
+            });
+            
+            console.log('✅ POI panel initialized and synced');
+        }
+        
+        function initSearchPanel(container) {
+            // Move address search into panel
+            const oldSearch = document.querySelector('#addressSearch');
+            if (!oldSearch) {
+                container.innerHTML = '<p style="color: #00f0ff;">Address search not found</p>';
+                return;
+            }
+            
+            // Clone content
+            container.innerHTML = oldSearch.innerHTML;
+            
+            // Sync input field - call searchAddress directly
+            const panelInput = container.querySelector('#addressInput');
+            const panelResults = container.querySelector('#addressResults');
+            
+            if (panelInput && panelResults) {
+                let searchTimeout;
+                
+                // Remove readonly to make it functional
+                panelInput.removeAttribute('readonly');
+                
+                // Direct search on input
+                panelInput.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const query = e.target.value.trim();
+                    
+                    if (query.length < 3) {
+                        panelResults.innerHTML = '';
+                        panelResults.classList.remove('show');
+                        return;
+                    }
+                    
+                    searchTimeout = setTimeout(async () => {
+                        if (window.searchAddress) {
+                            // Call searchAddress with panelResults as target
+                            await window.searchAddress(query, panelResults);
+                        }
+                    }, 300);
+                });
+                
+                // Clear on focus
+                panelInput.addEventListener('focus', () => {
+                    if (panelInput.value.includes('@')) {
+                        panelInput.value = '';
+                    }
+                });
+            }
+            
+            console.log('✅ Search panel initialized with direct search');
+        }
+        
+        function initExportPanel(container) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <p style="color: rgba(0, 240, 255, 0.8); margin-bottom: 20px;">
+                        Route als GPX-Datei herunterladen
+                    </p>
+                    <button id="exportGPXBtn" style="
+                        background: linear-gradient(135deg, #00f0ff, #ccff00);
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        color: #001f3f;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 2px 8px rgba(0, 240, 255, 0.3);
+                    ">
+                        📤 GPX Exportieren
+                    </button>
+                </div>
+            `;
+            
+            const btn = container.querySelector('#exportGPXBtn');
+            if (btn && window.exportGPX) {
+                // Hover effects
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 4px 16px rgba(0, 240, 255, 0.5)';
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = '0 2px 8px rgba(0, 240, 255, 0.3)';
+                });
+                
+                // Active/Click effect
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'scale(0.95)';
+                });
+                
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'translateY(-2px)';
+                });
+                
+                // Export functionality
+                btn.addEventListener('click', () => window.exportGPX());
+            }
+            
+            console.log('✅ Export panel initialized');
+        }
+        
+        function initImportPanel(container) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <p style="color: rgba(0, 240, 255, 0.8); margin-bottom: 20px;">
+                        GPX-Datei hochladen und Route importieren
+                    </p>
+                    <input type="file" id="panelGPXInput" accept=".gpx" style="display: none;">
+                    <button id="importGPXBtn" style="
+                        background: linear-gradient(135deg, #00f0ff, #ccff00);
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        color: #001f3f;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 2px 8px rgba(0, 240, 255, 0.3);
+                    ">
+                        📥 GPX Datei wählen
+                    </button>
+                    <div id="importStatus" style="margin-top: 15px; color: rgba(0, 240, 255, 0.7); font-size: 12px;"></div>
+                </div>
+            `;
+            
+            const btn = container.querySelector('#importGPXBtn');
+            const input = container.querySelector('#panelGPXInput');
+            const status = container.querySelector('#importStatus');
+            
+            if (btn && input) {
+                // Hover effects
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 4px 16px rgba(0, 240, 255, 0.5)';
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = '0 2px 8px rgba(0, 240, 255, 0.3)';
+                });
+                
+                // Active/Click effect
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'scale(0.95)';
+                });
+                
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'translateY(-2px)';
+                });
+                
+                // Click to open file dialog
+                btn.addEventListener('click', () => input.click());
+                
+                input.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    status.textContent = `📂 ${file.name} wird geladen...`;
+                    status.style.color = 'rgba(0, 240, 255, 0.9)';
+                    
+                    try {
+                        const text = await file.text();
+                        const parser = new DOMParser();
+                        const gpx = parser.parseFromString(text, 'text/xml');
+                        
+                        if (gpx.querySelector('parsererror')) {
+                            throw new Error('Ungültiges GPX-Format');
+                        }
+                        
+                        // Extract track points (trkpt) or route points (rtept)
+                        let points = Array.from(gpx.querySelectorAll('trkpt'));
+                        if (points.length === 0) {
+                            points = Array.from(gpx.querySelectorAll('rtept'));
+                        }
+                        
+                        if (points.length === 0) {
+                            throw new Error('Keine Trackpoints gefunden');
+                        }
+                        
+                        // Extract coordinates and elevations
+                        const coordinates = [];
+                        const geometry = [];
+                        const elevations = [];
+                        
+                        points.forEach(pt => {
+                            const lat = parseFloat(pt.getAttribute('lat'));
+                            const lon = parseFloat(pt.getAttribute('lon'));
+                            const ele = pt.querySelector('ele');
+                            const elevation = ele ? parseFloat(ele.textContent) : 0;
+                            
+                            coordinates.push([lat, lon]);
+                            geometry.push([lon, lat]);
+                            elevations.push(elevation);
+                        });
+                        
+                        // Calculate total distance
+                        let totalDistance = 0;
+                        for (let i = 1; i < coordinates.length; i++) {
+                            const prev = coordinates[i - 1];
+                            const curr = coordinates[i];
+                            const R = 6371;
+                            const lat1 = prev[0] * Math.PI / 180;
+                            const lat2 = curr[0] * Math.PI / 180;
+                            const dLat = (curr[0] - prev[0]) * Math.PI / 180;
+                            const dLon = (curr[1] - prev[1]) * Math.PI / 180;
+                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                     Math.cos(lat1) * Math.cos(lat2) *
+                                     Math.sin(dLon/2) * Math.sin(dLon/2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            totalDistance += R * c;
+                        }
+                        
+                        // Clear existing
+                        waypoints.forEach(wp => map.removeLayer(wp.marker));
+                        waypoints = [];
+                        clearRoutes();
+                        
+                        // Create route
+                        const stats = {
+                            elevationGain: 0,
+                            elevationLoss: 0,
+                            maxElevation: Math.max(...elevations),
+                            minElevation: Math.min(...elevations)
+                        };
+                        
+                        routes = [{
+                            distance: totalDistance * 1000,
+                            coordinates: coordinates,
+                            geometry: geometry,
+                            elevations: elevations,
+                            stats: stats
+                        }];
+                        
+                        // Draw route
+                        const routeLine = L.polyline(coordinates, {
+                            color: '#3b82f6',
+                            weight: 4,
+                            opacity: 0.8
+                        }).addTo(map);
+                        routeLines.push(routeLine);
+                        
+                        // Fit map
+                        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                        
+                        // Extract waypoints - ONE PER KILOMETER (ORIGINAL LOGIC!)
+                        const waypointIndices = [0]; // Start
+                        let cumulativeDistance = 0;
+                        let nextWaypointDistance = 1; // Next at 1km
+                        
+                        for (let i = 1; i < coordinates.length; i++) {
+                            const prev = coordinates[i - 1];
+                            const curr = coordinates[i];
+                            const R = 6371;
+                            const lat1 = prev[0] * Math.PI / 180;
+                            const lat2 = curr[0] * Math.PI / 180;
+                            const dLat = (curr[0] - prev[0]) * Math.PI / 180;
+                            const dLon = (curr[1] - prev[1]) * Math.PI / 180;
+                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                     Math.cos(lat1) * Math.cos(lat2) *
+                                     Math.sin(dLon/2) * Math.sin(dLon/2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            const dist = R * c;
+                            
+                            cumulativeDistance += dist;
+                            
+                            if (cumulativeDistance >= nextWaypointDistance) {
+                                waypointIndices.push(i);
+                                nextWaypointDistance += 1;
+                            }
+                        }
+                        
+                        // End
+                        if (waypointIndices[waypointIndices.length - 1] !== coordinates.length - 1) {
+                            waypointIndices.push(coordinates.length - 1);
+                        }
+                        
+                        // Add waypoints
+                        waypointIndices.forEach(idx => {
+                            addWaypoint(coordinates[idx][0], coordinates[idx][1]);
+                        });
+                        
+                        // Analyze surface
+                        if (typeof analyzeSurface === 'function') {
+                            analyzeSurface(geometry);
+                        }
+                        
+                        // Show elevation
+                        showElevationProfile();
+                        
+                        status.textContent = `✅ ${points.length} Punkte → ${waypointIndices.length} Wegpunkte (~1/km)`;
+                        status.style.color = '#10b981';
+                        
+                        console.log(`✅ GPX: ${points.length} points → ${waypointIndices.length} waypoints for ${totalDistance.toFixed(2)}km`);
+                        
+                    } catch (error) {
+                        console.error('GPX import error:', error);
+                        status.textContent = `❌ Fehler: ${error.message}`;
+                        status.style.color = '#ef4444';
+                    }
+                    
+                    // Reset input
+                    input.value = '';
+                });
+            }
+            
+            console.log('✅ Import panel initialized with 1WP/km logic');
+        }
+        
+        function initRoutesPanel(container) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <p style="color: rgba(0, 240, 255, 0.8); margin-bottom: 20px;">
+                        Gespeicherte Routen & Heatmap
+                    </p>
+                    <p style="color: rgba(0, 240, 255, 0.6); font-size: 12px;">
+                        Coming soon: Route History & Heatmap Visualization
+                    </p>
+                </div>
+            `;
+            
+            console.log('✅ Routes panel initialized');
+        }
+        
+        function initAPIPanel(container) {
+            // Move API settings panel
+            const oldAPI = document.querySelector('#apiSettingsPanel');
+            if (!oldAPI) {
+                container.innerHTML = '<p style="color: #00f0ff;">API settings not found</p>';
+                return;
+            }
+            
+            // Clone content
+            container.innerHTML = oldAPI.innerHTML;
+            
+            // Sync all form elements
+            const panelInputs = container.querySelectorAll('input, select, textarea');
+            const originalInputs = oldAPI.querySelectorAll('input, select, textarea');
+            
+            panelInputs.forEach((panelInput, index) => {
+                const originalInput = originalInputs[index];
+                if (!originalInput) return;
+                
+                // Sync initial value
+                panelInput.value = originalInput.value;
+                if (originalInput.checked !== undefined) {
+                    panelInput.checked = originalInput.checked;
+                }
+                
+                // Sync changes
+                panelInput.addEventListener('input', (e) => {
+                    originalInput.value = e.target.value;
+                    originalInput.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                
+                panelInput.addEventListener('change', (e) => {
+                    if (e.target.type === 'checkbox') {
+                        originalInput.checked = e.target.checked;
+                    }
+                    originalInput.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            });
+            
+            console.log('✅ API panel initialized and synced');
+        }
+        
+        function initLayersPanel(container) {
+            // Create layer buttons
+            const layers = [
+                { name: 'Standard (OSM)', icon: '🗺️', layer: 'osm' },
+                { name: 'CyclOSM (Gravel)', icon: '🚴', layer: 'cycle' },
+                { name: 'Topografisch', icon: '⛰️', layer: 'topo' },
+                { name: 'Waymarked Trails', icon: '🚵', layer: 'waymarked' },
+                { name: 'OSM Deutschland', icon: '🇩🇪', layer: 'osmde' },
+                { name: 'Humanitarian', icon: '🌍', layer: 'hike' },
+                { name: 'Satellit', icon: '🛰️', layer: 'satellite' }
+            ];
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            
+            layers.forEach(layer => {
+                html += `
+                    <button class="layer-btn" data-layer="${layer.layer}" style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 12px 16px;
+                        background: rgba(0, 40, 85, 0.5);
+                        border: 1px solid rgba(0, 240, 255, 0.3);
+                        border-radius: 8px;
+                        color: rgba(0, 240, 255, 0.9);
+                        cursor: default;
+                        transition: all 0.2s ease;
+                        font-size: 13px;
+                    ">
+                        <span style="font-size: 20px;">${layer.icon}</span>
+                        <span>${layer.name}</span>
+                    </button>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            // Add hover effects
+            const buttons = container.querySelectorAll('.layer-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.background = 'rgba(0, 60, 120, 0.6)';
+                    btn.style.borderColor = 'rgba(0, 240, 255, 0.5)';
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.background = 'rgba(0, 40, 85, 0.5)';
+                    btn.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+                });
+                
+                // Click to change layer
+                btn.addEventListener('click', () => {
+                    const layerName = btn.getAttribute('data-layer');
+                    
+                    // Direct layer switching using global baseMaps
+                    if (window.mainMap && window.baseMaps) {
+                        const layerMap = {
+                            'osm': '🗺️ Standard (OSM)',
+                            'cycle': '🚴 CyclOSM (Gravel)',
+                            'topo': '⛰️ Topografisch',
+                            'waymarked': '🚵 Waymarked Trails',
+                            'osmde': '🇩🇪 OSM Deutschland',
+                            'hike': '🌍 Humanitarian',
+                            'satellite': '🛰️ Satellit'
+                        };
+                        
+                        const targetLayerName = layerMap[layerName];
+                        
+                        if (targetLayerName && window.baseMaps[targetLayerName]) {
+                            // Remove all layers first
+                            Object.values(window.baseMaps).forEach(layer => {
+                                window.mainMap.removeLayer(layer);
+                            });
+                            
+                            // Add the selected layer
+                            window.baseMaps[targetLayerName].addTo(window.mainMap);
+                            
+                            console.log('🗺️ Switched to layer:', targetLayerName);
+                        }
+                    }
+                    
+                    // Visual feedback - reset all, then highlight clicked
+                    buttons.forEach(b => {
+                        b.style.background = 'rgba(0, 40, 85, 0.5)';
+                        b.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+                        b.style.color = 'rgba(0, 240, 255, 0.9)';
+                    });
+                    btn.style.background = 'rgba(0, 120, 180, 0.8)';
+                    btn.style.borderColor = '#00f0ff';
+                    btn.style.color = '#00f0ff';
+                    btn.style.fontWeight = '700';
+                });
+            });
+            
+            console.log('✅ Layers panel initialized');
+        }
+        
+        console.log('✅ Floating Toolbar V3.0 initialized!');
+    })();
+    
+    // ==========================================
+    // ELEVATION PROFILE DRAGGABLE
+    // ==========================================
+    
+    (function makeElevationDraggable() {
+        const elevationProfile = document.getElementById('elevationProfile');
+        if (!elevationProfile) return;
+        
+        let isDragging = false;
+        let currentX, currentY, initialX, initialY;
+        
+        // Add drag handle indicator to header
+        const header = elevationProfile.querySelector('h4');
+        if (header) {
+            header.style.cursor = 'grab';
+            header.style.userSelect = 'none';
+            
+            header.addEventListener('mousedown', dragStart);
+            header.addEventListener('touchstart', dragStart);
+        }
+        
+        function dragStart(e) {
+            // Don't drag if clicking buttons
+            if (e.target.closest('button') || e.target.closest('svg')) return;
+            
+            const rect = elevationProfile.getBoundingClientRect();
+            
+            if (e.type === 'touchstart') {
+                initialX = e.touches[0].clientX - rect.left;
+                initialY = e.touches[0].clientY - rect.top;
+            } else {
+                initialX = e.clientX - rect.left;
+                initialY = e.clientY - rect.top;
+            }
+            
+            isDragging = true;
+            if (header) header.style.cursor = 'grabbing';
+            elevationProfile.style.transition = 'none';
+            
+            // Change to fixed positioning for dragging
+            elevationProfile.style.position = 'fixed';
+            elevationProfile.style.left = rect.left + 'px';
+            elevationProfile.style.top = rect.top + 'px';
+            elevationProfile.style.right = 'auto';
+            elevationProfile.style.bottom = 'auto';
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            if (e.type === 'touchmove') {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+            
+            // Boundary checks
+            const maxX = window.innerWidth - elevationProfile.offsetWidth - 20;
+            const maxY = window.innerHeight - elevationProfile.offsetHeight - 20;
+            
+            currentX = Math.max(20, Math.min(currentX, maxX));
+            currentY = Math.max(20, Math.min(currentY, maxY));
+            
+            elevationProfile.style.left = currentX + 'px';
+            elevationProfile.style.top = currentY + 'px';
+        }
+        
+        function dragEnd() {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            if (header) header.style.cursor = 'grab';
+            elevationProfile.style.transition = '';
+            
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+            
+            console.log('📈 Elevation profile position:', currentX, currentY);
+        }
+        
+        console.log('✅ Elevation Profile draggable initialized');
+    })();
+    </script>
 
 </body>
 </html>
