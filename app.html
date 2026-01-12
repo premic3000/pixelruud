@@ -3197,6 +3197,13 @@
                 <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
             </svg>
         </button>
+        
+        <!-- 12. Weather Overlay -->
+        <button class="toolbar-btn" data-panel="weather-overlay" title="Weather Overlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+            </svg>
+        </button>
     </div>
     
     <!-- Floating Panels Container -->
@@ -4161,7 +4168,12 @@
         
         // Save current state before action
         function saveState(actionType) {
-            if (!history.enabled) return;
+            console.log(`📥 saveState("${actionType}") called, enabled=${history.enabled}`);
+            
+            if (!history.enabled) {
+                console.log(`  ⛔ History disabled, skipping`);
+                return;
+            }
             
             const state = {
                 action: actionType,
@@ -4170,16 +4182,42 @@
                 segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
             };
             
+            console.log(`  Current waypoints: ${waypoints.length}`);
+            console.log(`  Current stack size: ${history.undoStack.length}`);
+            
+            // Check if this state is identical to the last one (duplicate detection)
+            if (history.undoStack.length > 0) {
+                const lastState = history.undoStack[history.undoStack.length - 1];
+                const lastWaypointsStr = JSON.stringify(lastState.waypoints);
+                const currentWaypointsStr = JSON.stringify(state.waypoints);
+                
+                console.log(`  Checking for duplicate...`);
+                console.log(`    Last state waypoints: ${lastState.waypoints.length}`);
+                console.log(`    Current waypoints: ${state.waypoints.length}`);
+                
+                if (lastWaypointsStr === currentWaypointsStr) {
+                    console.log(`  ⏭️ DUPLICATE DETECTED - Skipping: ${actionType}`);
+                    return;  // Don't save duplicate
+                } else {
+                    console.log(`  ✅ Different from last state - Saving`);
+                }
+            } else {
+                console.log(`  📭 Stack is empty - First save`);
+            }
+            
             history.undoStack.push(state);
             history.redoStack = []; // Clear redo on new action
+            
+            console.log(`  ✅ State saved! Stack now: ${history.undoStack.length} states`);
             
             // Limit stack size
             if (history.undoStack.length > history.maxSize) {
                 history.undoStack.shift();
+                console.log(`  🗑️ Removed oldest state (max=${history.maxSize})`);
             }
             
             updateUndoRedoButtons();
-            console.log(`💾 ${actionType}`);
+            console.log(`💾 ${actionType} (stack: ${history.undoStack.length})`);
         }
         
         // Undo last action
@@ -4187,6 +4225,12 @@
             console.log('🔍 UNDO CALLED');
             console.log('  undoStack.length:', history.undoStack.length);
             console.log('  Current waypoints:', waypoints.length);
+            
+            // DUMP ENTIRE STACK
+            console.log('📚 UNDO STACK DUMP:');
+            history.undoStack.forEach((state, idx) => {
+                console.log(`  [${idx}] ${state.action} - ${state.waypoints.length} waypoints @ ${new Date(state.timestamp).toLocaleTimeString()}`);
+            });
             
             if (history.undoStack.length === 0) {
                 console.log('❌ UNDO: Stack empty, returning');
@@ -4197,8 +4241,9 @@
             
             // Get previous state
             const previousState = history.undoStack.pop();
-            console.log('✓ Popped state:', previousState);
+            console.log('✓ Popped state:', previousState.action);
             console.log('  Previous waypoints:', previousState.waypoints.length);
+            console.log('  Stack after pop:', history.undoStack.length);
             
             // Save CURRENT state to redo (before restoring)
             // Only if it's different from what we're restoring
@@ -4230,33 +4275,36 @@
         
         // Redo last undone action
         function redo() {
-            if (history.redoStack.length === 0) return;
+            console.log('🔄 REDO CALLED');
+            console.log('  redoStack.length:', history.redoStack.length);
+            console.log('  Current waypoints:', waypoints.length);
+            
+            if (history.redoStack.length === 0) {
+                console.log('❌ REDO: Stack empty, returning');
+                return;
+            }
             
             history.enabled = false;
             
-            // Get next state
+            // Get next state from REDO stack
             const nextState = history.redoStack.pop();
+            console.log('✓ Popped from REDO stack:', nextState.action);
+            console.log('  Next waypoints:', nextState.waypoints.length);
+            console.log('  Redo stack after pop:', history.redoStack.length);
             
-            // Save CURRENT state to undo (before restoring)
-            const currentWaypointsStr = JSON.stringify(waypoints);
-            const nextWaypointsStr = JSON.stringify(nextState.waypoints);
-            
-            if (currentWaypointsStr !== nextWaypointsStr) {
-                const currentState = {
-                    action: 'Undo',
-                    waypoints: JSON.parse(JSON.stringify(waypoints)),
-                    segmentOverrides: JSON.parse(JSON.stringify(segmentOverrides))
-                };
-                history.undoStack.push(currentState);
-            }
+            // CRITICAL FIX: Do NOT push current state to undoStack!
+            // Redo is just restoring a previous state that's already in undoStack
+            // The undoStack already has all the states we need
             
             // Restore next
+            console.log('🔄 Calling restoreState...');
             restoreState(nextState);
+            console.log('✓ restoreState completed');
             
             history.enabled = true;
             updateUndoRedoButtons();
             showToast('↷ Wiederhergestellt', 'redo');
-            console.log('↷ Redo');
+            console.log(`↷ Redo: ${nextState.action}`);
         }
         
         // Restore state
@@ -4809,7 +4857,11 @@
             
             map.on('click', e => addWaypoint(e.latlng.lat, e.latlng.lng));
             
-            document.getElementById('calculateBtn').onclick = calculateRoutes;
+            // Use addEventListener instead of onclick to prevent overwriting
+            document.getElementById('calculateBtn').addEventListener('click', () => {
+                console.log('🔄 Calculate button clicked!');
+                calculateRoutes();
+            });
             document.getElementById('reverseBtn').onclick = reverseRoute;
             document.getElementById('clearBtn').onclick = clearAll;
             document.getElementById('exportBtn').onclick = exportGPX;
@@ -7706,8 +7758,23 @@
             console.log('✓ All routes cleared');
         }
         
+        let isCalculating = false;  // Guard to prevent multiple simultaneous calculations
+        
         async function calculateRoutes() {
-            if (waypoints.length < 2) return;
+            console.log('🔄 calculateRoutes() called');
+            
+            if (isCalculating) {
+                console.log('⚠️ Already calculating, ignoring duplicate call');
+                return;
+            }
+            
+            if (waypoints.length < 2) {
+                console.log('⚠️ Not enough waypoints (<2), aborting');
+                return;
+            }
+            
+            isCalculating = true;
+            console.log('✅ Starting route calculation...');
             
             const currentZoom = map.getZoom();
             const currentCenter = map.getCenter();
@@ -8212,8 +8279,11 @@
                 
             } catch (e) {
                 alert('Fehler: ' + e.message);
-                console.error(e);
+                console.error('❌ Route calculation error:', e);
             } finally {
+                isCalculating = false;  // Reset guard
+                console.log('✅ Calculation finished, guard reset');
+                
                 document.getElementById('loading').classList.remove('show');
                 document.getElementById('calculateBtn').disabled = false;
                 
@@ -10108,6 +10178,15 @@
                     <div class="panel-content">
                         <div id="panelLayers"></div>
                     </div>
+                `,
+                'weather-overlay': `
+                    <div class="panel-header">
+                        <div class="panel-title">🌦️ Weather Overlay</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelWeatherOverlay"></div>
+                    </div>
                 `
             };
             
@@ -10152,6 +10231,9 @@
                     break;
                 case 'layers':
                     initLayersPanel(panelContent);
+                    break;
+                case 'weather-overlay':
+                    initWeatherOverlayPanel(panelContent);
                     break;
             }
         }
@@ -10952,6 +11034,598 @@
             });
             
             console.log('✅ Layers panel initialized');
+        }
+        
+        function initWeatherOverlayPanel(container) {
+            // Weather overlay info
+            container.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="color: #00f0ff; margin: 0 0 15px 0; font-size: 14px;">
+                        🌦️ Weather Overlays
+                    </h3>
+                    
+                    <div style="background: rgba(0, 60, 120, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3); margin-bottom: 15px;">
+                        <p style="color: rgba(0, 240, 255, 0.9); margin: 0 0 10px 0; font-size: 13px;">
+                            ℹ️ <strong>Weather Overlays verfügbar mit OpenWeatherMap API</strong>
+                        </p>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0; line-height: 1.5;">
+                            Um Wetter-Layer (Regen, Wolken, Temperatur, Wind) zu aktivieren, benötigst du einen kostenlosen API Key von OpenWeatherMap.
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: rgba(0, 240, 255, 0.9); font-size: 12px; margin-bottom: 8px;">
+                            OpenWeatherMap API Key:
+                        </label>
+                        <input 
+                            type="text" 
+                            id="weatherApiKeyInput" 
+                            placeholder="Dein API Key..." 
+                            style="
+                                width: 100%;
+                                padding: 8px;
+                                background: rgba(0, 20, 40, 0.6);
+                                border: 1px solid rgba(0, 240, 255, 0.3);
+                                border-radius: 4px;
+                                color: #00f0ff;
+                                font-size: 12px;
+                            "
+                        >
+                        <button 
+                            id="saveWeatherApiKey" 
+                            style="
+                                margin-top: 8px;
+                                padding: 8px 16px;
+                                background: linear-gradient(135deg, #00f0ff, #ccff00);
+                                border: none;
+                                border-radius: 4px;
+                                color: #001f3f;
+                                font-weight: 600;
+                                cursor: pointer;
+                                font-size: 12px;
+                            "
+                        >
+                            💾 Key speichern
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                        <!-- Rain Layer -->
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; opacity: 0.5;">
+                            <span style="color: rgba(0, 240, 255, 0.7); font-size: 13px;">
+                                🌧️ Niederschlag
+                            </span>
+                            <input type="checkbox" id="rainLayerToggle" disabled style="cursor: not-allowed;">
+                        </label>
+                        
+                        <!-- Clouds Layer -->
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; opacity: 0.5;">
+                            <span style="color: rgba(0, 240, 255, 0.7); font-size: 13px;">
+                                ☁️ Wolken
+                            </span>
+                            <input type="checkbox" id="cloudsLayerToggle" disabled style="cursor: not-allowed;">
+                        </label>
+                        
+                        <!-- Temperature Layer -->
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; opacity: 0.5;">
+                            <span style="color: rgba(0, 240, 255, 0.7); font-size: 13px;">
+                                🌡️ Temperatur
+                            </span>
+                            <input type="checkbox" id="tempLayerToggle" disabled style="cursor: not-allowed;">
+                        </label>
+                        
+                        <!-- Wind Layer -->
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; opacity: 0.5;">
+                            <span style="color: rgba(0, 240, 255, 0.7); font-size: 13px;">
+                                💨 Wind
+                            </span>
+                            <input type="checkbox" id="windLayerToggle" disabled style="cursor: not-allowed;">
+                        </label>
+                    </div>
+                    
+                    <!-- OPACITY SLIDER -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 40, 80, 0.3); border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2);">
+                        <label style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: rgba(0, 240, 255, 0.9); font-size: 12px; font-weight: 600;">
+                                🎚️ Transparenz
+                            </span>
+                            <span id="opacityValue" style="color: #ccff00; font-size: 12px; font-weight: 600;">100%</span>
+                        </label>
+                        <input 
+                            type="range" 
+                            id="opacitySlider" 
+                            min="0" 
+                            max="100" 
+                            value="100"
+                            disabled
+                            style="
+                                width: 100%;
+                                cursor: not-allowed;
+                            "
+                        >
+                    </div>
+                    
+                    <!-- FORECAST TIME SLIDER -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 40, 80, 0.3); border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2);">
+                        <label style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: rgba(0, 240, 255, 0.9); font-size: 12px; font-weight: 600;">
+                                ⏰ Vorhersage
+                            </span>
+                            <span id="forecastTime" style="color: #ccff00; font-size: 11px; font-weight: 600;">Jetzt</span>
+                        </label>
+                        <input 
+                            type="range" 
+                            id="forecastSlider" 
+                            min="0" 
+                            max="5" 
+                            value="0"
+                            step="1"
+                            disabled
+                            style="
+                                width: 100%;
+                                cursor: not-allowed;
+                            "
+                        >
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 9px; color: rgba(0, 240, 255, 0.5);">
+                            <span>Jetzt</span>
+                            <span>+3h</span>
+                            <span>+6h</span>
+                            <span>+12h</span>
+                            <span>+24h</span>
+                            <span>+5 Tage</span>
+                        </div>
+                        <p style="color: rgba(0, 240, 255, 0.6); font-size: 10px; margin: 10px 0 0 0; line-height: 1.4;">
+                            ℹ️ OpenWeatherMap bietet 5-Tage-Vorhersage in 3-Stunden-Schritten (kostenlos)
+                        </p>
+                    </div>
+                    
+                    <div style="background: rgba(0, 60, 120, 0.2); padding: 12px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2);">
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0 0 8px 0;">
+                            <strong>🔑 Kostenlosen API Key erhalten:</strong>
+                        </p>
+                        <ol style="color: rgba(0, 240, 255, 0.6); font-size: 10px; margin: 0; padding-left: 20px; line-height: 1.6;">
+                            <li>Gehe zu <a href="https://openweathermap.org/api" target="_blank" style="color: #ccff00;">openweathermap.org/api</a></li>
+                            <li>Registriere dich kostenlos</li>
+                            <li>Kopiere deinen API Key</li>
+                            <li>Füge ihn oben ein und klicke "Speichern"</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button 
+                            id="testWeatherBtn"
+                            style="
+                                padding: 10px 20px;
+                                background: rgba(204, 255, 0, 0.2);
+                                border: 1px solid rgba(204, 255, 0, 0.5);
+                                border-radius: 6px;
+                                color: #ccff00;
+                                font-size: 11px;
+                                cursor: pointer;
+                                font-weight: 600;
+                            "
+                        >
+                            🧪 Test: Zeige UK (dort regnet's!)
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Test button - fly to UK where it's always raining!
+            setTimeout(() => {
+                const testBtn = container.querySelector('#testWeatherBtn');
+                if (testBtn) {
+                    testBtn.addEventListener('click', () => {
+                        map.setView([51.5074, -0.1278], 10); // London
+                        console.log('🧪 Flew to London - activate rain layer to see weather!');
+                        alert('🌧️ Karte zeigt jetzt London!\n\nAktiviere "Niederschlag" um Wetter zu sehen.');
+                    });
+                }
+            }, 100);
+            
+            // Initialize weather layers object
+            if (!window.weatherLayers) {
+                window.weatherLayers = {
+                    rain: null,
+                    clouds: null,
+                    temp: null,
+                    wind: null
+                };
+            }
+            
+            // Load saved API key
+            const savedKey = localStorage.getItem('openweather_api_key');
+            const input = container.querySelector('#weatherApiKeyInput');
+            const saveBtn = container.querySelector('#saveWeatherApiKey');
+            
+            if (savedKey) {
+                input.value = savedKey;
+                enableWeatherToggles();
+            }
+            
+            // Save API key
+            saveBtn.addEventListener('click', () => {
+                const key = input.value.trim();
+                if (!key) {
+                    alert('Bitte gib einen API Key ein!');
+                    return;
+                }
+                
+                localStorage.setItem('openweather_api_key', key);
+                alert('✅ API Key gespeichert! Du kannst jetzt die Weather Layers aktivieren.');
+                enableWeatherToggles();
+            });
+            
+            function enableWeatherToggles() {
+                const apiKey = localStorage.getItem('openweather_api_key');
+                if (!apiKey) return;
+                
+                const toggles = container.querySelectorAll('input[type="checkbox"]');
+                const labels = container.querySelectorAll('label');
+                
+                toggles.forEach((toggle, idx) => {
+                    toggle.disabled = false;
+                    toggle.style.cursor = 'pointer';
+                    if (labels[idx]) {
+                        labels[idx].style.opacity = '1';
+                        labels[idx].style.cursor = 'pointer';
+                    }
+                });
+                
+                // Enable sliders
+                const opacitySlider = container.querySelector('#opacitySlider');
+                const forecastSlider = container.querySelector('#forecastSlider');
+                
+                if (opacitySlider) {
+                    opacitySlider.disabled = false;
+                    opacitySlider.style.cursor = 'pointer';
+                }
+                
+                if (forecastSlider) {
+                    forecastSlider.disabled = false;
+                    forecastSlider.style.cursor = 'pointer';
+                }
+                
+                // Setup opacity slider
+                setupOpacitySlider();
+                
+                // Setup forecast slider
+                setupForecastSlider();
+                
+                // Setup toggle handlers
+                setupWeatherToggle('rainLayerToggle', 'rain', 'precipitation_new');
+                setupWeatherToggle('cloudsLayerToggle', 'clouds', 'clouds_new');
+                setupWeatherToggle('tempLayerToggle', 'temp', 'temp_new');
+                setupWeatherToggle('windLayerToggle', 'wind', 'wind_new');
+            }
+            
+            function setupOpacitySlider() {
+                const slider = container.querySelector('#opacitySlider');
+                const valueDisplay = container.querySelector('#opacityValue');
+                
+                if (!slider || !valueDisplay) return;
+                
+                slider.addEventListener('input', (e) => {
+                    const opacity = e.target.value / 100;
+                    valueDisplay.textContent = e.target.value + '%';
+                    
+                    // Update all active weather layers
+                    Object.keys(window.weatherLayers).forEach(layerName => {
+                        if (window.weatherLayers[layerName]) {
+                            window.weatherLayers[layerName].setOpacity(opacity);
+                        }
+                    });
+                    
+                    console.log(`🎚️ Weather layer opacity: ${e.target.value}%`);
+                });
+            }
+            
+            function setupForecastSlider() {
+                const slider = container.querySelector('#forecastSlider');
+                const timeDisplay = container.querySelector('#forecastTime');
+                
+                if (!slider || !timeDisplay) return;
+                
+                const timeLabels = ['Jetzt', '+3h', '+6h', '+12h', '+24h', '+5 Tage'];
+                
+                slider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    timeDisplay.textContent = timeLabels[value];
+                    
+                    // Calculate forecast time (in hours from now)
+                    let hoursAhead = 0;
+                    switch(value) {
+                        case 0: hoursAhead = 0; break;      // Now
+                        case 1: hoursAhead = 3; break;      // +3h
+                        case 2: hoursAhead = 6; break;      // +6h
+                        case 3: hoursAhead = 12; break;     // +12h
+                        case 4: hoursAhead = 24; break;     // +24h
+                        case 5: hoursAhead = 120; break;    // +5 days
+                    }
+                    
+                    console.log(`⏰ Forecast time: ${timeLabels[value]} (${hoursAhead}h ahead)`);
+                    
+                    // Update all active layers with forecast time
+                    updateWeatherForecast(hoursAhead);
+                });
+            }
+            
+            function updateWeatherForecast(hoursAhead) {
+                const apiKey = localStorage.getItem('openweather_api_key');
+                
+                if (hoursAhead === 0) {
+                    console.log('📍 Showing current weather (OpenWeatherMap tiles)');
+                    // Current weather tiles work normally
+                    return;
+                }
+                
+                // Use Open-Meteo for forecast (free!)
+                console.log(`⏰ Fetching forecast for +${hoursAhead}h using Open-Meteo...`);
+                fetchOpenMeteoForecast(hoursAhead);
+            }
+            
+            async function fetchOpenMeteoForecast(hoursAhead) {
+                // Get map center or route waypoints
+                const center = map.getCenter();
+                const lat = center.lat;
+                const lon = center.lng;
+                
+                try {
+                    // Open-Meteo API (completely free, no key needed!)
+                    const url = `https://api.open-meteo.com/v1/forecast?` +
+                        `latitude=${lat}&` +
+                        `longitude=${lon}&` +
+                        `hourly=temperature_2m,precipitation,windspeed_10m,cloudcover&` +
+                        `forecast_days=7&` +
+                        `timezone=auto`;
+                    
+                    console.log('🌐 Fetching from Open-Meteo:', url);
+                    
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    console.log('✅ Open-Meteo data received:', data);
+                    
+                    // Find the forecast for our target time
+                    const now = new Date();
+                    const targetTime = new Date(now.getTime() + hoursAhead * 60 * 60 * 1000);
+                    
+                    // Find closest hourly forecast
+                    let closestIndex = 0;
+                    let minDiff = Infinity;
+                    
+                    data.hourly.time.forEach((timeStr, idx) => {
+                        const forecastTime = new Date(timeStr);
+                        const diff = Math.abs(forecastTime - targetTime);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestIndex = idx;
+                        }
+                    });
+                    
+                    const forecast = {
+                        time: data.hourly.time[closestIndex],
+                        temperature: data.hourly.temperature_2m[closestIndex],
+                        precipitation: data.hourly.precipitation[closestIndex],
+                        windspeed: data.hourly.windspeed_10m[closestIndex],
+                        cloudcover: data.hourly.cloudcover[closestIndex]
+                    };
+                    
+                    console.log('📊 Forecast data:', forecast);
+                    
+                    // Display forecast info
+                    displayForecastInfo(forecast, hoursAhead);
+                    
+                    // If we have waypoints, fetch forecast for each
+                    if (waypoints && waypoints.length > 0) {
+                        fetchWaypointForecasts(hoursAhead);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Failed to fetch Open-Meteo forecast:', error);
+                    alert('Fehler beim Laden der Vorhersage. Bitte später erneut versuchen.');
+                }
+            }
+            
+            function displayForecastInfo(forecast, hoursAhead) {
+                // Create or update forecast info overlay
+                let forecastInfo = document.getElementById('weatherForecastInfo');
+                
+                if (!forecastInfo) {
+                    forecastInfo = document.createElement('div');
+                    forecastInfo.id = 'weatherForecastInfo';
+                    forecastInfo.style.cssText = `
+                        position: fixed;
+                        top: 120px;
+                        right: 20px;
+                        background: rgba(0, 20, 40, 0.95);
+                        border: 2px solid rgba(0, 240, 255, 0.5);
+                        border-radius: 12px;
+                        padding: 15px 20px;
+                        z-index: 2000;
+                        min-width: 250px;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+                        backdrop-filter: blur(10px);
+                    `;
+                    document.body.appendChild(forecastInfo);
+                }
+                
+                const timeLabel = hoursAhead === 0 ? 'Jetzt' : `+${hoursAhead}h`;
+                const date = new Date(forecast.time);
+                const dateStr = date.toLocaleString('de-DE', { 
+                    weekday: 'short', 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Weather emoji based on conditions
+                let weatherEmoji = '☀️';
+                if (forecast.precipitation > 5) weatherEmoji = '🌧️';
+                else if (forecast.precipitation > 0.5) weatherEmoji = '🌦️';
+                else if (forecast.cloudcover > 75) weatherEmoji = '☁️';
+                else if (forecast.cloudcover > 25) weatherEmoji = '⛅';
+                
+                forecastInfo.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; color: #00f0ff; font-size: 14px;">
+                            ${weatherEmoji} Vorhersage ${timeLabel}
+                        </h4>
+                        <button onclick="document.getElementById('weatherForecastInfo').remove()" 
+                                style="background: none; border: none; color: #00f0ff; cursor: pointer; font-size: 18px; padding: 0; line-height: 1;">×</button>
+                    </div>
+                    <div style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin-bottom: 12px;">
+                        ${dateStr}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: rgba(0, 240, 255, 0.8);">🌡️ Temperatur:</span>
+                            <span style="color: #ccff00; font-weight: 600;">${forecast.temperature.toFixed(1)}°C</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: rgba(0, 240, 255, 0.8);">💧 Niederschlag:</span>
+                            <span style="color: ${forecast.precipitation > 2 ? '#ff4444' : '#ccff00'}; font-weight: 600;">${forecast.precipitation.toFixed(1)} mm</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: rgba(0, 240, 255, 0.8);">💨 Wind:</span>
+                            <span style="color: #ccff00; font-weight: 600;">${forecast.windspeed.toFixed(0)} km/h</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: rgba(0, 240, 255, 0.8);">☁️ Bewölkung:</span>
+                            <span style="color: #ccff00; font-weight: 600;">${forecast.cloudcover}%</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0, 240, 255, 0.2); font-size: 10px; color: rgba(0, 240, 255, 0.6);">
+                        📡 Daten von Open-Meteo (kostenlos)
+                    </div>
+                `;
+                
+                console.log('📋 Forecast info displayed');
+            }
+            
+            async function fetchWaypointForecasts(hoursAhead) {
+                if (!waypoints || waypoints.length === 0) return;
+                
+                console.log(`🗺️ Fetching forecast for ${waypoints.length} waypoints...`);
+                
+                // Calculate estimated time at each waypoint based on average speed
+                const avgSpeed = averageSpeed || 20; // km/h
+                let cumulativeTime = 0;
+                
+                for (let i = 0; i < Math.min(waypoints.length, 5); i++) {
+                    const wp = waypoints[i];
+                    
+                    // Estimate time to reach this waypoint
+                    if (i > 0 && routes && routes[0]) {
+                        // Rough estimate based on total distance
+                        const progress = i / waypoints.length;
+                        const totalDistance = routes[0].distance / 1000; // km
+                        cumulativeTime = (totalDistance * progress / avgSpeed) + hoursAhead;
+                    } else {
+                        cumulativeTime = hoursAhead;
+                    }
+                    
+                    try {
+                        const url = `https://api.open-meteo.com/v1/forecast?` +
+                            `latitude=${wp.lat}&` +
+                            `longitude=${wp.lng}&` +
+                            `hourly=temperature_2m,precipitation,windspeed_10m&` +
+                            `forecast_days=3&` +
+                            `timezone=auto`;
+                        
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        
+                        // Find forecast for estimated arrival time
+                        const targetTime = new Date(Date.now() + cumulativeTime * 60 * 60 * 1000);
+                        let closestIdx = 0;
+                        let minDiff = Infinity;
+                        
+                        data.hourly.time.forEach((time, idx) => {
+                            const diff = Math.abs(new Date(time) - targetTime);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                closestIdx = idx;
+                            }
+                        });
+                        
+                        const wpForecast = {
+                            temp: data.hourly.temperature_2m[closestIdx],
+                            rain: data.hourly.precipitation[closestIdx],
+                            wind: data.hourly.windspeed_10m[closestIdx]
+                        };
+                        
+                        // Add popup to waypoint marker
+                        if (wp.marker) {
+                            const popupContent = `
+                                <div style="font-size: 12px;">
+                                    <strong>WP${i+1} - Vorhersage</strong><br>
+                                    <small>~${cumulativeTime.toFixed(1)}h von jetzt</small><br>
+                                    🌡️ ${wpForecast.temp.toFixed(1)}°C<br>
+                                    💧 ${wpForecast.rain.toFixed(1)}mm<br>
+                                    💨 ${wpForecast.wind.toFixed(0)}km/h
+                                </div>
+                            `;
+                            wp.marker.bindPopup(popupContent);
+                        }
+                        
+                        console.log(`✅ WP${i+1} forecast:`, wpForecast);
+                        
+                    } catch (error) {
+                        console.error(`❌ Failed to fetch forecast for WP${i+1}:`, error);
+                    }
+                }
+                
+                console.log('📍 Waypoint forecasts added to markers (click to see)');
+            }
+            
+            function setupWeatherToggle(toggleId, layerName, layerType) {
+                const toggle = container.querySelector(`#${toggleId}`);
+                if (!toggle) return;
+                
+                toggle.addEventListener('change', (e) => {
+                    const apiKey = localStorage.getItem('openweather_api_key');
+                    
+                    if (e.target.checked) {
+                        console.log(`🌦️ Enabling ${layerName} layer...`);
+                        
+                        window.weatherLayers[layerName] = L.tileLayer(
+                            `https://tile.openweathermap.org/map/${layerType}/{z}/{x}/{y}.png?appid=${apiKey}`,
+                            { 
+                                opacity: 1.0,  // MAXIMAL! War 0.4-0.6
+                                attribution: 'OpenWeatherMap',
+                                zIndex: 1000,  // ÜBER allen anderen Layern
+                                pane: 'overlayPane'  // Spezieller Pane für Overlays
+                            }
+                        ).addTo(map);
+                        
+                        // Debug: Layer Info
+                        console.log(`✅ ${layerName} layer enabled`);
+                        console.log(`🗺️ Tile URL example:`, `https://tile.openweathermap.org/map/${layerType}/10/547/357.png?appid=${apiKey.substring(0,8)}...`);
+                        console.log(`📍 Map bounds:`, map.getBounds());
+                        console.log(`🔍 Zoom level:`, map.getZoom());
+                        
+                        // Listen for tile loads
+                        window.weatherLayers[layerName].on('tileload', (e) => {
+                            console.log(`✅ ${layerName} tile loaded:`, e.coords);
+                        });
+                        
+                        window.weatherLayers[layerName].on('tileerror', (e) => {
+                            console.error(`❌ ${layerName} tile error:`, e.coords, e.tile.src);
+                        });
+                        
+                    } else {
+                        if (window.weatherLayers[layerName]) {
+                            map.removeLayer(window.weatherLayers[layerName]);
+                            window.weatherLayers[layerName] = null;
+                            console.log(`❌ ${layerName} layer disabled`);
+                        }
+                    }
+                });
+            }
+            
+            console.log('✅ Weather overlay panel initialized');
         }
         
         console.log('✅ Floating Toolbar V3.0 initialized!');
