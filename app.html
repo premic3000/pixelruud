@@ -1691,6 +1691,7 @@
         }
         
         .chart-toggles {
+            position: relative;
             display: flex;
             gap: 4px;
             margin-bottom: 2px;
@@ -1727,79 +1728,260 @@
         }
         
         /* Weather Forecast Panel */
-        .weather-forecast-panel {
-            background: rgba(241, 245, 249, 0.95);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 8px;
-            margin-bottom: 8px;
+        
+        /* Weather icons in elevation chart - NEW INTEGRATED VERSION */
+        .weather-icon-chart {
+            position: absolute;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            z-index: 10;
+            user-select: none;
         }
         
-        .weather-forecast-header {
+        .weather-icon-chart:hover {
+            transform: scale(1.3);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        }
+        
+        /* Weather Time Picker Accordion */
+        .weather-time-picker-accordion {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(241, 245, 249, 0.98) !important;
+            border: 2px solid rgba(59, 130, 246, 0.6) !important;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+            z-index: 999999 !important;
+            white-space: nowrap;
+        }
+        
+        .weather-time-option {
+            padding: 4px 8px;
+            background: rgba(241, 245, 249, 0.6);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .weather-time-option:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .weather-time-option.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        
+        .weather-time-option:hover {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #00f0ff;
+            transform: translateX(2px);
+        }
+        
+        .weather-time-option.active {
+            background: rgba(0, 240, 255, 0.3);
+            border-color: #00f0ff;
+            font-weight: 700;
+        }
+        
+        /* Hover tooltip */
+        .weather-tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'Consolas', monospace;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 20;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(226, 232, 240, 0.2);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .weather-tooltip.show {
+            opacity: 1;
+        }
+        
+        .weather-tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 3px 0;
+        }
+        
+        .weather-tooltip-label {
+            color: #94a3b8;
+        }
+        
+        .weather-tooltip-value {
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        
+        /* Click detail modal */
+        .weather-detail-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(241, 245, 249, 0.98);
+            border: 2px solid #00f0ff;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            z-index: 10000;
+            box-shadow: 0 8px 32px rgba(0, 255, 65, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .weather-detail-modal.show {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .weather-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .weather-detail-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .weather-detail-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #00f0ff;
         }
         
-        .weather-forecast-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .weather-forecast-display {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 8px 0;
-        }
-        
-        .weather-forecast-item {
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(226, 232, 240, 0.6);
-            border-radius: 6px;
-            padding: 8px;
-            min-width: 70px;
-            text-align: center;
-            font-size: 10px;
-        }
-        
-        .weather-forecast-item.rain-warning {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-        
-        .weather-forecast-time {
+        .weather-detail-title {
+            font-size: 16px;
             font-weight: 700;
-            color: #334155;
+            font-family: 'Consolas', monospace;
+            color: #001f3f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .weather-detail-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .weather-detail-close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+        
+        .weather-detail-main {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .weather-detail-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .weather-detail-desc {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
             margin-bottom: 4px;
         }
         
-        .weather-forecast-icon {
-            font-size: 20px;
-            margin: 4px 0;
+        .weather-detail-time {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: 'Consolas', monospace;
         }
         
-        .weather-forecast-temp {
+        .weather-detail-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .weather-detail-stat {
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .weather-detail-stat-label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .weather-detail-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #334155;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .weather-detail-location {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(226, 232, 240, 0.5);
+            font-size: 11px;
             color: #64748b;
-            font-weight: 600;
-        }
-        
-        .weather-forecast-rain {
-            color: #3b82f6;
-            font-size: 9px;
-            margin-top: 2px;
-        }
-        
-        .weather-forecast-wind {
-            color: #64748b;
-            font-size: 9px;
-            margin-top: 2px;
+            text-align: center;
+            font-family: 'Consolas', monospace;
         }
         
         .weather-warning {
@@ -3387,6 +3569,20 @@
                     </svg>
                     Surface
                 </button>
+                <button class="magnifier-mode-btn" id="modeTFCycle" data-mode="tf-cycle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;">
+                        <circle cx="5.5" cy="17.5" r="3.5"></circle>
+                        <circle cx="18.5" cy="17.5" r="3.5"></circle>
+                        <path d="M15 6l-3.5 8L8 6"></path>
+                    </svg>
+                    TF Cycle 🔑
+                </button>
+                <button class="magnifier-mode-btn" id="modeTFOutdoors" data-mode="tf-outdoors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;">
+                        <path d="M3 20l3-9 4 9 4-18 4 18 3-9"></path>
+                    </svg>
+                    TF Outdoors 🔑
+                </button>
             </div>
         </div>
         
@@ -3546,33 +3742,30 @@
                 </svg>
                 Wetter
             </button>
+            <button class="chart-toggle-btn" id="weatherTimeBtn" title="Abfahrtszeit wählen" style="display: none; position: relative;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span id="weatherTimeDisplay">Jetzt</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 10px; height: 10px; margin-left: 4px;" id="weatherTimeArrow">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
         </div>
         
-        <!-- Weather Forecast Panel -->
-        <div class="weather-forecast-panel" id="weatherForecastPanel" style="display: none;">
-            <div class="weather-forecast-header">
-                <div class="weather-forecast-controls">
-                    <label style="font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 6px;">
-                        🕐 Start:
-                        <select id="weatherStartTime" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; color: #e2e8f0; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-family: 'Consolas', monospace;">
-                            <option value="now">Jetzt</option>
-                            <option value="1h">+1 Stunde</option>
-                            <option value="2h">+2 Stunden</option>
-                            <option value="3h">+3 Stunden</option>
-                            <option value="tomorrow">Morgen 10:00</option>
-                        </select>
-                    </label>
-                    <button id="refreshWeather" style="background: rgba(0, 240, 255, 0.2); border: 1px solid #00f0ff; color: #00f0ff; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-family: 'Consolas', monospace;">
-                        🔄 Update
-                    </button>
-                </div>
-            </div>
-            <div class="weather-forecast-display" id="weatherForecastDisplay">
-                <div style="text-align: center; padding: 10px; color: #64748b; font-size: 11px;">
-                    Wetter wird geladen...
-                </div>
-            </div>
+        <!-- Weather Time Picker Dropdown (positioned relative to button using fixed positioning) -->
+        <div id="weatherTimePicker" class="weather-time-picker-accordion" style="display: none;">
+            <button class="weather-time-option" data-offset="0">Jetzt</button>
+            <button class="weather-time-option" data-offset="2">+2h</button>
+            <button class="weather-time-option" data-offset="4">+4h</button>
+            <button class="weather-time-option" data-offset="6">+6h</button>
+            <button class="weather-time-option" data-day="1" data-hour="10">Morgen</button>
+            <button class="weather-time-option" data-day="2" data-hour="10">+2 Tage</button>
+            <button class="weather-time-option" data-day="7" data-hour="10">+7 Tage</button>
         </div>
+        
+        <!-- Weather icons now integrated directly into elevation profile chart -->
         
         <canvas id="elevationChart"></canvas>
     </div>
@@ -4942,35 +5135,168 @@
         
         let weatherForecastData = null;
         let weatherForecastEnabled = false;
+        let weatherStartTime = new Date(); // Default start time
         
-        // Toggle weather forecast panel
+        // Setup weather time picker
+        function setupWeatherTimePicker() {
+            const timeBtn = document.getElementById('weatherTimeBtn');
+            const timePicker = document.getElementById('weatherTimePicker');
+            const timeDisplay = document.getElementById('weatherTimeDisplay');
+            
+            if (!timeBtn || !timePicker || !timeDisplay) {
+                console.error('⚠️ Weather time picker elements not found!');
+                return null;
+            }
+            
+            console.log('✅ Weather time picker elements found, setting up...');
+            
+            // Reset to current time and update display
+            function resetToNow() {
+                weatherStartTime = new Date();
+                timeDisplay.textContent = 'Jetzt';
+                // Mark "Jetzt" option as active
+                document.querySelectorAll('.weather-time-option').forEach(b => b.classList.remove('active'));
+                const firstOption = document.querySelector('.weather-time-option[data-offset="0"]');
+                if (firstOption) firstOption.classList.add('active');
+            }
+            
+            // Toggle time picker accordion - position it below button
+            timeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // CRITICAL: Prevent bubbling!
+                const isOpen = timePicker.style.display === 'block';
+                
+                if (isOpen) {
+                    // Close
+                    timePicker.style.display = 'none';
+                } else {
+                    // Open and position
+                    const rect = timeBtn.getBoundingClientRect();
+                    const dropdownWidth = 500; // Approximate width
+                    
+                    // Position below button, aligned to right edge
+                    let left = rect.right - dropdownWidth;
+                    const top = rect.bottom + 4;
+                    
+                    // Keep on screen
+                    if (left < 10) left = 10;
+                    if (left + dropdownWidth > window.innerWidth - 10) {
+                        left = window.innerWidth - dropdownWidth - 10;
+                    }
+                    
+                    timePicker.style.left = left + 'px';
+                    timePicker.style.top = top + 'px';
+                    timePicker.style.display = 'block';
+                    
+                    console.log('🕐 Positioned dropdown at left=' + left + ', top=' + top);
+                }
+                
+                // Rotate arrow
+                const arrow = document.getElementById('weatherTimeArrow');
+                if (arrow) {
+                    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+                
+                console.log('🕐 Time picker ' + (isOpen ? 'CLOSED' : 'OPENED'));
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (timePicker.style.display === 'block' && 
+                    !timePicker.contains(e.target) && 
+                    !timeBtn.contains(e.target)) {
+                    timePicker.style.display = 'none';
+                    const arrow = document.getElementById('weatherTimeArrow');
+                    if (arrow) arrow.style.transform = 'rotate(0deg)';
+                    console.log('🕐 Time picker closed (outside click)');
+                }
+            });
+            
+            // Close picker when clicking a time option
+            document.querySelectorAll('.weather-time-option').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent closing dropdown immediately
+                    
+                    // Calculate selected time
+                    const now = new Date();
+                    let selectedTime = new Date();
+                    
+                    if (btn.dataset.offset) {
+                        // Today with offset in hours
+                        const offset = parseInt(btn.dataset.offset);
+                        selectedTime = new Date(now.getTime() + offset * 3600000);
+                        timeDisplay.textContent = offset === 0 ? 'Jetzt' : `+${offset}h`;
+                    } else if (btn.dataset.day) {
+                        // Future day with specific hour
+                        const days = parseInt(btn.dataset.day);
+                        const hour = parseInt(btn.dataset.hour);
+                        selectedTime = new Date(now);
+                        selectedTime.setDate(selectedTime.getDate() + days);
+                        selectedTime.setHours(hour, 0, 0, 0);
+                        
+                        const dayNames = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+                        const dayName = dayNames[selectedTime.getDay()];
+                        const dateStr = `${selectedTime.getDate()}.${selectedTime.getMonth() + 1}`;
+                        timeDisplay.textContent = `${dayName} ${dateStr}, ${String(hour).padStart(2, '0')}:00`;
+                    }
+                    
+                    weatherStartTime = selectedTime;
+                    
+                    // Mark as active
+                    document.querySelectorAll('.weather-time-option').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Close picker
+                    timePicker.style.display = 'none';
+                    
+                    // Reload weather if already enabled
+                    if (weatherForecastEnabled) {
+                        loadWeatherForecast();
+                    }
+                });
+            });
+            
+            // Initialize with "Jetzt" selected
+            resetToNow();
+            
+            // Return resetToNow function so it can be called from outside
+            return resetToNow;
+        }
+        
+        // Initialize time picker and get reset function
+        const resetWeatherTimeToNow = setupWeatherTimePicker();
         document.getElementById('toggleWeatherChart').addEventListener('click', function() {
             weatherForecastEnabled = !weatherForecastEnabled;
             this.classList.toggle('active');
             
-            const panel = document.getElementById('weatherForecastPanel');
+            // Show/hide time picker button
+            const timeBtn = document.getElementById('weatherTimeBtn');
+            timeBtn.style.display = weatherForecastEnabled ? 'inline-flex' : 'none';
+            
             if (weatherForecastEnabled) {
-                panel.style.display = 'block';
+                // IMPORTANT: Reset time to NOW when enabling weather
+                resetWeatherTimeToNow();
+                
+                // Show elevation profile if not already visible
+                const elevationProfile = document.getElementById('elevationProfile');
+                if (!elevationProfile.classList.contains('show')) {
+                    console.log('🌦️ Auto-showing elevation profile for weather icons');
+                    showElevationProfile();
+                }
+                
                 loadWeatherForecast();
             } else {
-                panel.style.display = 'none';
+                // Clear weather icons from chart
+                const profileContainer = document.getElementById('elevationProfile');
+                const oldIcons = profileContainer.querySelectorAll('.weather-icon-chart');
+                console.log(`🌦️ Clearing ${oldIcons.length} weather icons`);
+                oldIcons.forEach(icon => icon.remove());
+                // Update chart to remove icons
+                if (elevationChart) {
+                    elevationChart.update();
+                }
             }
             
             console.log(`🌦️ Weather forecast ${weatherForecastEnabled ? 'enabled' : 'disabled'}`);
-        });
-        
-        // Refresh weather button
-        document.getElementById('refreshWeather').addEventListener('click', () => {
-            if (weatherForecastEnabled) {
-                loadWeatherForecast();
-            }
-        });
-        
-        // Start time selector change
-        document.getElementById('weatherStartTime').addEventListener('change', () => {
-            if (weatherForecastEnabled) {
-                loadWeatherForecast();
-            }
         });
         
         // Load weather forecast for route
@@ -4978,75 +5304,105 @@
             console.log('🌦️ loadWeatherForecast() called');
             console.log('  - Enabled:', weatherForecastEnabled);
             console.log('  - Has route:', !!routes[0]);
+            console.log('  - Start time:', weatherStartTime);
             
             if (!routes[0] || !routes[0].coordinates || routes[0].coordinates.length === 0) {
-                document.getElementById('weatherForecastDisplay').innerHTML = 
-                    '<div style="text-align: center; padding: 10px; color: #ef4444; font-size: 11px;">⚠️ Keine Route vorhanden!</div>';
+                console.warn('⚠️ No route available for weather forecast');
                 return;
             }
             
-            document.getElementById('weatherForecastDisplay').innerHTML = 
-                '<div style="text-align: center; padding: 10px; color: #64748b; font-size: 11px;">🔄 Lade Wetter...</div>';
-            
             const route = routes[0];
             const speed = parseFloat(document.getElementById('speedSlider').value);
-            const startTimeOption = document.getElementById('weatherStartTime').value;
             
-            // Calculate start time
-            let startTime = new Date();
-            if (startTimeOption === '1h') {
-                startTime.setHours(startTime.getHours() + 1);
-            } else if (startTimeOption === '2h') {
-                startTime.setHours(startTime.getHours() + 2);
-            } else if (startTimeOption === '3h') {
-                startTime.setHours(startTime.getHours() + 3);
-            } else if (startTimeOption === 'tomorrow') {
-                startTime.setDate(startTime.getDate() + 1);
-                startTime.setHours(10, 0, 0, 0);
+            // Use selected start time from time picker
+            const startTime = new Date(weatherStartTime);
+            
+            // Calculate total route distance first
+            let totalRouteDistance = 0;
+            let prevCoord = route.coordinates[0];
+            for (let i = 1; i < route.coordinates.length; i++) {
+                const curr = route.coordinates[i];
+                const R = 6371;
+                const lat1 = prevCoord[0] * Math.PI / 180;
+                const lat2 = curr[0] * Math.PI / 180;
+                const dLat = (curr[0] - prevCoord[0]) * Math.PI / 180;
+                const dLon = (curr[1] - prevCoord[1]) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                         Math.cos(lat1) * Math.cos(lat2) *
+                         Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                totalRouteDistance += R * c;
+                prevCoord = curr;
             }
             
-            // Sample 5-8 points along route for weather
-            const numSamples = Math.min(8, Math.max(5, Math.floor(route.coordinates.length / 50)));
-            const sampleIndices = [];
+            // Calculate number of samples based on TIME (30min intervals)
+            const routeDurationHours = totalRouteDistance / speed;
+            const intervalMinutes = 30;
+            let numSamples = Math.ceil(routeDurationHours * 60 / intervalMinutes);
+            
+            // Limit to 5-10 icons for API efficiency and readability
+            numSamples = Math.min(10, Math.max(5, numSamples));
+            
+            console.log(`  📊 Route: ${totalRouteDistance.toFixed(1)}km @ ${speed}km/h = ${routeDurationHours.toFixed(1)}h`);
+            console.log(`  🌤️ Weather samples: ${numSamples} icons (${intervalMinutes}min intervals)`);
+            
+            // Calculate target times for each sample
+            const targetTimes = [];
             for (let i = 0; i < numSamples; i++) {
-                const index = Math.floor(i * route.coordinates.length / (numSamples - 1));
-                sampleIndices.push(Math.min(index, route.coordinates.length - 1));
+                const minutesOffset = i * (routeDurationHours * 60 / (numSamples - 1));
+                targetTimes.push(minutesOffset);
             }
             
-            // Calculate distance for each sample point
+            // Find closest coordinate to each target time along the route
             const samples = [];
             let totalDist = 0;
-            let prevCoord = route.coordinates[0];
+            prevCoord = route.coordinates[0];
             
-            for (let i = 0; i < route.coordinates.length; i++) {
-                if (i > 0) {
-                    const curr = route.coordinates[i];
-                    const R = 6371;
-                    const lat1 = prevCoord[0] * Math.PI / 180;
-                    const lat2 = curr[0] * Math.PI / 180;
-                    const dLat = (curr[0] - prevCoord[0]) * Math.PI / 180;
-                    const dLon = (curr[1] - prevCoord[1]) * Math.PI / 180;
-                    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                             Math.cos(lat1) * Math.cos(lat2) *
-                             Math.sin(dLon/2) * Math.sin(dLon/2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                    totalDist += R * c;
-                    prevCoord = curr;
+            // Build distance array for all coordinates
+            const coordDistances = [0];
+            for (let i = 1; i < route.coordinates.length; i++) {
+                const curr = route.coordinates[i];
+                const R = 6371;
+                const lat1 = prevCoord[0] * Math.PI / 180;
+                const lat2 = curr[0] * Math.PI / 180;
+                const dLat = (curr[0] - prevCoord[0]) * Math.PI / 180;
+                const dLon = (curr[1] - prevCoord[1]) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                         Math.cos(lat1) * Math.cos(lat2) *
+                         Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                totalDist += R * c;
+                coordDistances.push(totalDist);
+                prevCoord = curr;
+            }
+            
+            // For each target time, find the closest coordinate
+            targetTimes.forEach(targetMinutes => {
+                const targetDistance = (targetMinutes / 60) * speed; // km
+                
+                // Find closest coordinate to target distance
+                let closestIdx = 0;
+                let minDiff = Math.abs(coordDistances[0] - targetDistance);
+                
+                for (let i = 1; i < coordDistances.length; i++) {
+                    const diff = Math.abs(coordDistances[i] - targetDistance);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIdx = i;
+                    }
                 }
                 
-                if (sampleIndices.includes(i)) {
-                    const coord = route.coordinates[i];
-                    const timeOffset = (totalDist / speed) * 3600000; // ms
-                    const time = new Date(startTime.getTime() + timeOffset);
-                    
-                    samples.push({
-                        lat: coord[0],
-                        lng: coord[1],
-                        distance: totalDist,
-                        time: time
-                    });
-                }
-            }
+                const coord = route.coordinates[closestIdx];
+                const actualDistance = coordDistances[closestIdx];
+                const actualTime = new Date(startTime.getTime() + targetMinutes * 60000);
+                
+                samples.push({
+                    lat: coord[0],
+                    lng: coord[1],
+                    distance: actualDistance,
+                    time: actualTime
+                });
+            });
             
             // Fetch weather data for all sample points
             try {
@@ -5063,13 +5419,14 @@
                 }));
                 
                 weatherForecastData = forecastData;
-                displayWeatherForecast(forecastData);
                 
-                console.log('✅ Weather forecast loaded:', forecastData);
+                console.log('✅ Weather forecast loaded:', forecastData.length, 'points');
+                console.log('   First point time:', forecastData[0].time.toLocaleString('de-DE'));
+                console.log('   Last point time:', forecastData[forecastData.length - 1].time.toLocaleString('de-DE'));
+                
+                displayWeatherForecast(forecastData);
             } catch (error) {
                 console.error('❌ Weather forecast error:', error);
-                document.getElementById('weatherForecastDisplay').innerHTML = 
-                    '<div style="text-align: center; padding: 10px; color: #ef4444; font-size: 11px;">❌ Fehler beim Laden!</div>';
             }
         }
         
@@ -5081,7 +5438,7 @@
             const url = `https://api.open-meteo.com/v1/forecast?` +
                 `latitude=${lat.toFixed(4)}&` +
                 `longitude=${lng.toFixed(4)}&` +
-                `hourly=temperature_2m,precipitation,weathercode,windspeed_10m&` +
+                `hourly=temperature_2m,precipitation,weathercode,windspeed_10m,winddirection_10m&` +
                 `timezone=auto`;
             
             const response = await fetch(url);
@@ -5105,52 +5462,21 @@
                 temp: data.hourly.temperature_2m[closestIndex],
                 precipitation: data.hourly.precipitation[closestIndex],
                 weathercode: data.hourly.weathercode[closestIndex],
-                windspeed: data.hourly.windspeed_10m[closestIndex]
+                windspeed: data.hourly.windspeed_10m[closestIndex],
+                winddirection: data.hourly.winddirection_10m[closestIndex]
             };
         }
         
-        // Display weather forecast
+        // Display weather forecast - now only updates chart with icons
         function displayWeatherForecast(forecastData) {
-            const display = document.getElementById('weatherForecastDisplay');
-            const panel = document.getElementById('weatherForecastPanel');
+            // IMPORTANT: Clear old weather icons first!
+            const profileContainer = document.getElementById('elevationProfile');
+            const oldIcons = profileContainer.querySelectorAll('.weather-icon-chart');
+            oldIcons.forEach(icon => icon.remove());
             
-            // WICHTIG: Lösche alle alten Warnungen zuerst!
-            const oldWarnings = panel.querySelectorAll('.weather-warning');
-            oldWarnings.forEach(warning => warning.remove());
-            
-            let html = '';
-            let hasRain = false;
-            let rainStartKm = null;
-            
-            forecastData.forEach(data => {
-                const icon = getWeatherIcon(data.weather.weathercode);
-                const isRain = data.weather.precipitation > 0.5;
-                
-                if (isRain && !hasRain) {
-                    hasRain = true;
-                    rainStartKm = data.distance;
-                }
-                
-                html += `
-                    <div class="weather-forecast-item ${isRain ? 'rain-warning' : ''}">
-                        <div class="weather-forecast-time">${data.time.getHours()}:${String(data.time.getMinutes()).padStart(2,'0')}</div>
-                        <div class="weather-forecast-icon">${icon}</div>
-                        <div class="weather-forecast-temp">${Math.round(data.weather.temp)}°C</div>
-                        <div class="weather-forecast-rain">💧 ${data.weather.precipitation.toFixed(1)}mm</div>
-                        <div class="weather-forecast-wind">💨 ${Math.round(data.weather.windspeed)}km/h</div>
-                        <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">${data.distance.toFixed(0)}km</div>
-                    </div>
-                `;
-            });
-            
-            display.innerHTML = html;
-            
-            // Show rain warning (nur EINE!)
-            if (hasRain) {
-                const warning = document.createElement('div');
-                warning.className = 'weather-warning';
-                warning.innerHTML = `⚠️ REGEN AB ${rainStartKm.toFixed(0)} KM (${forecastData.find(d => d.distance >= rainStartKm).time.getHours()}:${String(forecastData.find(d => d.distance >= rainStartKm).time.getMinutes()).padStart(2,'0')} UHR)!<br>💡 Regenjacke einpacken!`;
-                panel.appendChild(warning);
+            // Trigger chart update to draw new weather icons
+            if (elevationChart) {
+                elevationChart.update();
             }
         }
         
@@ -5167,6 +5493,42 @@
             if (code <= 86) return '🌨️'; // Snow showers
             if (code <= 99) return '⛈️'; // Thunderstorm
             return '☁️'; // Default
+        }
+        
+        // Get wind direction arrow based on degrees (meteorological convention: direction wind comes FROM)
+        function getWindDirectionArrow(degrees) {
+            // Meteorological: 0° = North (wind FROM north = blowing TO south)
+            // Add 180° to show where wind is GOING (more intuitive for cyclists)
+            const arrowDegrees = (degrees + 180) % 360;
+            
+            const directions = [
+                { angle: 0, arrow: '↓', name: 'N' },      // 0° = blowing south
+                { angle: 45, arrow: '↙', name: 'NO' },    // 45° = blowing SW
+                { angle: 90, arrow: '←', name: 'O' },     // 90° = blowing west
+                { angle: 135, arrow: '↖', name: 'SO' },   // 135° = blowing NW
+                { angle: 180, arrow: '↑', name: 'S' },    // 180° = blowing north
+                { angle: 225, arrow: '↗', name: 'SW' },   // 225° = blowing NE
+                { angle: 270, arrow: '→', name: 'W' },    // 270° = blowing east
+                { angle: 315, arrow: '↘', name: 'NW' }    // 315° = blowing SE
+            ];
+            
+            // Find closest direction
+            let closest = directions[0];
+            let minDiff = Math.abs(arrowDegrees - 0);
+            
+            directions.forEach(dir => {
+                const diff = Math.min(
+                    Math.abs(arrowDegrees - dir.angle),
+                    Math.abs(arrowDegrees - (dir.angle + 360)),
+                    Math.abs((arrowDegrees + 360) - dir.angle)
+                );
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = dir;
+                }
+            });
+            
+            return closest.arrow;
         }
         
         console.log('✅ Weather Forecast initialized');
@@ -5313,7 +5675,9 @@
                 
                 try {
                     const text = await file.text();
-                    await parseAndLoadGPX(text, file.name);
+                    
+                    // Show modal to select waypoint spacing
+                    showGPXImportModal(text, file.name);
                     
                     // Reset input so same file can be loaded again
                     fileInput.value = '';
@@ -5326,7 +5690,192 @@
             console.log('✓ GPX Import initialized');
         }
         
-        async function parseAndLoadGPX(gpxText, filename) {
+        function showGPXImportModal(gpxText, filename, statusElement = null) {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(8px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.2s ease;
+            `;
+            
+            // Get default spacing from localStorage or use 5km
+            const defaultSpacing = parseFloat(localStorage.getItem('gpxWaypointSpacing') || '5');
+            
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: rgba(30, 30, 35, 0.98);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 32px;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="margin: 0 0 8px 0; color: #fff; font-size: 24px; font-weight: 600;">
+                    📂 GPX Import
+                </h2>
+                <p style="margin: 0 0 24px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">
+                    ${filename}
+                </p>
+                
+                <div style="margin-bottom: 32px;">
+                    <label style="display: block; margin-bottom: 16px; color: #fff; font-size: 14px; font-weight: 500;">
+                        Waypoint-Abstand:
+                    </label>
+                    
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                        <input 
+                            type="range" 
+                            id="gpxSpacingSlider" 
+                            min="1" 
+                            max="20" 
+                            value="${defaultSpacing}" 
+                            step="1"
+                            style="flex: 1; height: 6px; cursor: pointer; accent-color: #3b82f6;"
+                        >
+                        <div style="
+                            min-width: 80px;
+                            padding: 8px 16px;
+                            background: rgba(59, 130, 246, 0.1);
+                            border: 1px solid rgba(59, 130, 246, 0.3);
+                            border-radius: 8px;
+                            text-align: center;
+                            color: #3b82f6;
+                            font-size: 18px;
+                            font-weight: 600;
+                        " id="gpxSpacingValue">${defaultSpacing} km</div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.4); font-size: 12px; margin-top: 8px;">
+                        <span>1 km (mehr Punkte)</span>
+                        <span>20 km (weniger Punkte)</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button id="gpxImportCancel" style="
+                        flex: 1;
+                        padding: 12px 24px;
+                        background: rgba(255, 255, 255, 0.05);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        border-radius: 8px;
+                        color: rgba(255, 255, 255, 0.6);
+                        font-size: 14px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    ">Abbrechen</button>
+                    
+                    <button id="gpxImportConfirm" style="
+                        flex: 1;
+                        padding: 12px 24px;
+                        background: linear-gradient(135deg, #3b82f6, #2563eb);
+                        border: none;
+                        border-radius: 8px;
+                        color: white;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    ">Importieren</button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Slider update handler
+            const slider = document.getElementById('gpxSpacingSlider');
+            const valueDisplay = document.getElementById('gpxSpacingValue');
+            
+            slider.addEventListener('input', (e) => {
+                valueDisplay.textContent = `${e.target.value} km`;
+            });
+            
+            // Cancel button
+            document.getElementById('gpxImportCancel').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // Confirm button
+            document.getElementById('gpxImportConfirm').addEventListener('click', async () => {
+                const spacing = parseFloat(slider.value);
+                
+                // Save spacing preference
+                localStorage.setItem('gpxWaypointSpacing', spacing.toString());
+                
+                modal.remove();
+                
+                // Show loading in status if available
+                if (statusElement) {
+                    statusElement.textContent = `📂 ${filename} wird importiert...`;
+                    statusElement.style.color = 'rgba(0, 240, 255, 0.9)';
+                }
+                
+                try {
+                    await parseAndLoadGPX(gpxText, filename, spacing);
+                    
+                    if (statusElement) {
+                        statusElement.textContent = `✅ GPX importiert (${spacing}km Abstand)`;
+                        statusElement.style.color = '#10b981';
+                    } else {
+                        showToast(`✓ GPX importiert (${spacing}km Abstand)`, 'success');
+                    }
+                } catch (error) {
+                    console.error('GPX Import Error:', error);
+                    
+                    if (statusElement) {
+                        statusElement.textContent = `❌ Fehler: ${error.message}`;
+                        statusElement.style.color = '#ff0055';
+                    } else {
+                        alert('Fehler beim Laden der GPX-Datei: ' + error.message);
+                    }
+                }
+            });
+            
+            // Click outside to close
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Hover effects
+            const cancelBtn = document.getElementById('gpxImportCancel');
+            const confirmBtn = document.getElementById('gpxImportConfirm');
+            
+            cancelBtn.addEventListener('mouseenter', () => {
+                cancelBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+            cancelBtn.addEventListener('mouseleave', () => {
+                cancelBtn.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+            
+            confirmBtn.addEventListener('mouseenter', () => {
+                confirmBtn.style.transform = 'translateY(-2px)';
+                confirmBtn.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+            });
+            confirmBtn.addEventListener('mouseleave', () => {
+                confirmBtn.style.transform = 'translateY(0)';
+                confirmBtn.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+            });
+        }
+        
+        async function parseAndLoadGPX(gpxText, filename, waypointSpacingKm = 1) {
             // Parse GPX XML
             const parser = new DOMParser();
             const gpxDoc = parser.parseFromString(gpxText, 'text/xml');
@@ -5518,15 +6067,15 @@
                 map.fitBounds(routeLines[0].getBounds(), { padding: [50, 50] });
             }
             
-            // Extract waypoints - one waypoint per kilometer
+            // Extract waypoints - with configurable spacing
             const waypointIndices = [];
             
             // Always include start
             waypointIndices.push(0);
             
-            // Calculate cumulative distances to find waypoints at ~1km intervals
+            // Calculate cumulative distances to find waypoints at configured intervals
             let cumulativeDistance = 0;
-            let nextWaypointDistance = 1; // Next waypoint at 1km
+            let nextWaypointDistance = waypointSpacingKm; // Next waypoint at configured km
             
             for (let i = 1; i < coordinates.length; i++) {
                 const prev = coordinates[i - 1];
@@ -5550,7 +6099,7 @@
                 // Add waypoint if we've reached the next km mark
                 if (cumulativeDistance >= nextWaypointDistance) {
                     waypointIndices.push(i);
-                    nextWaypointDistance += 1; // Next waypoint in 1km
+                    nextWaypointDistance += waypointSpacingKm; // Next waypoint at configured interval
                 }
             }
             
@@ -5559,7 +6108,7 @@
                 waypointIndices.push(coordinates.length - 1);
             }
             
-            console.log(`📍 Created ${waypointIndices.length} waypoints (~1 per km) for ${totalDistance.toFixed(2)} km route`);
+            console.log(`📍 Created ${waypointIndices.length} waypoints (~${waypointSpacingKm}km spacing) for ${totalDistance.toFixed(2)} km route`);
             
             waypoints = [];
             markers = [];
@@ -6346,9 +6895,29 @@
             
             // Mode buttons
             const modeButtons = document.querySelectorAll('.magnifier-mode-btn[data-mode]');
+            
+            // Check Thunderforest API key and disable buttons if not available
+            const tfKey = localStorage.getItem('thunderforest_api_key');
+            const hasTFKey = !!tfKey;
+            
             modeButtons.forEach(btn => {
+                const mode = btn.getAttribute('data-mode');
+                
+                // Disable TF buttons if no key
+                if (mode && mode.startsWith('tf-') && !hasTFKey) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    btn.title = 'Thunderforest API Key erforderlich (in API Settings eintragen)';
+                }
+                
                 btn.addEventListener('click', () => {
-                    const mode = btn.getAttribute('data-mode');
+                    // Check if button is disabled
+                    if (btn.disabled) {
+                        alert('🔑 Thunderforest API Key erforderlich!\n\nBitte trage deinen API Key in den API Settings ein.\nKostenloser Key (150k Tiles/Monat): thunderforest.com/pricing');
+                        return;
+                    }
+                    
                     if (mode) {
                         currentMode = mode;
                         modeButtons.forEach(b => b.classList.remove('active'));
@@ -6523,6 +7092,36 @@
                             opacity: 0.3  // Dimmed background
                         });
                         magnifierMap.getContainer().style.background = '#003366';
+                        break;
+                    case 'tf-cycle':
+                        const tfCycleKey = localStorage.getItem('thunderforest_api_key');
+                        if (tfCycleKey) {
+                            tileLayer = L.tileLayer(`https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=${tfCycleKey}`, {
+                                maxZoom: 22,
+                                keepBuffer: 8,
+                                updateWhenIdle: false,
+                                updateWhenZooming: false
+                            });
+                        } else {
+                            alert('🔑 Thunderforest API Key erforderlich!\n\nBitte trage deinen API Key in den API Settings ein.');
+                            return;
+                        }
+                        magnifierMap.getContainer().style.background = '';
+                        break;
+                    case 'tf-outdoors':
+                        const tfOutdoorsKey = localStorage.getItem('thunderforest_api_key');
+                        if (tfOutdoorsKey) {
+                            tileLayer = L.tileLayer(`https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=${tfOutdoorsKey}`, {
+                                maxZoom: 22,
+                                keepBuffer: 8,
+                                updateWhenIdle: false,
+                                updateWhenZooming: false
+                            });
+                        } else {
+                            alert('🔑 Thunderforest API Key erforderlich!\n\nBitte trage deinen API Key in den API Settings ein.');
+                            return;
+                        }
+                        magnifierMap.getContainer().style.background = '';
                         break;
                 }
                 
@@ -7859,16 +8458,27 @@
                         route = getDirectRoute(start, end);
                         console.log(`✓ Segment ${segmentKey}: Direct line (${route.distance.toFixed(2)}km)`);
                     } else if (engineForSegment === 'auto') {
-                        // Auto mode: try in fallback order
-                        route = await getBRouterRoute(start, end, i);
+                        // Auto mode: use saved preference or fallback order
+                        const preferredEngine = localStorage.getItem('routing_engine') || 'brouter';
                         
-                        if (!route && apiKeys.graphhopper) {
-                            console.log(`⚠ BRouter failed for segment ${segmentKey}, trying GraphHopper...`);
+                        if (preferredEngine === 'graphhopper' && apiKeys.graphhopper) {
+                            // Try GraphHopper first if selected and key available
                             route = await getGraphHopperRoute(start, end, i);
+                            if (!route) {
+                                console.log(`⚠ GraphHopper failed for segment ${segmentKey}, falling back to BRouter...`);
+                                route = await getBRouterRoute(start, end, i);
+                            }
+                        } else {
+                            // Default: BRouter first
+                            route = await getBRouterRoute(start, end, i);
+                            if (!route && apiKeys.graphhopper) {
+                                console.log(`⚠ BRouter failed for segment ${segmentKey}, trying GraphHopper...`);
+                                route = await getGraphHopperRoute(start, end, i);
+                            }
                         }
                         
                         if (!route && apiKeys.valhalla) {
-                            console.log(`⚠ GraphHopper failed for segment ${segmentKey}, trying Valhalla...`);
+                            console.log(`⚠ Primary engines failed for segment ${segmentKey}, trying Valhalla...`);
                             route = await getValhallaRoute(start, end, i);
                         }
                         
@@ -8292,6 +8902,105 @@
                 
                 // Track successful route calculation
                 trackEvent('route-calculated');
+            }
+        }
+        
+        
+        async function getGraphHopperRoute(start, end, segmentIndex) {
+            try {
+                const apiKey = localStorage.getItem('graphhopper_api_key');
+                if (!apiKey) {
+                    console.error('❌ GraphHopper API Key not found!');
+                    return null;
+                }
+                
+                // Map profile names to GraphHopper vehicle types
+                const profileMap = {
+                    'gravel': 'bike',
+                    'road': 'racingbike',
+                    'mtb': 'mtb'
+                };
+                
+                const vehicle = profileMap[currentProfile] || 'bike';
+                
+                const url = `https://graphhopper.com/api/1/route`;
+                const params = new URLSearchParams({
+                    point: `${start.lat},${start.lng}`,
+                    point: `${end.lat},${end.lng}`,
+                    vehicle: vehicle,
+                    locale: 'de',
+                    points_encoded: false,
+                    elevation: true,
+                    algorithm: 'alternative_route',
+                    'alternative_route.max_paths': 3,
+                    key: apiKey
+                });
+                
+                const response = await fetch(`${url}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    console.warn(`❌ GraphHopper failed for segment ${segmentIndex + 1}:`, response.statusText);
+                    return null;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.paths || data.paths.length === 0) {
+                    console.warn(`❌ GraphHopper returned no paths for segment ${segmentIndex + 1}`);
+                    return null;
+                }
+                
+                console.log(`✓ GraphHopper fetched ${data.paths.length} alternative route(s)`);
+                
+                // Convert GraphHopper format to GeoJSON format compatible with our system
+                const alternatives = data.paths.map((path, idx) => {
+                    const coordinates = path.points.coordinates;
+                    const elevations = path.points.coordinates.map(coord => coord[2] || 0);
+                    
+                    return {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: coordinates.map(coord => [coord[0], coord[1]]) // [lng, lat]
+                        },
+                        properties: {
+                            distance: path.distance,
+                            ascend: path.ascend || 0,
+                            descend: path.descend || 0,
+                            elevations: elevations
+                        }
+                    };
+                });
+                
+                // Select best route based on current profile
+                let selectedIdx = 0;
+                let reason = 'default';
+                
+                if (currentProfile === 'gravel') {
+                    // For gravel: prefer routes with more elevation gain (more interesting)
+                    const maxGain = Math.max(...alternatives.map(alt => alt.properties.ascend));
+                    selectedIdx = alternatives.findIndex(alt => alt.properties.ascend === maxGain);
+                    reason = `max gain (${Math.round(maxGain)}m)`;
+                } else if (currentProfile === 'road') {
+                    // For road: prefer flattest route
+                    const minGain = Math.min(...alternatives.map(alt => alt.properties.ascend));
+                    selectedIdx = alternatives.findIndex(alt => alt.properties.ascend === minGain);
+                    reason = `flat (${Math.round(minGain)}m gain)`;
+                }
+                
+                console.log(`✓ GraphHopper ${currentProfile} (${reason}: ${Math.round(alternatives[selectedIdx].properties.ascend)}m gain, ${alternatives.length} alternatives) → Segment ${segmentIndex + 1}`);
+                
+                return {
+                    route: alternatives[selectedIdx],
+                    alternatives: alternatives
+                };
+                
+            } catch (error) {
+                console.error(`❌ GraphHopper error for segment ${segmentIndex + 1}:`, error);
+                return null;
             }
         }
         
@@ -9333,6 +10042,175 @@
                 }
             };
             
+            // Weather icons plugin - draws weather icons above elevation chart
+            const weatherIconPlugin = {
+                id: 'weatherIcons',
+                afterDatasetsDraw(chart) {
+                    // Only draw if weather is enabled and data exists
+                    if (!weatherForecastEnabled || !weatherForecastData || weatherForecastData.length === 0) {
+                        return;
+                    }
+                    
+                    const { ctx, chartArea: { top, left, right }, scales: { x } } = chart;
+                    const canvas = chart.canvas;
+                    const canvasRect = canvas.getBoundingClientRect();
+                    
+                    // Get elevation profile container
+                    const profileContainer = document.getElementById('elevationProfile');
+                    const containerRect = profileContainer.getBoundingClientRect();
+                    
+                    // Clear old weather icons
+                    const oldIcons = profileContainer.querySelectorAll('.weather-icon-chart');
+                    oldIcons.forEach(icon => icon.remove());
+                    
+                    // Draw weather icon for each forecast point
+                    weatherForecastData.forEach((forecast, idx) => {
+                        const xPos = x.getPixelForValue(forecast.distance);
+                        
+                        // Skip if outside chart area
+                        if (xPos < left || xPos > right) {
+                            return;
+                        }
+                        
+                        // Create weather icon element
+                        const icon = document.createElement('div');
+                        icon.className = 'weather-icon-chart';
+                        icon.textContent = getWeatherIcon(forecast.weather.weathercode);
+                        icon.dataset.index = idx;
+                        
+                        // Position relative to canvas within the profile container
+                        const iconSize = 20;
+                        // Calculate X position relative to container
+                        const iconX = canvasRect.left - containerRect.left + xPos - iconSize / 2;
+                        // Calculate Y position - place icons at TOP of container (not relative to canvas!)
+                        // Icons should be at the very top of the elevation profile container
+                        const iconY = 5; // Just 5px from container top
+                        
+                        icon.style.left = `${iconX}px`;
+                        icon.style.top = `${iconY}px`;
+                        
+                        // Draw dotted line from icon to waypoint
+                        ctx.save();
+                        ctx.strokeStyle = '#94a3b8';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([2, 2]);
+                        ctx.globalAlpha = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(xPos, top - 10);
+                        ctx.lineTo(xPos, top);
+                        ctx.stroke();
+                        ctx.restore();
+                        
+                        // Add event listeners
+                        const tooltip = document.getElementById('weatherTooltip');
+                        const modal = document.getElementById('weatherDetailModal');
+                        const overlay = document.getElementById('weatherDetailOverlay');
+                        
+                        // Hover - show tooltip
+                        icon.addEventListener('mouseenter', (e) => {
+                            const rect = icon.getBoundingClientRect();
+                            tooltip.innerHTML = `
+                                <div class="weather-tooltip-row">
+                                    <span class="weather-tooltip-label">Zeit:</span>
+                                    <span class="weather-tooltip-value">${forecast.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div class="weather-tooltip-row">
+                                    <span class="weather-tooltip-label">Temp:</span>
+                                    <span class="weather-tooltip-value">${forecast.weather.temp.toFixed(1)}°C</span>
+                                </div>
+                                <div class="weather-tooltip-row">
+                                    <span class="weather-tooltip-label">Wind:</span>
+                                    <span class="weather-tooltip-value">${getWindDirectionArrow(forecast.weather.winddirection)} ${forecast.weather.windspeed.toFixed(1)} km/h</span>
+                                </div>
+                                <div class="weather-tooltip-row">
+                                    <span class="weather-tooltip-label">Regen:</span>
+                                    <span class="weather-tooltip-value">${forecast.weather.precipitation.toFixed(1)} mm</span>
+                                </div>
+                            `;
+                            
+                            // Position tooltip
+                            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                            tooltip.style.top = `${rect.top - 10}px`;
+                            tooltip.style.transform = 'translate(-50%, -100%)';
+                            tooltip.classList.add('show');
+                        });
+                        
+                        icon.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('show');
+                        });
+                        
+                        // Click - show detail modal
+                        icon.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            
+                            const weatherDesc = getWeatherDescription(forecast.weather.weathercode);
+                            
+                            document.getElementById('weatherDetailIcon').textContent = getWeatherIcon(forecast.weather.weathercode);
+                            document.getElementById('weatherDetailMainIcon').textContent = getWeatherIcon(forecast.weather.weathercode);
+                            document.getElementById('weatherDetailDesc').textContent = weatherDesc;
+                            document.getElementById('weatherDetailTime').textContent = 
+                                `${forecast.time.toLocaleDateString('de-DE')} • ${forecast.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
+                            
+                            // Calculate feels-like temp (simple approximation)
+                            const feelsLike = forecast.weather.temp - (forecast.weather.windspeed * 0.1);
+                            
+                            document.getElementById('weatherDetailStats').innerHTML = `
+                                <div class="weather-detail-stat">
+                                    <div class="weather-detail-stat-label">Temperatur</div>
+                                    <div class="weather-detail-stat-value">${forecast.weather.temp.toFixed(1)}°C</div>
+                                </div>
+                                <div class="weather-detail-stat">
+                                    <div class="weather-detail-stat-label">Gefühlt</div>
+                                    <div class="weather-detail-stat-value">${feelsLike.toFixed(1)}°C</div>
+                                </div>
+                                <div class="weather-detail-stat">
+                                    <div class="weather-detail-stat-label">Wind</div>
+                                    <div class="weather-detail-stat-value">${getWindDirectionArrow(forecast.weather.winddirection)} ${forecast.weather.windspeed.toFixed(1)} km/h</div>
+                                </div>
+                                <div class="weather-detail-stat">
+                                    <div class="weather-detail-stat-label">Niederschlag</div>
+                                    <div class="weather-detail-stat-value">${forecast.weather.precipitation.toFixed(1)} mm</div>
+                                </div>
+                            `;
+                            
+                            document.getElementById('weatherDetailLocation').textContent = 
+                                `📍 ${forecast.distance.toFixed(1)} km • Waypoint ${idx + 1}`;
+                            
+                            overlay.classList.add('show');
+                            modal.classList.add('show');
+                            tooltip.classList.remove('show');
+                        });
+                        
+                        // Append icon to elevation profile container (not body!)
+                        profileContainer.appendChild(icon);
+                    });
+                }
+            };
+            
+            // Close modal handlers
+            document.getElementById('weatherDetailClose').addEventListener('click', closeWeatherModal);
+            document.getElementById('weatherDetailOverlay').addEventListener('click', closeWeatherModal);
+            
+            function closeWeatherModal() {
+                document.getElementById('weatherDetailModal').classList.remove('show');
+                document.getElementById('weatherDetailOverlay').classList.remove('show');
+            }
+            
+            // Weather description helper
+            function getWeatherDescription(code) {
+                if (code === 0) return 'Klarer Himmel';
+                if (code <= 3) return 'Teilweise bewölkt';
+                if (code <= 48) return 'Nebel';
+                if (code <= 57) return 'Nieselregen';
+                if (code <= 67) return 'Regen';
+                if (code <= 77) return 'Schnee';
+                if (code <= 82) return 'Regenschauer';
+                if (code <= 86) return 'Schneeschauer';
+                if (code <= 99) return 'Gewitter';
+                return 'Bewölkt';
+            }
+            
+            
             // Create surface background plugin (draws colored background in chart area)
             const surfacePlugin = {
                 id: 'surfaceBackground',
@@ -9577,7 +10455,7 @@
                         }
                     }
                 },
-                plugins: [waypointPlugin, surfacePlugin]
+                plugins: [waypointPlugin, surfacePlugin, weatherIconPlugin]
             });
             
             console.log('✓ Elevation profile displayed with correct x-axis scale');
@@ -9900,6 +10778,29 @@
         toolbarButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const panelType = btn.getAttribute('data-panel');
+                
+                // Special handling for elevation - toggle profile directly
+                if (panelType === 'elevation') {
+                    const elevationProfile = document.querySelector('#elevationProfile');
+                    if (elevationProfile) {
+                        const isCurrentlyVisible = elevationProfile.classList.contains('show');
+                        
+                        if (isCurrentlyVisible) {
+                            // Hide profile
+                            elevationProfile.classList.remove('show');
+                            btn.classList.remove('active'); // Remove green
+                        } else {
+                            // Show profile
+                            elevationProfile.classList.add('show');
+                            btn.classList.add('active'); // Add green
+                        }
+                        
+                        console.log('📊 Elevation profile ' + (isCurrentlyVisible ? 'HIDDEN' : 'SHOWN') + ' - Button is now ' + (isCurrentlyVisible ? 'DARK' : 'GREEN'));
+                    }
+                    return; // Don't open panel
+                }
+                
+                // For all other panels, use normal behavior
                 togglePanel(panelType, btn);
             });
         });
@@ -10038,6 +10939,30 @@
         
         function closePanel(panel) {
             if (!panel) return;
+            
+            // Check if this is the weather overlay panel and clean up layers
+            const panelTitle = panel.querySelector('.panel-title');
+            if (panelTitle && panelTitle.textContent.includes('Weather Overlay')) {
+                console.log('🌦️ Closing weather overlay - disabling all layers...');
+                
+                // Turn off all weather layers
+                if (window.weatherLayers) {
+                    Object.keys(window.weatherLayers).forEach(layerName => {
+                        if (window.weatherLayers[layerName]) {
+                            map.removeLayer(window.weatherLayers[layerName]);
+                            window.weatherLayers[layerName] = null;
+                            console.log(`❌ ${layerName} layer disabled`);
+                        }
+                    });
+                }
+                
+                // Uncheck all weather layer toggles
+                const toggles = ['rainLayerToggle', 'cloudsLayerToggle', 'tempLayerToggle', 'windLayerToggle'];
+                toggles.forEach(toggleId => {
+                    const checkbox = panel.querySelector(`#${toggleId}`);
+                    if (checkbox) checkbox.checked = false;
+                });
+            }
             
             panel.classList.add('closing');
             setTimeout(() => {
@@ -10730,155 +11655,22 @@
                     const file = e.target.files[0];
                     if (!file) return;
                     
-                    status.textContent = `📂 ${file.name} wird geladen...`;
-                    status.style.color = 'rgba(0, 240, 255, 0.9)';
-                    
                     try {
                         const text = await file.text();
-                        const parser = new DOMParser();
-                        const gpx = parser.parseFromString(text, 'text/xml');
                         
-                        if (gpx.querySelector('parsererror')) {
-                            throw new Error('Ungültiges GPX-Format');
-                        }
+                        // Show modal to select waypoint spacing
+                        showGPXImportModal(text, file.name, status);
                         
-                        // Extract track points (trkpt) or route points (rtept)
-                        let points = Array.from(gpx.querySelectorAll('trkpt'));
-                        if (points.length === 0) {
-                            points = Array.from(gpx.querySelectorAll('rtept'));
-                        }
-                        
-                        if (points.length === 0) {
-                            throw new Error('Keine Trackpoints gefunden');
-                        }
-                        
-                        // Extract coordinates and elevations
-                        const coordinates = [];
-                        const geometry = [];
-                        const elevations = [];
-                        
-                        points.forEach(pt => {
-                            const lat = parseFloat(pt.getAttribute('lat'));
-                            const lon = parseFloat(pt.getAttribute('lon'));
-                            const ele = pt.querySelector('ele');
-                            const elevation = ele ? parseFloat(ele.textContent) : 0;
-                            
-                            coordinates.push([lat, lon]);
-                            geometry.push([lon, lat]);
-                            elevations.push(elevation);
-                        });
-                        
-                        // Calculate total distance
-                        let totalDistance = 0;
-                        for (let i = 1; i < coordinates.length; i++) {
-                            const prev = coordinates[i - 1];
-                            const curr = coordinates[i];
-                            const R = 6371;
-                            const lat1 = prev[0] * Math.PI / 180;
-                            const lat2 = curr[0] * Math.PI / 180;
-                            const dLat = (curr[0] - prev[0]) * Math.PI / 180;
-                            const dLon = (curr[1] - prev[1]) * Math.PI / 180;
-                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                                     Math.cos(lat1) * Math.cos(lat2) *
-                                     Math.sin(dLon/2) * Math.sin(dLon/2);
-                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                            totalDistance += R * c;
-                        }
-                        
-                        // Clear existing
-                        waypoints.forEach(wp => map.removeLayer(wp.marker));
-                        waypoints = [];
-                        clearRoutes();
-                        
-                        // Create route
-                        const stats = {
-                            elevationGain: 0,
-                            elevationLoss: 0,
-                            maxElevation: Math.max(...elevations),
-                            minElevation: Math.min(...elevations)
-                        };
-                        
-                        routes = [{
-                            distance: totalDistance * 1000,
-                            coordinates: coordinates,
-                            geometry: geometry,
-                            elevations: elevations,
-                            stats: stats
-                        }];
-                        
-                        // Draw route
-                        const routeLine = L.polyline(coordinates, {
-                            color: '#3b82f6',
-                            weight: 4,
-                            opacity: 0.8
-                        }).addTo(map);
-                        routeLines.push(routeLine);
-                        
-                        // Fit map
-                        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-                        
-                        // Extract waypoints - ONE PER KILOMETER (ORIGINAL LOGIC!)
-                        const waypointIndices = [0]; // Start
-                        let cumulativeDistance = 0;
-                        let nextWaypointDistance = 1; // Next at 1km
-                        
-                        for (let i = 1; i < coordinates.length; i++) {
-                            const prev = coordinates[i - 1];
-                            const curr = coordinates[i];
-                            const R = 6371;
-                            const lat1 = prev[0] * Math.PI / 180;
-                            const lat2 = curr[0] * Math.PI / 180;
-                            const dLat = (curr[0] - prev[0]) * Math.PI / 180;
-                            const dLon = (curr[1] - prev[1]) * Math.PI / 180;
-                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                                     Math.cos(lat1) * Math.cos(lat2) *
-                                     Math.sin(dLon/2) * Math.sin(dLon/2);
-                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                            const dist = R * c;
-                            
-                            cumulativeDistance += dist;
-                            
-                            if (cumulativeDistance >= nextWaypointDistance) {
-                                waypointIndices.push(i);
-                                nextWaypointDistance += 1;
-                            }
-                        }
-                        
-                        // End
-                        if (waypointIndices[waypointIndices.length - 1] !== coordinates.length - 1) {
-                            waypointIndices.push(coordinates.length - 1);
-                        }
-                        
-                        // Add waypoints
-                        waypointIndices.forEach(idx => {
-                            addWaypoint(coordinates[idx][0], coordinates[idx][1]);
-                        });
-                        
-                        // Analyze surface
-                        if (typeof analyzeSurface === 'function') {
-                            analyzeSurface(geometry);
-                        }
-                        
-                        // Show elevation
-                        showElevationProfile();
-                        
-                        status.textContent = `✅ ${points.length} Punkte → ${waypointIndices.length} Wegpunkte (~1/km)`;
-                        status.style.color = '#10b981';
-                        
-                        console.log(`✅ GPX: ${points.length} points → ${waypointIndices.length} waypoints for ${totalDistance.toFixed(2)}km`);
-                        
+                        // Reset input
+                        input.value = '';
                     } catch (error) {
-                        console.error('GPX import error:', error);
                         status.textContent = `❌ Fehler: ${error.message}`;
-                        status.style.color = '#ef4444';
+                        status.style.color = '#ff0055';
                     }
-                    
-                    // Reset input
-                    input.value = '';
                 });
             }
             
-            console.log('✅ Import panel initialized with 1WP/km logic');
+            console.log('✅ Import panel initialized with modal dialog');
         }
         
         function initRoutesPanel(container) {
@@ -10897,64 +11689,400 @@
         }
         
         function initAPIPanel(container) {
-            // Move API settings panel
-            const oldAPI = document.querySelector('#apiSettingsPanel');
-            if (!oldAPI) {
-                container.innerHTML = '<p style="color: #00f0ff;">API settings not found</p>';
-                return;
+            // Consolidated API Settings - all keys in one place
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Weather API Key Section -->
+                    <div style="background: rgba(0, 40, 80, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                        <h3 style="color: rgba(0, 240, 255, 0.9); font-size: 14px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            ☁️ OpenWeatherMap API Key
+                        </h3>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0 0 12px 0;">
+                            Für Wetter-Overlays auf der Karte und Wettervorhersage in der Route
+                        </p>
+                        <input 
+                            type="text" 
+                            id="apiWeatherKey" 
+                            placeholder="Dein OpenWeatherMap API Key..." 
+                            style="
+                                width: 100%;
+                                padding: 10px;
+                                background: rgba(0, 20, 40, 0.6);
+                                border: 1px solid rgba(0, 240, 255, 0.3);
+                                border-radius: 6px;
+                                color: #00f0ff;
+                                font-size: 12px;
+                                margin-bottom: 10px;
+                            "
+                        >
+                        <div style="display: flex; gap: 8px;">
+                            <button 
+                                id="saveWeatherKey" 
+                                style="
+                                    flex: 1;
+                                    padding: 10px 16px;
+                                    background: linear-gradient(135deg, #00f0ff, #ccff00);
+                                    border: none;
+                                    border-radius: 6px;
+                                    color: #001f3f;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                "
+                            >
+                                💾 Speichern
+                            </button>
+                            <button 
+                                id="testWeatherKey" 
+                                style="
+                                    padding: 10px 16px;
+                                    background: rgba(204, 255, 0, 0.2);
+                                    border: 1px solid rgba(204, 255, 0, 0.5);
+                                    border-radius: 6px;
+                                    color: #ccff00;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                "
+                            >
+                                🧪 Testen
+                            </button>
+                        </div>
+                        <p style="color: rgba(0, 240, 255, 0.5); font-size: 10px; margin: 10px 0 0 0; line-height: 1.5;">
+                            💡 Kostenlosen Key erhalten: <a href="https://openweathermap.org/api" target="_blank" style="color: #ccff00;">openweathermap.org/api</a>
+                        </p>
+                    </div>
+                    
+                    <!-- BRouter API Section (Future) -->
+                    <div style="background: rgba(0, 40, 80, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                        <h3 style="color: rgba(0, 240, 255, 0.9); font-size: 14px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            🚴 BRouter API
+                        </h3>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0;">
+                            Aktuell nutzt PixelRuud den öffentlichen BRouter Service<br>
+                            (Eigener Server: Coming soon)
+                        </p>
+                    </div>
+                    
+                    <!-- GraphHopper API Key Section -->
+                    <div style="background: rgba(0, 40, 80, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                        <h3 style="color: rgba(0, 240, 255, 0.9); font-size: 14px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            🗺️ GraphHopper API Key
+                        </h3>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0 0 12px 0;">
+                            Alternative Routing Engine - schneller und mit zusätzlichen Features
+                        </p>
+                        <input 
+                            type="text" 
+                            id="apiGraphHopperKey" 
+                            placeholder="Dein GraphHopper API Key..." 
+                            style="
+                                width: 100%;
+                                padding: 10px;
+                                background: rgba(0, 20, 40, 0.6);
+                                border: 1px solid rgba(0, 240, 255, 0.3);
+                                border-radius: 6px;
+                                color: #00f0ff;
+                                font-size: 12px;
+                                margin-bottom: 10px;
+                            "
+                        >
+                        <div style="display: flex; gap: 8px;">
+                            <button 
+                                id="saveGraphHopperKey" 
+                                style="
+                                    flex: 1;
+                                    padding: 10px 16px;
+                                    background: linear-gradient(135deg, #00f0ff, #ccff00);
+                                    border: none;
+                                    border-radius: 6px;
+                                    color: #001f3f;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                "
+                            >
+                                💾 Speichern
+                            </button>
+                            <button 
+                                id="testGraphHopperKey" 
+                                style="
+                                    padding: 10px 16px;
+                                    background: rgba(204, 255, 0, 0.2);
+                                    border: 1px solid rgba(204, 255, 0, 0.5);
+                                    border-radius: 6px;
+                                    color: #ccff00;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                "
+                            >
+                                🧪 Testen
+                            </button>
+                        </div>
+                        <p style="color: rgba(0, 240, 255, 0.5); font-size: 10px; margin: 10px 0 0 0; line-height: 1.5;">
+                            💡 API Key erhalten: <a href="https://www.graphhopper.com/pricing/" target="_blank" style="color: #ccff00;">graphhopper.com/pricing</a>
+                        </p>
+                    </div>
+                    
+                    <!-- Routing Engine Selection -->
+                    <div style="background: rgba(0, 40, 80, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                        <h3 style="color: rgba(0, 240, 255, 0.9); font-size: 14px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            ⚙️ Routing Engine
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; background: rgba(0, 20, 40, 0.4); border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2);">
+                                <input type="radio" name="routingEngine" value="brouter" id="engineBRouter" checked style="cursor: pointer;">
+                                <div>
+                                    <div style="color: rgba(0, 240, 255, 0.9); font-size: 12px; font-weight: 600;">BRouter (Standard)</div>
+                                    <div style="color: rgba(0, 240, 255, 0.6); font-size: 10px;">Kostenlos, kein API Key erforderlich</div>
+                                </div>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; background: rgba(0, 20, 40, 0.4); border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2);">
+                                <input type="radio" name="routingEngine" value="graphhopper" id="engineGraphHopper" style="cursor: pointer;">
+                                <div>
+                                    <div style="color: rgba(0, 240, 255, 0.9); font-size: 12px; font-weight: 600;">GraphHopper</div>
+                                    <div style="color: rgba(0, 240, 255, 0.6); font-size: 10px;">Schneller, API Key erforderlich</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Thunderforest API Section -->
+                    <div style="background: rgba(0, 40, 80, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                        <h3 style="color: rgba(0, 240, 255, 0.9); font-size: 14px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                            🗺️ Thunderforest API Key
+                        </h3>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0 0 12px 0;">
+                            Premium Karten-Tiles: Cycle Map, Outdoors, Landscape und mehr
+                        </p>
+                        <input 
+                            type="text" 
+                            id="apiThunderforestKey" 
+                            placeholder="Dein Thunderforest API Key..." 
+                            style="
+                                width: 100%;
+                                padding: 10px;
+                                background: rgba(0, 20, 40, 0.6);
+                                border: 1px solid rgba(0, 240, 255, 0.3);
+                                border-radius: 6px;
+                                color: #00f0ff;
+                                font-size: 12px;
+                                margin-bottom: 10px;
+                            "
+                        >
+                        <div style="display: flex; gap: 8px;">
+                            <button 
+                                id="saveThunderforestKey" 
+                                style="
+                                    flex: 1;
+                                    padding: 10px 16px;
+                                    background: linear-gradient(135deg, #00f0ff, #ccff00);
+                                    border: none;
+                                    border-radius: 6px;
+                                    color: #001f3f;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                "
+                            >
+                                💾 Speichern
+                            </button>
+                        </div>
+                        <p style="color: rgba(0, 240, 255, 0.5); font-size: 10px; margin: 10px 0 0 0; line-height: 1.5;">
+                            💡 API Key erhalten (150k Tiles/Monat kostenlos): <a href="https://www.thunderforest.com/pricing/" target="_blank" style="color: #ccff00;">thunderforest.com/pricing</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            // Load saved weather API key
+            const savedWeatherKey = localStorage.getItem('openweather_api_key');
+            const weatherInput = container.querySelector('#apiWeatherKey');
+            const saveBtn = container.querySelector('#saveWeatherKey');
+            const testBtn = container.querySelector('#testWeatherKey');
+            
+            if (savedWeatherKey) {
+                weatherInput.value = savedWeatherKey;
             }
             
-            // Clone content
-            container.innerHTML = oldAPI.innerHTML;
+            // Load saved GraphHopper API key
+            const savedGraphHopperKey = localStorage.getItem('graphhopper_api_key');
+            const graphHopperInput = container.querySelector('#apiGraphHopperKey');
+            const saveGraphHopperBtn = container.querySelector('#saveGraphHopperKey');
+            const testGraphHopperBtn = container.querySelector('#testGraphHopperKey');
             
-            // Sync all form elements
-            const panelInputs = container.querySelectorAll('input, select, textarea');
-            const originalInputs = oldAPI.querySelectorAll('input, select, textarea');
+            if (savedGraphHopperKey) {
+                graphHopperInput.value = savedGraphHopperKey;
+            }
             
-            panelInputs.forEach((panelInput, index) => {
-                const originalInput = originalInputs[index];
-                if (!originalInput) return;
-                
-                // Sync initial value
-                panelInput.value = originalInput.value;
-                if (originalInput.checked !== undefined) {
-                    panelInput.checked = originalInput.checked;
-                }
-                
-                // Sync changes
-                panelInput.addEventListener('input', (e) => {
-                    originalInput.value = e.target.value;
-                    originalInput.dispatchEvent(new Event('input', { bubbles: true }));
-                });
-                
-                panelInput.addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        originalInput.checked = e.target.checked;
+            // Load saved Thunderforest API key
+            const savedThunderforestKey = localStorage.getItem('thunderforest_api_key');
+            const thunderforestInput = container.querySelector('#apiThunderforestKey');
+            const saveThunderforestBtn = container.querySelector('#saveThunderforestKey');
+            
+            if (savedThunderforestKey) {
+                thunderforestInput.value = savedThunderforestKey;
+            }
+            
+            // Load saved routing engine preference
+            const savedEngine = localStorage.getItem('routing_engine') || 'brouter';
+            const engineBRouter = container.querySelector('#engineBRouter');
+            const engineGraphHopper = container.querySelector('#engineGraphHopper');
+            
+            if (savedEngine === 'graphhopper') {
+                engineGraphHopper.checked = true;
+            } else {
+                engineBRouter.checked = true;
+            }
+            
+            // Save routing engine selection
+            [engineBRouter, engineGraphHopper].forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        const engine = e.target.value;
+                        localStorage.setItem('routing_engine', engine);
+                        console.log('🗺️ Routing engine changed to:', engine);
+                        
+                        // Check if GraphHopper is selected but no key
+                        if (engine === 'graphhopper' && !localStorage.getItem('graphhopper_api_key')) {
+                            alert('⚠️ GraphHopper ausgewählt, aber kein API Key gespeichert!\n\nBitte speichere zuerst deinen GraphHopper API Key.');
+                        }
                     }
-                    originalInput.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             });
             
-            console.log('✅ API panel initialized and synced');
+            // Save weather API key
+            saveBtn.addEventListener('click', () => {
+                const key = weatherInput.value.trim();
+                if (!key) {
+                    alert('❌ Bitte gib einen API Key ein!');
+                    return;
+                }
+                
+                localStorage.setItem('openweather_api_key', key);
+                alert('✅ Weather API Key gespeichert!\n\nDu kannst jetzt:\n• Weather Overlays aktivieren\n• Wettervorhersage in der Route nutzen');
+                
+                // Reload page to activate weather features
+                if (confirm('🔄 Seite neu laden um Weather Features zu aktivieren?')) {
+                    location.reload();
+                }
+            });
+            
+            // Save GraphHopper API key
+            saveGraphHopperBtn.addEventListener('click', () => {
+                const key = graphHopperInput.value.trim();
+                if (!key) {
+                    alert('❌ Bitte gib einen API Key ein!');
+                    return;
+                }
+                
+                localStorage.setItem('graphhopper_api_key', key);
+                alert('✅ GraphHopper API Key gespeichert!\n\nDu kannst GraphHopper jetzt als Routing Engine auswählen.');
+            });
+            
+            // Save Thunderforest API key
+            saveThunderforestBtn.addEventListener('click', () => {
+                const key = thunderforestInput.value.trim();
+                if (!key) {
+                    alert('❌ Bitte gib einen API Key ein!');
+                    return;
+                }
+                
+                localStorage.setItem('thunderforest_api_key', key);
+                alert('✅ Thunderforest API Key gespeichert!\n\nDie Thunderforest Karten-Layer sind jetzt verfügbar.');
+                
+                // Reload to activate layers
+                if (confirm('🔄 Seite neu laden um Thunderforest Karten zu aktivieren?')) {
+                    location.reload();
+                }
+            });
+            
+            // Test weather API key
+            testBtn.addEventListener('click', () => {
+                const key = weatherInput.value.trim();
+                if (!key) {
+                    alert('❌ Bitte gib zuerst einen API Key ein!');
+                    return;
+                }
+                
+                // Test API call
+                fetch(`https://api.openweathermap.org/data/2.5/weather?q=Munich&appid=${key}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.cod === 200) {
+                            alert('✅ API Key funktioniert!\n\nWetter in Munich:\n' + data.weather[0].description);
+                        } else {
+                            alert('❌ API Key ungültig!\n\nFehler: ' + (data.message || 'Unbekannter Fehler'));
+                        }
+                    })
+                    .catch(err => {
+                        alert('❌ Fehler beim Testen:\n' + err.message);
+                    });
+            });
+            
+            // Test GraphHopper API key
+            testGraphHopperBtn.addEventListener('click', () => {
+                const key = graphHopperInput.value.trim();
+                if (!key) {
+                    alert('❌ Bitte gib zuerst einen API Key ein!');
+                    return;
+                }
+                
+                // Test API call - simple route from Munich to Augsburg
+                const testUrl = `https://graphhopper.com/api/1/route?point=48.137,11.576&point=48.370,10.898&vehicle=bike&locale=de&key=${key}`;
+                
+                fetch(testUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.paths && data.paths.length > 0) {
+                            const distance = (data.paths[0].distance / 1000).toFixed(1);
+                            const time = (data.paths[0].time / 60000).toFixed(0);
+                            alert(`✅ GraphHopper API Key funktioniert!\n\nTest-Route München → Augsburg:\n${distance} km in ${time} min`);
+                        } else if (data.message) {
+                            alert('❌ API Key ungültig!\n\nFehler: ' + data.message);
+                        } else {
+                            alert('❌ Fehler: Unbekannter Fehler');
+                        }
+                    })
+                    .catch(err => {
+                        alert('❌ Fehler beim Testen:\n' + err.message);
+                    });
+            });
+            
+            console.log('✅ API panel initialized with Weather and GraphHopper API Keys');
         }
         
         function initLayersPanel(container) {
+            // Check if Thunderforest API key is available
+            const thunderforestKey = localStorage.getItem('thunderforest_api_key');
+            const hasThunderforest = !!thunderforestKey;
+            
             // Create layer buttons
             const layers = [
-                { name: 'Standard (OSM)', icon: '🗺️', layer: 'osm' },
-                { name: 'CyclOSM (Gravel)', icon: '🚴', layer: 'cycle' },
-                { name: 'Topografisch', icon: '⛰️', layer: 'topo' },
-                { name: 'Waymarked Trails', icon: '🚵', layer: 'waymarked' },
-                { name: 'OSM Deutschland', icon: '🇩🇪', layer: 'osmde' },
-                { name: 'Humanitarian', icon: '🌍', layer: 'hike' },
-                { name: 'Satellit', icon: '🛰️', layer: 'satellite' }
+                { name: 'Standard (OSM)', icon: '🗺️', layer: 'osm', requiresKey: false },
+                { name: 'CyclOSM (Gravel)', icon: '🚴', layer: 'cycle', requiresKey: false },
+                { name: 'Topografisch', icon: '⛰️', layer: 'topo', requiresKey: false },
+                { name: 'Waymarked Trails', icon: '🚵', layer: 'waymarked', requiresKey: false },
+                { name: 'OSM Deutschland', icon: '🇩🇪', layer: 'osmde', requiresKey: false },
+                { name: 'Humanitarian', icon: '🌍', layer: 'hike', requiresKey: false },
+                { name: 'Satellit', icon: '🛰️', layer: 'satellite', requiresKey: false },
+                // Thunderforest layers
+                { name: 'TF Cycle Map 🔑', icon: '🚲', layer: 'tf-cycle', requiresKey: true },
+                { name: 'TF Outdoors 🔑', icon: '🏞️', layer: 'tf-outdoors', requiresKey: true },
+                { name: 'TF Landscape 🔑', icon: '⛰️', layer: 'tf-landscape', requiresKey: true },
+                { name: 'TF Transport 🔑', icon: '🚊', layer: 'tf-transport', requiresKey: true }
             ];
             
             let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
             
             layers.forEach(layer => {
+                const isDisabled = layer.requiresKey && !hasThunderforest;
+                const opacity = isDisabled ? '0.4' : '1';
+                const cursor = isDisabled ? 'not-allowed' : 'pointer';
+                
                 html += `
-                    <button class="layer-btn" data-layer="${layer.layer}" style="
+                    <button class="layer-btn" data-layer="${layer.layer}" ${isDisabled ? 'disabled' : ''} style="
                         display: flex;
                         align-items: center;
                         gap: 12px;
@@ -10963,34 +12091,59 @@
                         border: 1px solid rgba(0, 240, 255, 0.3);
                         border-radius: 8px;
                         color: rgba(0, 240, 255, 0.9);
-                        cursor: default;
+                        cursor: ${cursor};
                         transition: all 0.2s ease;
                         font-size: 13px;
+                        opacity: ${opacity};
+                        position: relative;
                     ">
                         <span style="font-size: 20px;">${layer.icon}</span>
                         <span>${layer.name}</span>
+                        ${isDisabled ? '<span style="position: absolute; right: 12px; font-size: 10px; color: rgba(204, 255, 0, 0.8);">API Key fehlt</span>' : ''}
                     </button>
                 `;
             });
             
+            // Add info box if no Thunderforest key
+            if (!hasThunderforest) {
+                html += `
+                    <div style="padding: 12px; background: rgba(204, 255, 0, 0.1); border: 1px solid rgba(204, 255, 0, 0.3); border-radius: 8px; margin-top: 8px;">
+                        <p style="color: rgba(204, 255, 0, 0.9); font-size: 11px; margin: 0 0 8px 0; font-weight: 600;">
+                            🔑 Thunderforest Karten freischalten
+                        </p>
+                        <p style="color: rgba(0, 240, 255, 0.7); font-size: 10px; margin: 0; line-height: 1.5;">
+                            Trage deinen API Key in den <strong>API Settings</strong> ein um Zugriff auf premium Fahrrad-Karten zu erhalten. 150.000 Tiles/Monat kostenlos!
+                        </p>
+                    </div>
+                `;
+            }
+            
             html += '</div>';
             container.innerHTML = html;
             
-            // Add hover effects
+            // Add hover effects and click handlers
             const buttons = container.querySelectorAll('.layer-btn');
             buttons.forEach(btn => {
-                btn.addEventListener('mouseenter', () => {
-                    btn.style.background = 'rgba(0, 60, 120, 0.6)';
-                    btn.style.borderColor = 'rgba(0, 240, 255, 0.5)';
-                });
-                
-                btn.addEventListener('mouseleave', () => {
-                    btn.style.background = 'rgba(0, 40, 85, 0.5)';
-                    btn.style.borderColor = 'rgba(0, 240, 255, 0.3)';
-                });
+                // Skip hover for disabled buttons
+                if (!btn.disabled) {
+                    btn.addEventListener('mouseenter', () => {
+                        btn.style.background = 'rgba(0, 60, 120, 0.6)';
+                        btn.style.borderColor = 'rgba(0, 240, 255, 0.5)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', () => {
+                        btn.style.background = 'rgba(0, 40, 85, 0.5)';
+                        btn.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+                    });
+                }
                 
                 // Click to change layer
                 btn.addEventListener('click', () => {
+                    if (btn.disabled) {
+                        alert('🔑 Thunderforest API Key erforderlich!\n\nBitte trage deinen API Key in den API Settings ein.\nKostenloser Key: thunderforest.com/pricing');
+                        return;
+                    }
+                    
                     const layerName = btn.getAttribute('data-layer');
                     
                     // Direct layer switching using global baseMaps
@@ -11002,10 +12155,35 @@
                             'waymarked': '🚵 Waymarked Trails',
                             'osmde': '🇩🇪 OSM Deutschland',
                             'hike': '🌍 Humanitarian',
-                            'satellite': '🛰️ Satellit'
+                            'satellite': '🛰️ Satellit',
+                            'tf-cycle': '🚲 TF Cycle Map',
+                            'tf-outdoors': '🏞️ TF Outdoors',
+                            'tf-landscape': '⛰️ TF Landscape',
+                            'tf-transport': '🚊 TF Transport'
                         };
                         
                         const targetLayerName = layerMap[layerName];
+                        
+                        // For Thunderforest layers, create them dynamically if they don't exist
+                        if (layerName.startsWith('tf-') && !window.baseMaps[targetLayerName]) {
+                            const tfKey = localStorage.getItem('thunderforest_api_key');
+                            if (tfKey) {
+                                const tfLayers = {
+                                    'tf-cycle': 'cycle',
+                                    'tf-outdoors': 'outdoors',
+                                    'tf-landscape': 'landscape',
+                                    'tf-transport': 'transport'
+                                };
+                                const tfStyle = tfLayers[layerName];
+                                window.baseMaps[targetLayerName] = L.tileLayer(
+                                    `https://tile.thunderforest.com/${tfStyle}/{z}/{x}/{y}.png?apikey=${tfKey}`,
+                                    {
+                                        attribution: '&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                                        maxZoom: 22
+                                    }
+                                );
+                            }
+                        }
                         
                         if (targetLayerName && window.baseMaps[targetLayerName]) {
                             // Remove all layers first
@@ -11145,37 +12323,12 @@
                         >
                     </div>
                     
-                    <!-- FORECAST TIME SLIDER -->
-                    <div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 40, 80, 0.3); border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2);">
-                        <label style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: rgba(0, 240, 255, 0.9); font-size: 12px; font-weight: 600;">
-                                ⏰ Vorhersage
-                            </span>
-                            <span id="forecastTime" style="color: #ccff00; font-size: 11px; font-weight: 600;">Jetzt</span>
-                        </label>
-                        <input 
-                            type="range" 
-                            id="forecastSlider" 
-                            min="0" 
-                            max="5" 
-                            value="0"
-                            step="1"
-                            disabled
-                            style="
-                                width: 100%;
-                                cursor: not-allowed;
-                            "
-                        >
-                        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 9px; color: rgba(0, 240, 255, 0.5);">
-                            <span>Jetzt</span>
-                            <span>+3h</span>
-                            <span>+6h</span>
-                            <span>+12h</span>
-                            <span>+24h</span>
-                            <span>+5 Tage</span>
-                        </div>
-                        <p style="color: rgba(0, 240, 255, 0.6); font-size: 10px; margin: 10px 0 0 0; line-height: 1.4;">
-                            ℹ️ OpenWeatherMap bietet 5-Tage-Vorhersage in 3-Stunden-Schritten (kostenlos)
+                    <div style="background: rgba(0, 60, 120, 0.2); padding: 12px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2); margin-bottom: 15px;">
+                        <p style="color: rgba(0, 240, 255, 0.8); font-size: 11px; margin: 0 0 8px 0;">
+                            ℹ️ <strong>Hinweis:</strong> Diese Karten-Layer zeigen nur <strong>aktuelles Wetter</strong>.
+                        </p>
+                        <p style="color: rgba(0, 240, 255, 0.6); font-size: 10px; margin: 0; line-height: 1.5;">
+                            Für Wettervorhersage entlang deiner Route nutze den <strong>🌤️ Wetter-Button im Höhenprofil</strong> – dort kannst du die Abfahrtszeit wählen und siehst Wetter-Icons direkt in der Route!
                         </p>
                     </div>
                     
@@ -11274,23 +12427,14 @@
                 
                 // Enable sliders
                 const opacitySlider = container.querySelector('#opacitySlider');
-                const forecastSlider = container.querySelector('#forecastSlider');
                 
                 if (opacitySlider) {
                     opacitySlider.disabled = false;
                     opacitySlider.style.cursor = 'pointer';
                 }
                 
-                if (forecastSlider) {
-                    forecastSlider.disabled = false;
-                    forecastSlider.style.cursor = 'pointer';
-                }
-                
                 // Setup opacity slider
                 setupOpacitySlider();
-                
-                // Setup forecast slider
-                setupForecastSlider();
                 
                 // Setup toggle handlers
                 setupWeatherToggle('rainLayerToggle', 'rain', 'precipitation_new');
@@ -11318,266 +12462,6 @@
                     
                     console.log(`🎚️ Weather layer opacity: ${e.target.value}%`);
                 });
-            }
-            
-            function setupForecastSlider() {
-                const slider = container.querySelector('#forecastSlider');
-                const timeDisplay = container.querySelector('#forecastTime');
-                
-                if (!slider || !timeDisplay) return;
-                
-                const timeLabels = ['Jetzt', '+3h', '+6h', '+12h', '+24h', '+5 Tage'];
-                
-                slider.addEventListener('input', (e) => {
-                    const value = parseInt(e.target.value);
-                    timeDisplay.textContent = timeLabels[value];
-                    
-                    // Calculate forecast time (in hours from now)
-                    let hoursAhead = 0;
-                    switch(value) {
-                        case 0: hoursAhead = 0; break;      // Now
-                        case 1: hoursAhead = 3; break;      // +3h
-                        case 2: hoursAhead = 6; break;      // +6h
-                        case 3: hoursAhead = 12; break;     // +12h
-                        case 4: hoursAhead = 24; break;     // +24h
-                        case 5: hoursAhead = 120; break;    // +5 days
-                    }
-                    
-                    console.log(`⏰ Forecast time: ${timeLabels[value]} (${hoursAhead}h ahead)`);
-                    
-                    // Update all active layers with forecast time
-                    updateWeatherForecast(hoursAhead);
-                });
-            }
-            
-            function updateWeatherForecast(hoursAhead) {
-                const apiKey = localStorage.getItem('openweather_api_key');
-                
-                if (hoursAhead === 0) {
-                    console.log('📍 Showing current weather (OpenWeatherMap tiles)');
-                    // Current weather tiles work normally
-                    return;
-                }
-                
-                // Use Open-Meteo for forecast (free!)
-                console.log(`⏰ Fetching forecast for +${hoursAhead}h using Open-Meteo...`);
-                fetchOpenMeteoForecast(hoursAhead);
-            }
-            
-            async function fetchOpenMeteoForecast(hoursAhead) {
-                // Get map center or route waypoints
-                const center = map.getCenter();
-                const lat = center.lat;
-                const lon = center.lng;
-                
-                try {
-                    // Open-Meteo API (completely free, no key needed!)
-                    const url = `https://api.open-meteo.com/v1/forecast?` +
-                        `latitude=${lat}&` +
-                        `longitude=${lon}&` +
-                        `hourly=temperature_2m,precipitation,windspeed_10m,cloudcover&` +
-                        `forecast_days=7&` +
-                        `timezone=auto`;
-                    
-                    console.log('🌐 Fetching from Open-Meteo:', url);
-                    
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    
-                    console.log('✅ Open-Meteo data received:', data);
-                    
-                    // Find the forecast for our target time
-                    const now = new Date();
-                    const targetTime = new Date(now.getTime() + hoursAhead * 60 * 60 * 1000);
-                    
-                    // Find closest hourly forecast
-                    let closestIndex = 0;
-                    let minDiff = Infinity;
-                    
-                    data.hourly.time.forEach((timeStr, idx) => {
-                        const forecastTime = new Date(timeStr);
-                        const diff = Math.abs(forecastTime - targetTime);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestIndex = idx;
-                        }
-                    });
-                    
-                    const forecast = {
-                        time: data.hourly.time[closestIndex],
-                        temperature: data.hourly.temperature_2m[closestIndex],
-                        precipitation: data.hourly.precipitation[closestIndex],
-                        windspeed: data.hourly.windspeed_10m[closestIndex],
-                        cloudcover: data.hourly.cloudcover[closestIndex]
-                    };
-                    
-                    console.log('📊 Forecast data:', forecast);
-                    
-                    // Display forecast info
-                    displayForecastInfo(forecast, hoursAhead);
-                    
-                    // If we have waypoints, fetch forecast for each
-                    if (waypoints && waypoints.length > 0) {
-                        fetchWaypointForecasts(hoursAhead);
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Failed to fetch Open-Meteo forecast:', error);
-                    alert('Fehler beim Laden der Vorhersage. Bitte später erneut versuchen.');
-                }
-            }
-            
-            function displayForecastInfo(forecast, hoursAhead) {
-                // Create or update forecast info overlay
-                let forecastInfo = document.getElementById('weatherForecastInfo');
-                
-                if (!forecastInfo) {
-                    forecastInfo = document.createElement('div');
-                    forecastInfo.id = 'weatherForecastInfo';
-                    forecastInfo.style.cssText = `
-                        position: fixed;
-                        top: 120px;
-                        right: 20px;
-                        background: rgba(0, 20, 40, 0.95);
-                        border: 2px solid rgba(0, 240, 255, 0.5);
-                        border-radius: 12px;
-                        padding: 15px 20px;
-                        z-index: 2000;
-                        min-width: 250px;
-                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-                        backdrop-filter: blur(10px);
-                    `;
-                    document.body.appendChild(forecastInfo);
-                }
-                
-                const timeLabel = hoursAhead === 0 ? 'Jetzt' : `+${hoursAhead}h`;
-                const date = new Date(forecast.time);
-                const dateStr = date.toLocaleString('de-DE', { 
-                    weekday: 'short', 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                // Weather emoji based on conditions
-                let weatherEmoji = '☀️';
-                if (forecast.precipitation > 5) weatherEmoji = '🌧️';
-                else if (forecast.precipitation > 0.5) weatherEmoji = '🌦️';
-                else if (forecast.cloudcover > 75) weatherEmoji = '☁️';
-                else if (forecast.cloudcover > 25) weatherEmoji = '⛅';
-                
-                forecastInfo.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h4 style="margin: 0; color: #00f0ff; font-size: 14px;">
-                            ${weatherEmoji} Vorhersage ${timeLabel}
-                        </h4>
-                        <button onclick="document.getElementById('weatherForecastInfo').remove()" 
-                                style="background: none; border: none; color: #00f0ff; cursor: pointer; font-size: 18px; padding: 0; line-height: 1;">×</button>
-                    </div>
-                    <div style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin-bottom: 12px;">
-                        ${dateStr}
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: rgba(0, 240, 255, 0.8);">🌡️ Temperatur:</span>
-                            <span style="color: #ccff00; font-weight: 600;">${forecast.temperature.toFixed(1)}°C</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: rgba(0, 240, 255, 0.8);">💧 Niederschlag:</span>
-                            <span style="color: ${forecast.precipitation > 2 ? '#ff4444' : '#ccff00'}; font-weight: 600;">${forecast.precipitation.toFixed(1)} mm</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: rgba(0, 240, 255, 0.8);">💨 Wind:</span>
-                            <span style="color: #ccff00; font-weight: 600;">${forecast.windspeed.toFixed(0)} km/h</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: rgba(0, 240, 255, 0.8);">☁️ Bewölkung:</span>
-                            <span style="color: #ccff00; font-weight: 600;">${forecast.cloudcover}%</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0, 240, 255, 0.2); font-size: 10px; color: rgba(0, 240, 255, 0.6);">
-                        📡 Daten von Open-Meteo (kostenlos)
-                    </div>
-                `;
-                
-                console.log('📋 Forecast info displayed');
-            }
-            
-            async function fetchWaypointForecasts(hoursAhead) {
-                if (!waypoints || waypoints.length === 0) return;
-                
-                console.log(`🗺️ Fetching forecast for ${waypoints.length} waypoints...`);
-                
-                // Calculate estimated time at each waypoint based on average speed
-                const avgSpeed = averageSpeed || 20; // km/h
-                let cumulativeTime = 0;
-                
-                for (let i = 0; i < Math.min(waypoints.length, 5); i++) {
-                    const wp = waypoints[i];
-                    
-                    // Estimate time to reach this waypoint
-                    if (i > 0 && routes && routes[0]) {
-                        // Rough estimate based on total distance
-                        const progress = i / waypoints.length;
-                        const totalDistance = routes[0].distance / 1000; // km
-                        cumulativeTime = (totalDistance * progress / avgSpeed) + hoursAhead;
-                    } else {
-                        cumulativeTime = hoursAhead;
-                    }
-                    
-                    try {
-                        const url = `https://api.open-meteo.com/v1/forecast?` +
-                            `latitude=${wp.lat}&` +
-                            `longitude=${wp.lng}&` +
-                            `hourly=temperature_2m,precipitation,windspeed_10m&` +
-                            `forecast_days=3&` +
-                            `timezone=auto`;
-                        
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        
-                        // Find forecast for estimated arrival time
-                        const targetTime = new Date(Date.now() + cumulativeTime * 60 * 60 * 1000);
-                        let closestIdx = 0;
-                        let minDiff = Infinity;
-                        
-                        data.hourly.time.forEach((time, idx) => {
-                            const diff = Math.abs(new Date(time) - targetTime);
-                            if (diff < minDiff) {
-                                minDiff = diff;
-                                closestIdx = idx;
-                            }
-                        });
-                        
-                        const wpForecast = {
-                            temp: data.hourly.temperature_2m[closestIdx],
-                            rain: data.hourly.precipitation[closestIdx],
-                            wind: data.hourly.windspeed_10m[closestIdx]
-                        };
-                        
-                        // Add popup to waypoint marker
-                        if (wp.marker) {
-                            const popupContent = `
-                                <div style="font-size: 12px;">
-                                    <strong>WP${i+1} - Vorhersage</strong><br>
-                                    <small>~${cumulativeTime.toFixed(1)}h von jetzt</small><br>
-                                    🌡️ ${wpForecast.temp.toFixed(1)}°C<br>
-                                    💧 ${wpForecast.rain.toFixed(1)}mm<br>
-                                    💨 ${wpForecast.wind.toFixed(0)}km/h
-                                </div>
-                            `;
-                            wp.marker.bindPopup(popupContent);
-                        }
-                        
-                        console.log(`✅ WP${i+1} forecast:`, wpForecast);
-                        
-                    } catch (error) {
-                        console.error(`❌ Failed to fetch forecast for WP${i+1}:`, error);
-                    }
-                }
-                
-                console.log('📍 Waypoint forecasts added to markers (click to see)');
             }
             
             function setupWeatherToggle(toggleId, layerName, layerType) {
@@ -11629,6 +12513,17 @@
         }
         
         console.log('✅ Floating Toolbar V3.0 initialized!');
+        
+        // Set initial state of elevation button based on profile visibility
+        const elevationBtn = toolbar.querySelector('[data-panel="elevation"]');
+        const elevationProfile = document.querySelector('#elevationProfile');
+        if (elevationBtn && elevationProfile) {
+            if (elevationProfile.classList.contains('show')) {
+                elevationBtn.classList.add('active'); // Profile visible = button green
+            } else {
+                elevationBtn.classList.remove('active'); // Profile hidden = button dark
+            }
+        }
     })();
     
     // ==========================================
@@ -11725,6 +12620,28 @@
         console.log('✅ Elevation Profile draggable initialized');
     })();
     </script>
+
+    <!-- Weather Tooltip (Hover) -->
+    <div class="weather-tooltip" id="weatherTooltip"></div>
+    
+    <!-- Weather Detail Modal (Click) -->
+    <div class="weather-detail-overlay" id="weatherDetailOverlay"></div>
+    <div class="weather-detail-modal" id="weatherDetailModal">
+        <div class="weather-detail-header">
+            <div class="weather-detail-title">
+                <span id="weatherDetailIcon"></span>
+                <span>Wetter Details</span>
+            </div>
+            <button class="weather-detail-close" id="weatherDetailClose">×</button>
+        </div>
+        <div class="weather-detail-main">
+            <div class="weather-detail-icon" id="weatherDetailMainIcon"></div>
+            <div class="weather-detail-desc" id="weatherDetailDesc"></div>
+            <div class="weather-detail-time" id="weatherDetailTime"></div>
+        </div>
+        <div class="weather-detail-stats" id="weatherDetailStats"></div>
+        <div class="weather-detail-location" id="weatherDetailLocation"></div>
+    </div>
 
 </body>
 </html>
