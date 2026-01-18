@@ -5769,6 +5769,29 @@
                     </div>
                 </div>
                 
+                <div style="margin-bottom: 24px;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: #fff; font-size: 14px; font-weight: 500;">
+                        <input 
+                            type="checkbox" 
+                            id="gpxAppendMode"
+                            style="
+                                width: 20px;
+                                height: 20px;
+                                cursor: pointer;
+                                accent-color: #3b82f6;
+                            "
+                        >
+                        <span>An bestehende Route anhängen</span>
+                    </label>
+                    <p style="
+                        margin: 8px 0 0 32px;
+                        font-size: 12px;
+                        color: rgba(255, 255, 255, 0.5);
+                    ">
+                        Bestehende Wegpunkte werden nicht gelöscht
+                    </p>
+                </div>
+                
                 <div style="display: flex; gap: 12px;">
                     <button id="gpxImportCancel" style="
                         flex: 1;
@@ -5818,6 +5841,7 @@
             // Confirm button
             document.getElementById('gpxImportConfirm').addEventListener('click', async () => {
                 const spacing = parseFloat(slider.value);
+                const appendMode = document.getElementById('gpxAppendMode').checked;
                 
                 // Save spacing preference
                 localStorage.setItem('gpxWaypointSpacing', spacing.toString());
@@ -5831,7 +5855,7 @@
                 }
                 
                 try {
-                    await parseAndLoadGPX(gpxText, filename, spacing);
+                    await parseAndLoadGPX(gpxText, filename, spacing, appendMode);
                     
                     if (statusElement) {
                         statusElement.textContent = `✅ GPX importiert (${spacing}km Abstand)`;
@@ -5879,7 +5903,7 @@
             });
         }
         
-        async function parseAndLoadGPX(gpxText, filename, waypointSpacingKm = 1) {
+        async function parseAndLoadGPX(gpxText, filename, waypointSpacingKm = 1, appendMode = false) {
             // Parse GPX XML
             const parser = new DOMParser();
             const gpxDoc = parser.parseFromString(gpxText, 'text/xml');
@@ -6114,8 +6138,30 @@
             
             console.log(`📍 Created ${waypointIndices.length} waypoints (~${waypointSpacingKm}km spacing) for ${totalDistance.toFixed(2)} km route`);
             
-            waypoints = [];
-            markers = [];
+            // Clear existing waypoints and their markers from map (unless appending)
+            if (!appendMode) {
+                markers.forEach(m => map.removeLayer(m));
+                waypoints = [];
+                markers = [];
+                console.log('🗑️ Cleared existing waypoints (replace mode)');
+            } else {
+                console.log('➕ Appending to existing waypoints');
+                
+                // If there are existing waypoints, we need to connect the last old waypoint
+                // to the first new waypoint with a calculated route segment
+                if (waypoints.length > 0) {
+                    const lastOldWaypoint = waypoints[waypoints.length - 1];
+                    const firstNewCoord = coordinates[waypointIndices[0]];
+                    
+                    // Remove the "locked" segment from the last old waypoint since we're extending
+                    if (lastOldWaypoint.segmentToNext && lastOldWaypoint.segmentToNext.locked) {
+                        console.log('🔓 Unlocking last segment to allow connection to new route');
+                        lastOldWaypoint.segmentToNext = null;
+                    }
+                    
+                    console.log(`🔗 Will connect old endpoint (${lastOldWaypoint.lat.toFixed(5)}, ${lastOldWaypoint.lng.toFixed(5)}) to new startpoint (${firstNewCoord[0].toFixed(5)}, ${firstNewCoord[1].toFixed(5)})`);
+                }
+            }
             
             waypointIndices.forEach((idx, wpIdx) => {
                 const coord = coordinates[idx];
@@ -6169,14 +6215,17 @@
                 
                 waypoints.push(wp);
                 
+                // Calculate actual waypoint number (considering existing waypoints in append mode)
+                const actualWaypointNumber = waypoints.length;
+                
                 // Color coding: green = start, red = end, blue = intermediate
-                const isStart = wpIdx === 0;
+                const isStart = actualWaypointNumber === 1;
                 const isEnd = wpIdx === waypointIndices.length - 1;
                 const color = isStart ? '#10b981' : isEnd ? '#ef4444' : '#3b82f6';
                 
                 const markerIcon = L.divIcon({
                     className: 'waypoint-marker',
-                    html: `<div style="background: ${color}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${wpIdx + 1}</div>`,
+                    html: `<div style="background: ${color}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${actualWaypointNumber}</div>`,
                     iconSize: [24, 24],
                     iconAnchor: [12, 12]
                 });
@@ -6189,17 +6238,18 @@
                 marker.on('dragend', function(e) {
                     // Update position but keep ID and engine
                     const newPos = e.target.getLatLng();
-                    waypoints[wpIdx].lat = newPos.lat;
-                    waypoints[wpIdx].lng = newPos.lng;
+                    const actualIndex = actualWaypointNumber - 1; // Convert to 0-based index
+                    waypoints[actualIndex].lat = newPos.lat;
+                    waypoints[actualIndex].lng = newPos.lng;
                     
                     // Auto-unlock affected segments (ROUTE PRESERVATION)
-                    if (wpIdx > 0 && waypoints[wpIdx - 1].segmentToNext) {
-                        waypoints[wpIdx - 1].segmentToNext.locked = false;
-                        console.log(`🔓 Auto-unlocked segment ${wpIdx-1}→${wpIdx} (GPX waypoint moved)`);
+                    if (actualIndex > 0 && waypoints[actualIndex - 1].segmentToNext) {
+                        waypoints[actualIndex - 1].segmentToNext.locked = false;
+                        console.log(`🔓 Auto-unlocked segment ${actualIndex-1}→${actualIndex} (GPX waypoint moved)`);
                     }
-                    if (waypoints[wpIdx].segmentToNext) {
-                        waypoints[wpIdx].segmentToNext.locked = false;
-                        console.log(`🔓 Auto-unlocked segment ${wpIdx}→${wpIdx+1} (GPX waypoint moved)`);
+                    if (waypoints[actualIndex].segmentToNext) {
+                        waypoints[actualIndex].segmentToNext.locked = false;
+                        console.log(`🔓 Auto-unlocked segment ${actualIndex}→${actualIndex+1} (GPX waypoint moved)`);
                     }
                     
                     // Update list to show lock status
