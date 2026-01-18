@@ -77,6 +77,44 @@
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
         }
         
+        /* Language Toggle */
+        .lang-toggle {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .lang-btn {
+            background: linear-gradient(135deg, var(--bg-deep), var(--bg-panel));
+            border: 2px solid var(--primary-cyan);
+            color: var(--primary-cyan);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-tech);
+        }
+        
+        .lang-btn:hover {
+            background: var(--primary-cyan);
+            color: var(--bg-deep);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        .lang-btn.active {
+            background: var(--accent-lime);
+            border-color: var(--accent-lime);
+            color: var(--bg-deep);
+            font-weight: bold;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
         /* Hero */
         .hero {
             max-width: 1200px;
@@ -98,6 +136,37 @@
             color: var(--text-muted);
             max-width: 700px;
             margin: 0 auto;
+        }
+        
+        /* NEW Banner */
+        .new-banner {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--accent-lime));
+            color: var(--bg-deep);
+            padding: 20px;
+            text-align: center;
+            margin: 40px auto;
+            max-width: 800px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 8px 24px rgba(0, 240, 255, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .new-banner a {
+            color: var(--bg-deep);
+            text-decoration: underline;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .new-banner a:hover {
+            color: #003366;
         }
         
         /* Container */
@@ -140,6 +209,23 @@
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
+        }
+        
+        .feature-card.new {
+            border-color: var(--accent-lime);
+        }
+        
+        .feature-card.new::after {
+            content: 'NEU';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-lime);
+            color: var(--bg-deep);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
         }
         
         .feature-card::before {
@@ -275,7 +361,13 @@
     <header>
         <div class="header-content">
             <a href="index.html" class="logo">PIXEL<span style="color: var(--accent-lime);">RUUD</span></a>
-            <a href="index.html" class="back-btn">← Zurück</a>
+            <div class="header-right">
+                <div class="lang-toggle">
+                    <button class="lang-btn active" id="langDE">🇩🇪 DE</button>
+                    <button class="lang-btn" id="langEN">🇬🇧 EN</button>
+                </div>
+                <a href="index.html" class="back-btn" id="backBtn">← Zurück</a>
+            </div>
         </div>
     </header>
     
@@ -283,6 +375,14 @@
     <div class="hero">
         <h1>How To Pixel Yr Ruud</h1>
         <p>Lerne alle Features von Pixelruud kennen – der professionelle Gravel Route Planner mit X-Ray Magnifier, präzisen Höhendaten und Surface-Analyse.</p>
+    </div>
+    
+    <!-- NEW BANNER -->
+    <div class="container">
+        <div class="new-banner">
+            🎓 NEU: Interaktives Tutorial direkt in der App! Zweisprachig (🇩🇪/🇬🇧) mit Schritt-für-Schritt Anleitung.
+            <a href="app.html">JETZT AUSPROBIEREN →</a>
+        </div>
     </div>
     
     <div class="container">
@@ -321,6 +421,88 @@
             </div>
         </section>
         
+        <!-- FLOATING TOOLBAR (NEU!) -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🔧</span>
+                Floating Toolbar
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card new">
+                    <div class="feature-title">Verschiebbare Toolbar</div>
+                    <div class="feature-desc">Greife die Toolbar an den Punkten oben und ziehe sie an eine beliebige Position auf deinem Bildschirm!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Waypoints Panel</div>
+                    <div class="feature-desc">Verwalte alle Wegpunkte per Drag & Drop, füge neue ein oder lösche einzelne Punkte. Wähle die Routing-Engine pro Segment!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">X-Ray Magnifier</div>
+                    <div class="feature-desc">Drücke <span class="kbd">L</span> für die Lupe mit Kartenlayer-Highlights, Steigungsprofil, Koordinaten und Oberflächenbeschaffenheit.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Elevation Profile</div>
+                    <div class="feature-desc">Interaktives Höhenprofil mit Oberflächentypen und Wetter-Prognose zum Zeitpunkt deiner Ankunft!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Statistics</div>
+                    <div class="feature-desc">Alle Zahlen auf einen Blick: Distanz, Höhenmeter, Gravel/Road Score, Fahrzeit (basierend auf Geschwindigkeits-Schieberegler).</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Tutorial-Button (?)</div>
+                    <div class="feature-desc">Starte das interaktive Tutorial jederzeit neu – zweisprachig mit Schritt-für-Schritt Anleitung!</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- WEATHER OVERLAY (NEU!) -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🌦️</span>
+                Weather Overlay
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card new">
+                    <div class="feature-title">Weltweites Echtzeit-Wetter</div>
+                    <div class="feature-desc">Zeige das aktuelle Wetter auf der Karte: Temperatur, Niederschlag, Wolken und Wind.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Wetter-Prognose im Höhenprofil</div>
+                    <div class="feature-desc">Sieh direkt im Elevation Profile, welches Wetter dich zu welchem Zeitpunkt erwartet – perfekt für längere Touren!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Route nach Wetter planen</div>
+                    <div class="feature-desc">Vermeide Regen, Wind oder Hitze – passe deine Route basierend auf der Wettervorhersage an.</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- API SETTINGS (NEU!) -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">🔑</span>
+                API Settings (Power-User)
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card new">
+                    <div class="feature-title">Persönliche kostenlose APIs</div>
+                    <div class="feature-desc">Hole dir kostenlose API-Keys von BRouter, GraphHopper, OpenWeatherMap und anderen Anbietern – Links sind im Panel!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Mehr Routing-Engines</div>
+                    <div class="feature-desc">Mit eigenen APIs hast du Zugriff auf mehr Routing-Optionen und höhere API-Limits.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Erweiterte Wetter-Layer</div>
+                    <div class="feature-desc">Nutze zusätzliche Weather-APIs für detailliertere Wettervorhersagen und Layer.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Höhere Limits</div>
+                    <div class="feature-desc">Eigene APIs bedeuten höhere oder unbegrenzte Rate-Limits – perfekt für Viel-Planer!</div>
+                </div>
+            </div>
+        </section>
+        
         <!-- GRAVEL-SPEZIFISCH -->
         <section class="section">
             <h2 class="section-title">
@@ -339,6 +521,10 @@
                 <div class="feature-card">
                     <div class="feature-title">Surface Analysis</div>
                     <div class="feature-desc">CyclOSM-Karte zeigt dir Surface-Typen: Asphalt (schwarz), Schotter (braun), Trail (grün).</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Gravel/Road Score</div>
+                    <div class="feature-desc">Sieh auf einen Blick, wie viel Prozent deiner Route auf Gravel vs. Asphalt verläuft – präzise Oberflächenanalyse!</div>
                 </div>
             </div>
         </section>
@@ -369,6 +555,10 @@
                 <div class="feature-card">
                     <div class="feature-title">Satellit</div>
                     <div class="feature-desc">Echte Luftbilder zum Überprüfen der Oberfläche – siehst du, was dich erwartet.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Adresssuche</div>
+                    <div class="feature-desc">Suche nach Städten, Straßen, PLZ oder Koordinaten – springe direkt zu deinem Startpunkt!</div>
                 </div>
             </div>
         </section>
@@ -422,6 +612,14 @@
                     <div class="feature-title">Smoothing-Algorithmus</div>
                     <div class="feature-desc">Intelligente Glättung der Höhendaten – präzise wie Komoot, ohne nervige Spitzen.</div>
                 </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Oberflächentypen im Profil</div>
+                    <div class="feature-desc">Sieh direkt im Höhenprofil, wo Asphalt, Gravel oder Trail beginnt und endet!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Wetter-Integration</div>
+                    <div class="feature-desc">Das Höhenprofil zeigt dir die Wetter-Prognose zum Zeitpunkt wenn du dort ankommst – genial für Tagesplanung!</div>
+                </div>
             </div>
         </section>
         
@@ -433,8 +631,8 @@
             </h2>
             <div class="feature-grid">
                 <div class="feature-card">
-                    <div class="feature-title">Magnifier aktivieren</div>
-                    <div class="feature-desc">Hover mit der Maus über die Route – der X-Ray Magnifier zeigt alle Details.</div>
+                    <div class="feature-title">Magnifier aktivieren <span class="kbd">L</span></div>
+                    <div class="feature-desc">Drücke <span class="kbd">L</span> um die Lupe zu aktivieren – sie folgt deiner Maus über die Route.</div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-title">Surface-Info</div>
@@ -448,9 +646,17 @@
                     <div class="feature-title">Mini-Profil</div>
                     <div class="feature-desc">Zeigt die nächsten ±50 Trackpoints – perfekt für Intervall-Planung.</div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-title">Freeze-Funktion</div>
-                    <div class="feature-desc">Klicke, um die Ansicht zu fixieren – analysiere knifflige Kreuzungen in Ruhe.</div>
+                <div class="feature-card new">
+                    <div class="feature-title">Freeze-Funktion <span class="kbd">SPACE</span></div>
+                    <div class="feature-desc">Drücke <span class="kbd">SPACE</span> um die Lupe zu fixieren – analysiere knifflige Kreuzungen in Ruhe!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Kartenlayer-Highlights</div>
+                    <div class="feature-desc">Die Lupe zeigt verschiedene Kartenlayer mit Zoom – perfekt um Abzweigungen genau zu identifizieren!</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Entfernung zum Start</div>
+                    <div class="feature-desc">Sieh direkt, wie weit du bereits gefahren bist – ideal für Pacing und Etappenplanung!</div>
                 </div>
             </div>
         </section>
@@ -468,11 +674,15 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-title">GPX Export</div>
-                    <div class="feature-desc">Exportiere als GPX für Garmin, Komoot, Wahoo oder andere GPS-Geräte.</div>
+                    <div class="feature-desc">Exportiere als GPX für Garmin, Komoot, Wahoo oder andere GPS-Geräte – mit allen Höhendaten!</div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-title">GPX Import</div>
-                    <div class="feature-desc">Importiere bestehende GPX-Dateien und passe sie in Pixelruud an.</div>
+                    <div class="feature-desc">Importiere bestehende GPX-Dateien mit anpassbarem Waypoint-Abstand.</div>
+                </div>
+                <div class="feature-card new">
+                    <div class="feature-title">Routen kombinieren</div>
+                    <div class="feature-desc">Aktiviere "An bestehende Route anhängen" beim GPX-Import – verbinde mehrere Routen zu einer großen Tour!</div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-title">Route Library</div>
@@ -511,6 +721,32 @@
             </div>
         </section>
         
+        <!-- POI -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-icon">⭐</span>
+                Points of Interest (POI)
+            </h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Cafés & Restaurants</div>
+                    <div class="feature-desc">Finde Einkehrmöglichkeiten entlang deiner Route – perfekt für Pausen.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Bike-Shops & Reparatur</div>
+                    <div class="feature-desc">Werkstätten und Fahrradläden für Notfälle oder Service.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Trinkwasser-Stellen</div>
+                    <div class="feature-desc">Brunnen und Wasserstellen zum Auffüllen – essentiell für lange Touren.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Campingplätze</div>
+                    <div class="feature-desc">Übernachtungsmöglichkeiten für Bikepacking-Abenteuer.</div>
+                </div>
+            </div>
+        </section>
+        
         <!-- DEMO MODE -->
         <section class="section">
             <h2 class="section-title">
@@ -540,7 +776,7 @@
         <!-- CTA -->
         <div class="cta-section">
             <h2 class="cta-title">Bereit zu Starten?</h2>
-            <p class="cta-text">Teste alle Features kostenlos oder registriere dich für unlimited Zugang.</p>
+            <p class="cta-text">Teste alle Features kostenlos – inkl. interaktivem Tutorial (🇩🇪/🇬🇧)!</p>
             <a href="app.html" class="cta-button">JETZT LOSLEGEN →</a>
         </div>
         
@@ -548,13 +784,417 @@
     
     <!-- Footer -->
     <footer>
-        <p>© 2025 Pixelruud Development</p>
+        <p id="footerCopyright">© 2025 Pixelruud Development</p>
         <p>
-            <a href="impressum.html">Impressum</a>
-            <a href="datenschutz.html">Datenschutz</a>
-            <a href="index.html">Home</a>
+            <a href="impressum.html" id="footerImprint">Impressum</a>
+            <a href="datenschutz.html" id="footerPrivacy">Datenschutz</a>
+            <a href="index.html" id="footerHome">Home</a>
         </p>
     </footer>
+    
+    <script>
+        // Language translations
+        const translations = {
+            de: {
+                backBtn: '← Zurück',
+                heroTitle: 'How To Pixel Yr Ruud',
+                heroDesc: 'Lerne alle Features von Pixelruud kennen – der professionelle Gravel Route Planner mit X-Ray Magnifier, präzisen Höhendaten und Surface-Analyse.',
+                newBanner: '🎓 NEU: Interaktives Tutorial direkt in der App! Zweisprachig (🇩🇪/🇬🇧) mit Schritt-für-Schritt Anleitung.',
+                newBannerLink: 'JETZT AUSPROBIEREN →',
+                ctaTitle: 'Bereit zu Starten?',
+                ctaText: 'Teste alle Features kostenlos – inkl. interaktivem Tutorial (🇩🇪/🇬🇧)!',
+                ctaButton: 'JETZT LOSLEGEN →',
+                footerCopyright: '© 2025 Pixelruud Development',
+                footerImprint: 'Impressum',
+                footerPrivacy: 'Datenschutz',
+                footerHome: 'Home'
+            },
+            en: {
+                backBtn: '← Back',
+                heroTitle: 'How To Pixel Yr Ruud',
+                heroDesc: 'Learn all features of Pixelruud – the professional gravel route planner with X-Ray Magnifier, precise elevation data and surface analysis.',
+                newBanner: '🎓 NEW: Interactive tutorial directly in the app! Bilingual (🇩🇪/🇬🇧) with step-by-step guidance.',
+                newBannerLink: 'TRY IT NOW →',
+                ctaTitle: 'Ready to Start?',
+                ctaText: 'Test all features for free – including interactive tutorial (🇩🇪/🇬🇧)!',
+                ctaButton: 'GET STARTED NOW →',
+                footerCopyright: '© 2025 Pixelruud Development',
+                footerImprint: 'Legal Notice',
+                footerPrivacy: 'Privacy',
+                footerHome: 'Home'
+            }
+        };
+        
+        // Current language
+        let currentLang = localStorage.getItem('pixelruud_guide_language') || 'de';
+        
+        // Set initial language
+        setLanguage(currentLang);
+        
+        // Language button handlers
+        document.getElementById('langDE').addEventListener('click', () => switchLanguage('de'));
+        document.getElementById('langEN').addEventListener('click', () => switchLanguage('en'));
+        
+        function switchLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('pixelruud_guide_language', lang);
+            setLanguage(lang);
+        }
+        
+        function setLanguage(lang) {
+            const t = translations[lang];
+            
+            // Update buttons
+            document.getElementById('langDE').classList.toggle('active', lang === 'de');
+            document.getElementById('langEN').classList.toggle('active', lang === 'en');
+            
+            // Update header
+            document.getElementById('backBtn').textContent = t.backBtn;
+            
+            // Update hero
+            document.querySelector('.hero h1').textContent = t.heroTitle;
+            document.querySelector('.hero p').textContent = t.heroDesc;
+            
+            // Update NEW banner
+            const bannerText = document.querySelector('.new-banner');
+            bannerText.childNodes[0].textContent = t.newBanner + ' ';
+            bannerText.querySelector('a').textContent = t.newBannerLink;
+            
+            // Update CTA
+            document.querySelector('.cta-title').textContent = t.ctaTitle;
+            document.querySelector('.cta-text').textContent = t.ctaText;
+            document.querySelector('.cta-button').textContent = t.ctaButton;
+            
+            // Update footer
+            document.getElementById('footerCopyright').textContent = t.footerCopyright;
+            document.getElementById('footerImprint').textContent = t.footerImprint;
+            document.getElementById('footerPrivacy').textContent = t.footerPrivacy;
+            document.getElementById('footerHome').textContent = t.footerHome;
+            
+            // Update all sections - German is default in HTML, only change for English
+            if (lang === 'en') {
+                updateSectionsEN();
+            } else {
+                updateSectionsDE();
+            }
+        }
+        
+        function updateSectionsEN() {
+            // Section titles - update only the text part after the icon
+            const sectionTexts = [
+                'Basic Functions',
+                'Floating Toolbar',
+                'Weather Overlay',
+                'API Settings (Power-User)',
+                'Gravel-Specific',
+                'Maps & Navigation',
+                'Routing Engines',
+                'Elevation & Analysis',
+                'X-Ray Magnifier',
+                'Save & Export',
+                'Undo/Redo',
+                'Points of Interest (POI)',
+                'Demo Mode'
+            ];
+            
+            document.querySelectorAll('.section-title').forEach((section, idx) => {
+                if (sectionTexts[idx]) {
+                    // Keep the icon, only update text
+                    const icon = section.querySelector('.section-icon');
+                    section.innerHTML = '';
+                    section.appendChild(icon);
+                    section.appendChild(document.createTextNode(sectionTexts[idx]));
+                }
+            });
+            
+            // Feature cards - will be very long, doing key sections
+            updateFeatureCardsEN();
+        }
+        
+        function updateSectionsDE() {
+            const sectionTexts = [
+                'Grundfunktionen',
+                'Floating Toolbar',
+                'Weather Overlay',
+                'API Settings (Power-User)',
+                'Gravel-Spezifisch',
+                'Karten & Navigation',
+                'Routing-Engines',
+                'Elevation & Analyse',
+                'X-Ray Magnifier',
+                'Speichern & Export',
+                'Undo/Redo',
+                'Points of Interest (POI)',
+                'Demo Mode'
+            ];
+            
+            document.querySelectorAll('.section-title').forEach((section, idx) => {
+                if (sectionTexts[idx]) {
+                    // Keep the icon, only update text
+                    const icon = section.querySelector('.section-icon');
+                    section.innerHTML = '';
+                    section.appendChild(icon);
+                    section.appendChild(document.createTextNode(sectionTexts[idx]));
+                }
+            });
+            
+            updateFeatureCardsDE();
+        }
+        
+        function updateFeatureCardsEN() {
+            const cards = document.querySelectorAll('.feature-card');
+            const cardData = [
+                // Grundfunktionen / Basic Functions
+                ['Set Waypoints', 'Click on the map to set waypoints – the route is calculated automatically.'],
+                ['Calculate Route', 'From 2 waypoints onwards, the route is automatically calculated with precise elevation data.'],
+                ['Delete Waypoints', 'Click the ✕ next to a waypoint to remove it.'],
+                ['Move Waypoints', 'Drag waypoints on the map to adjust the route – it recalculates immediately.'],
+                ['Reverse Route', 'The Reverse button flips start and destination – perfect for round trips.'],
+                ['Clear All', 'The Clear button removes all waypoints and starts fresh.'],
+                
+                // Floating Toolbar
+                ['Moveable Toolbar', 'Grab the toolbar at the top dots and drag it anywhere on your screen!'],
+                ['Waypoints Panel', 'Manage all waypoints via drag & drop, insert new ones or delete individual points. Choose routing engine per segment!'],
+                ['X-Ray Magnifier', 'Press L to activate the magnifier with map layer highlights, gradient profile, coordinates and surface quality.'],
+                ['Elevation Profile', 'Interactive elevation profile with surface types and weather forecast for your arrival time!'],
+                ['Statistics', 'All numbers at a glance: distance, elevation gain, gravel/road score, riding time (based on speed slider).'],
+                ['Tutorial Button (?)', 'Start the interactive tutorial anytime – bilingual with step-by-step guidance!'],
+                
+                // Weather Overlay
+                ['Worldwide Real-time Weather', 'Display current weather on the map: temperature, precipitation, clouds and wind.'],
+                ['Weather Forecast in Elevation Profile', 'See directly in the elevation profile what weather to expect at what time – perfect for longer tours!'],
+                ['Plan Route by Weather', 'Avoid rain, wind or heat – adjust your route based on weather forecast.'],
+                
+                // API Settings
+                ['Personal Free APIs', 'Get free API keys from BRouter, GraphHopper, OpenWeatherMap and other providers – links are in the panel!'],
+                ['More Routing Engines', 'With your own APIs you get access to more routing options and higher API limits.'],
+                ['Extended Weather Layers', 'Use additional weather APIs for more detailed forecasts and layers.'],
+                ['Higher Limits', 'Own APIs mean higher or unlimited rate limits – perfect for frequent planners!'],
+                
+                // Gravel-Specific
+                ['Gravel vs. Road Profile', 'Choose "Gravel" for unpaved paths or "Road" for paved roads.'],
+                ['Hilly vs. Flat', '"Hilly" seeks climbs, "Flat" prefers level terrain – perfect for your training.'],
+                ['Surface Analysis', 'CyclOSM map shows surface types: asphalt (black), gravel (brown), trail (green).'],
+                ['Gravel/Road Score', 'See at a glance what percentage of your route is gravel vs. asphalt – precise surface analysis!'],
+                
+                // Maps & Navigation
+                ['7 Map Layers', 'Switch between Standard, CyclOSM, Topographic, Waymarked Trails, OSM Germany, Humanitarian and Satellite.'],
+                ['CyclOSM (Gravel)', 'Shows surface types and bike paths – the best map for gravel planning.'],
+                ['Topographic', 'Contour lines every 10 meters – perfect for Alpine tours and elevation planning.'],
+                ['Waymarked Trails', 'Shows marked bike routes and MTB trails – ideal for new route inspiration.'],
+                ['Satellite', 'Real aerial images to check the surface – see what awaits you.'],
+                ['Address Search', 'Search for cities, streets, postal codes or coordinates – jump directly to your starting point!'],
+                
+                // Routing Engines
+                ['Auto Mode', 'Tries BRouter, GraphHopper, Valhalla and OSRM automatically – always the best route.'],
+                ['Per-Waypoint Engine', 'Hover over a waypoint to choose a special engine for this segment.'],
+                ['BRouter (Gravel/Road)', 'Specialized in gravel with 8 different profiles – the engine for off-road.'],
+                ['Direct Line', 'Draws a straight line – useful for trail planning or when no path exists.'],
+                
+                // Elevation & Analysis
+                ['Elevation Profile', 'The interactive elevation profile shows climbs, descents and elevation gain at a glance.'],
+                ['Gradient Colors', 'Green = flat, yellow = moderate, orange = steep, red = very steep – immediately recognizable.'],
+                ['Hover Information', 'Move mouse over the profile to see exact elevation and gradient.'],
+                ['Smoothing Algorithm', 'Intelligent smoothing of elevation data – precise like Komoot, without annoying spikes.'],
+                ['Surface Types in Profile', 'See directly in the elevation profile where asphalt, gravel or trail begins and ends!'],
+                ['Weather Integration', 'The elevation profile shows you the weather forecast for when you arrive – brilliant for day planning!'],
+                
+                // X-Ray Magnifier
+                ['Activate Magnifier L', 'Press L to activate the magnifier – it follows your mouse over the route.'],
+                ['Surface Info', 'See immediately: asphalt, gravel, trail, unpaved – no nasty surprises.'],
+                ['Live Elevation', 'Current altitude and gradient directly at mouse pointer – precise as GPS.'],
+                ['Mini Profile', 'Shows the next ±50 trackpoints – perfect for interval planning.'],
+                ['Freeze Function SPACE', 'Press SPACE to freeze the magnifier – analyze tricky junctions in peace!'],
+                ['Map Layer Highlights', 'The magnifier shows different map layers with zoom – perfect for identifying junctions precisely!'],
+                ['Distance to Start', 'See directly how far you\'ve already ridden – ideal for pacing and stage planning!'],
+                
+                // Save & Export
+                ['Save Route', 'Save your route with name and description – all routes are preserved.'],
+                ['GPX Export', 'Export as GPX for Garmin, Komoot, Wahoo or other GPS devices – with all elevation data!'],
+                ['GPX Import', 'Import existing GPX files with adjustable waypoint spacing.'],
+                ['Combine Routes', 'Activate "Append to existing route" during GPX import – combine multiple routes into one big tour!'],
+                ['Route Library', 'All saved routes at a glance – with heatmap visualization.'],
+                ['Heatmap', 'See where you ride most frequently – your personal gravel map.'],
+                
+                // Undo/Redo
+                ['Undo Ctrl+Z', 'Undo the last action – waypoint deleted? Just Undo!'],
+                ['Redo Ctrl+Y', 'Restore an undone action – no fear of mistakes.'],
+                ['Badge Counter', 'Shows how many actions you can undo – up to 50 steps back.'],
+                ['Toast Notifications', 'Every undo/redo action is briefly displayed – you always know what happens.'],
+                
+                // POI
+                ['Cafés & Restaurants', 'Find places to stop along your route – perfect for breaks.'],
+                ['Bike Shops & Repair', 'Workshops and bike shops for emergencies or service.'],
+                ['Water Sources', 'Fountains and water points for refilling – essential for long tours.'],
+                ['Campsites', 'Accommodation options for bikepacking adventures.'],
+                
+                // Demo Mode
+                ['25 Waypoints Free', 'Test Pixelruud with up to 25 waypoints – no login required.'],
+                ['25km Route Free', 'Plan routes up to 25km for free – perfect for initial tests.'],
+                ['50 API Calls Free', 'Calculate up to 50 route segments – sufficient for several tours.'],
+                ['Unlimited with Account', 'Register for free for unlimited waypoints, distance and routing.']
+            ];
+            
+            cards.forEach((card, idx) => {
+                if (cardData[idx]) {
+                    const title = card.querySelector('.feature-title');
+                    const desc = card.querySelector('.feature-desc');
+                    if (title && desc) {
+                        // Preserve KBD elements if present
+                        const kbd = title.querySelector('.kbd');
+                        title.innerHTML = cardData[idx][0];
+                        if (kbd) title.appendChild(kbd);
+                        
+                        // Preserve KBD in description
+                        const descKbd = desc.querySelector('.kbd');
+                        desc.innerHTML = cardData[idx][1];
+                        if (descKbd) {
+                            // Re-insert KBD elements in English text
+                            if (cardData[idx][1].includes('Ctrl+Z')) {
+                                desc.innerHTML = desc.innerHTML.replace('Ctrl+Z', '<span class="kbd">Ctrl+Z</span>');
+                            }
+                            if (cardData[idx][1].includes('Ctrl+Y')) {
+                                desc.innerHTML = desc.innerHTML.replace('Ctrl+Y', '<span class="kbd">Ctrl+Y</span>');
+                            }
+                            if (cardData[idx][1].includes('Press L')) {
+                                desc.innerHTML = desc.innerHTML.replace('Press L', 'Press <span class="kbd">L</span>');
+                            }
+                            if (cardData[idx][1].includes('Press SPACE')) {
+                                desc.innerHTML = desc.innerHTML.replace('Press SPACE', 'Press <span class="kbd">SPACE</span>');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateFeatureCardsDE() {
+            const cards = document.querySelectorAll('.feature-card');
+            const cardData = [
+                // Grundfunktionen
+                ['Wegpunkte setzen', 'Klicke auf die Karte, um Wegpunkte zu setzen – die Route wird automatisch berechnet.'],
+                ['Route berechnen', 'Ab 2 Wegpunkten wird die Route automatisch mit präzisen Höhendaten berechnet.'],
+                ['Wegpunkte löschen', 'Klicke auf das ✕ neben einem Wegpunkt, um ihn zu entfernen.'],
+                ['Wegpunkte verschieben', 'Ziehe Wegpunkte auf der Karte, um die Route anzupassen – sie wird sofort neu berechnet.'],
+                ['Route umkehren', 'Der Reverse-Button kehrt Start und Ziel um – perfekt für Hin- und Rückfahrt.'],
+                ['Alles löschen', 'Der Clear-Button entfernt alle Wegpunkte und startet von vorne.'],
+                
+                // Floating Toolbar
+                ['Verschiebbare Toolbar', 'Greife die Toolbar an den Punkten oben und ziehe sie an eine beliebige Position auf deinem Bildschirm!'],
+                ['Waypoints Panel', 'Verwalte alle Wegpunkte per Drag & Drop, füge neue ein oder lösche einzelne Punkte. Wähle die Routing-Engine pro Segment!'],
+                ['X-Ray Magnifier', 'Drücke L für die Lupe mit Kartenlayer-Highlights, Steigungsprofil, Koordinaten und Oberflächenbeschaffenheit.'],
+                ['Elevation Profile', 'Interaktives Höhenprofil mit Oberflächentypen und Wetter-Prognose zum Zeitpunkt deiner Ankunft!'],
+                ['Statistics', 'Alle Zahlen auf einen Blick: Distanz, Höhenmeter, Gravel/Road Score, Fahrzeit (basierend auf Geschwindigkeits-Schieberegler).'],
+                ['Tutorial-Button (?)', 'Starte das interaktive Tutorial jederzeit neu – zweisprachig mit Schritt-für-Schritt Anleitung!'],
+                
+                // Weather Overlay
+                ['Weltweites Echtzeit-Wetter', 'Zeige das aktuelle Wetter auf der Karte: Temperatur, Niederschlag, Wolken und Wind.'],
+                ['Wetter-Prognose im Höhenprofil', 'Sieh direkt im Elevation Profile, welches Wetter dich zu welchem Zeitpunkt erwartet – perfekt für längere Touren!'],
+                ['Route nach Wetter planen', 'Vermeide Regen, Wind oder Hitze – passe deine Route basierend auf der Wettervorhersage an.'],
+                
+                // API Settings
+                ['Persönliche kostenlose APIs', 'Hole dir kostenlose API-Keys von BRouter, GraphHopper, OpenWeatherMap und anderen Anbietern – Links sind im Panel!'],
+                ['Mehr Routing-Engines', 'Mit eigenen APIs hast du Zugriff auf mehr Routing-Optionen und höhere API-Limits.'],
+                ['Erweiterte Wetter-Layer', 'Nutze zusätzliche Weather-APIs für detailliertere Wettervorhersagen und Layer.'],
+                ['Höhere Limits', 'Eigene APIs bedeuten höhere oder unbegrenzte Rate-Limits – perfekt für Viel-Planer!'],
+                
+                // Gravel-Spezifisch
+                ['Gravel vs. Road Profile', 'Wähle "Gravel" für unbefestigte Wege oder "Road" für asphaltierte Strecken.'],
+                ['Hilly vs. Flat', '"Hilly" sucht Anstiege, "Flat" bevorzugt ebene Strecken – perfekt für dein Training.'],
+                ['Surface Analysis', 'CyclOSM-Karte zeigt dir Surface-Typen: Asphalt (schwarz), Schotter (braun), Trail (grün).'],
+                ['Gravel/Road Score', 'Sieh auf einen Blick, wie viel Prozent deiner Route auf Gravel vs. Asphalt verläuft – präzise Oberflächenanalyse!'],
+                
+                // Karten & Navigation
+                ['7 Karten-Layer', 'Wechsle zwischen Standard, CyclOSM, Topografisch, Waymarked Trails, OSM Deutschland, Humanitarian und Satellit.'],
+                ['CyclOSM (Gravel)', 'Zeigt Surface-Typen und Fahrradwege – die beste Karte für Gravel-Planung.'],
+                ['Topografisch', 'Höhenlinien alle 10 Meter – perfekt für Alpen-Touren und Höhenplanung.'],
+                ['Waymarked Trails', 'Zeigt markierte Radrouten und MTB-Trails – ideal für neue Route-Inspiration.'],
+                ['Satellit', 'Echte Luftbilder zum Überprüfen der Oberfläche – siehst du, was dich erwartet.'],
+                ['Adresssuche', 'Suche nach Städten, Straßen, PLZ oder Koordinaten – springe direkt zu deinem Startpunkt!'],
+                
+                // Routing-Engines
+                ['Auto-Modus', 'Probiert BRouter, GraphHopper, Valhalla und OSRM automatisch – immer die beste Route.'],
+                ['Per-Waypoint Engine', 'Hover über einen Wegpunkt, um für dieses Segment eine spezielle Engine zu wählen.'],
+                ['BRouter (Gravel/Road)', 'Spezialisiert auf Gravel mit 8 verschiedenen Profilen – die Engine für Off-Road.'],
+                ['Direct Line', 'Zeichnet eine gerade Linie – nützlich für Trail-Planung oder wenn kein Weg vorhanden.'],
+                
+                // Elevation & Analyse
+                ['Höhenprofil', 'Das interaktive Höhenprofil zeigt Anstiege, Gefälle und Höhenmeter auf einen Blick.'],
+                ['Gradient-Farben', 'Grün = flach, Gelb = moderat, Orange = steil, Rot = sehr steil – sofort erkennbar.'],
+                ['Hover-Informationen', 'Fahre mit der Maus über das Profil, um exakte Elevation und Gradient zu sehen.'],
+                ['Smoothing-Algorithmus', 'Intelligente Glättung der Höhendaten – präzise wie Komoot, ohne nervige Spitzen.'],
+                ['Oberflächentypen im Profil', 'Sieh direkt im Höhenprofil, wo Asphalt, Gravel oder Trail beginnt und endet!'],
+                ['Wetter-Integration', 'Das Höhenprofil zeigt dir die Wetter-Prognose zum Zeitpunkt wenn du dort ankommst – genial für Tagesplanung!'],
+                
+                // X-Ray Magnifier
+                ['Magnifier aktivieren L', 'Drücke L um die Lupe zu aktivieren – sie folgt deiner Maus über die Route.'],
+                ['Surface-Info', 'Siehst du sofort: Asphalt, Schotter, Trail, Unpaved – keine bösen Überraschungen.'],
+                ['Live-Elevation', 'Aktuelle Höhe und Gradient direkt am Mauszeiger – präzise wie ein GPS.'],
+                ['Mini-Profil', 'Zeigt die nächsten ±50 Trackpoints – perfekt für Intervall-Planung.'],
+                ['Freeze-Funktion SPACE', 'Drücke SPACE um die Lupe zu fixieren – analysiere knifflige Kreuzungen in Ruhe!'],
+                ['Kartenlayer-Highlights', 'Die Lupe zeigt verschiedene Kartenlayer mit Zoom – perfekt um Abzweigungen genau zu identifizieren!'],
+                ['Entfernung zum Start', 'Sieh direkt, wie weit du bereits gefahren bist – ideal für Pacing und Etappenplanung!'],
+                
+                // Speichern & Export
+                ['Route speichern', 'Speichere deine Route mit Namen und Beschreibung – alle Routen bleiben erhalten.'],
+                ['GPX Export', 'Exportiere als GPX für Garmin, Komoot, Wahoo oder andere GPS-Geräte – mit allen Höhendaten!'],
+                ['GPX Import', 'Importiere bestehende GPX-Dateien mit anpassbarem Waypoint-Abstand.'],
+                ['Routen kombinieren', 'Aktiviere "An bestehende Route anhängen" beim GPX-Import – verbinde mehrere Routen zu einer großen Tour!'],
+                ['Route Library', 'Alle gespeicherten Routen auf einen Blick – mit Heatmap-Visualisierung.'],
+                ['Heatmap', 'Siehst du, wo du am häufigsten fährst – deine persönliche Gravel-Karte.'],
+                
+                // Undo/Redo
+                ['Undo Strg+Z', 'Mache die letzte Aktion rückgängig – Wegpunkt gelöscht? Einfach Undo!'],
+                ['Redo Strg+Y', 'Stelle eine rückgängig gemachte Aktion wieder her – keine Angst vor Fehlern.'],
+                ['Badge-Counter', 'Zeigt an, wie viele Aktionen du rückgängig machen kannst – bis zu 50 Schritte zurück.'],
+                ['Toast-Benachrichtigungen', 'Jede Undo/Redo-Aktion wird kurz angezeigt – du weißt immer, was passiert.'],
+                
+                // POI
+                ['Cafés & Restaurants', 'Finde Einkehrmöglichkeiten entlang deiner Route – perfekt für Pausen.'],
+                ['Bike-Shops & Reparatur', 'Werkstätten und Fahrradläden für Notfälle oder Service.'],
+                ['Trinkwasser-Stellen', 'Brunnen und Wasserstellen zum Auffüllen – essentiell für lange Touren.'],
+                ['Campingplätze', 'Übernachtungsmöglichkeiten für Bikepacking-Abenteuer.'],
+                
+                // Demo Mode
+                ['25 Waypoints gratis', 'Teste Pixelruud mit bis zu 25 Wegpunkten – kein Login nötig.'],
+                ['25km Route gratis', 'Plane Routen bis 25km kostenlos – perfekt für erste Tests.'],
+                ['50 API Calls gratis', 'Berechne bis zu 50 Route-Segmente – ausreichend für mehrere Touren.'],
+                ['Unlimited mit Account', 'Registriere dich kostenlos für unbegrenzte Waypoints, Distanz und Routing.']
+            ];
+            
+            cards.forEach((card, idx) => {
+                if (cardData[idx]) {
+                    const title = card.querySelector('.feature-title');
+                    const desc = card.querySelector('.feature-desc');
+                    if (title && desc) {
+                        // Preserve KBD elements if present
+                        const kbd = title.querySelector('.kbd');
+                        title.innerHTML = cardData[idx][0];
+                        if (kbd) title.appendChild(kbd);
+                        
+                        // Preserve KBD in description
+                        const descKbd = desc.querySelector('.kbd');
+                        desc.innerHTML = cardData[idx][1];
+                        if (descKbd) {
+                            // Re-insert KBD elements in German text
+                            if (cardData[idx][1].includes('Strg+Z')) {
+                                desc.innerHTML = desc.innerHTML.replace('Strg+Z', '<span class="kbd">Strg+Z</span>');
+                            }
+                            if (cardData[idx][1].includes('Strg+Y')) {
+                                desc.innerHTML = desc.innerHTML.replace('Strg+Y', '<span class="kbd">Strg+Y</span>');
+                            }
+                            if (cardData[idx][1].includes('Drücke L')) {
+                                desc.innerHTML = desc.innerHTML.replace('Drücke L', 'Drücke <span class="kbd">L</span>');
+                            }
+                            if (cardData[idx][1].includes('Drücke SPACE')) {
+                                desc.innerHTML = desc.innerHTML.replace('Drücke SPACE', 'Drücke <span class="kbd">SPACE</span>');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
     
 </body>
 </html>
