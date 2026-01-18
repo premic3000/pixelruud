@@ -3274,6 +3274,119 @@
            WEATHER LAYER CONTROLS
            ========================================== */
         
+        /* ========================================
+           TUTORIAL SYSTEM - STYLES
+           ======================================== */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.40);
+            z-index: 100000;
+            display: none;
+            animation: tutorialFadeIn 0.4s ease-out;
+        }
+        .tutorial-overlay.active { display: block; }
+        @keyframes tutorialFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .tutorial-spotlight {
+            position: absolute;
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.40),
+                        0 0 40px rgba(59, 130, 246, 0.8);
+            pointer-events: none;
+            z-index: 100001;
+            animation: spotlightPulse 2s ease-in-out infinite;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes spotlightPulse {
+            0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.40), 0 0 40px rgba(59, 130, 246, 0.8); }
+            50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.40), 0 0 60px rgba(59, 130, 246, 1); }
+        }
+        .tutorial-card {
+            position: fixed;
+            background: linear-gradient(135deg, rgba(30, 30, 40, 0.98), rgba(20, 20, 30, 0.98));
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            z-index: 100002;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(59, 130, 246, 0.3);
+            animation: cardSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes cardSlideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .tutorial-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .tutorial-card-icon { font-size: 36px; filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4)); }
+        .tutorial-card-title { flex: 1; color: #fff; font-size: 24px; font-weight: 600; margin: 0; }
+        .tutorial-card-step { color: rgba(59, 130, 246, 0.9); font-size: 14px; font-weight: 500; margin: 0; }
+        .tutorial-card-content { color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.6; margin-bottom: 28px; }
+        .tutorial-card-content strong { color: #3b82f6; font-weight: 600; }
+        .tutorial-card-buttons { display: flex; gap: 12px; }
+        .tutorial-btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tutorial-btn-skip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .tutorial-btn-skip:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .tutorial-btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .tutorial-btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .tutorial-btn-next {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .tutorial-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+        .context-hint {
+            position: fixed;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 99999;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            animation: hintBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            max-width: 300px;
+        }
+        @keyframes hintBounce {
+            from { opacity: 0; transform: translateY(10px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .context-hint::before { content: '💡'; margin-right: 8px; font-size: 16px; }
+        
     </style>
 </head>
 <body>
@@ -3386,10 +3499,44 @@
                 <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
             </svg>
         </button>
+        
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+        
+        <!-- 13. Tutorial Help -->
+        <button class="toolbar-btn" id="tutorialBtn" title="Tutorial starten">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </button>
     </div>
     
     <!-- Floating Panels Container -->
     <div class="floating-panels" id="floatingPanels"></div>
+    
+    <!-- TUTORIAL OVERLAY -->
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+        <div class="tutorial-card" id="tutorialCard">
+            <div class="tutorial-card-header">
+                <div class="tutorial-card-icon" id="tutorialIcon">🎯</div>
+                <div style="flex: 1;">
+                    <h2 class="tutorial-card-title" id="tutorialTitle">Willkommen!</h2>
+                    <p class="tutorial-card-step" id="tutorialStep">Schritt 1/5</p>
+                </div>
+            </div>
+            <div class="tutorial-card-content" id="tutorialContent">
+                Lass uns gemeinsam die wichtigsten Features entdecken!
+            </div>
+            <div class="tutorial-card-buttons">
+                <button class="tutorial-btn tutorial-btn-skip" id="tutorialSkip">Überspringen</button>
+                <button class="tutorial-btn tutorial-btn-back" id="tutorialBack" style="display: none;">← Zurück</button>
+                <button class="tutorial-btn tutorial-btn-next" id="tutorialNext">Weiter →</button>
+            </div>
+        </div>
+    </div>
     
     <!-- MAGNIFIER CONTAINER - AUSSERHALB DER MAP -->
     <div class="magnifier-container">
@@ -10951,6 +11098,9 @@
         
         toolbarButtons.forEach(btn => {
             btn.addEventListener('click', () => {
+                // Skip tutorial button - it has its own handler
+                if (btn.id === 'tutorialBtn') return;
+                
                 const panelType = btn.getAttribute('data-panel');
                 
                 // Special handling for elevation - toggle profile directly
@@ -12707,6 +12857,360 @@
                 elevationBtn.classList.remove('active'); // Profile hidden = button dark
             }
         }
+    })();
+    
+    // ==========================================
+    // TUTORIAL SYSTEM
+    // ==========================================
+    (function() {
+        const STEPS_DE = [
+            {
+                icon: '🌍',
+                title: 'Welcome to PixelRuud! / Willkommen bei PixelRuud!',
+                content: '<div style="text-align: center; margin: 20px 0;"><strong>Choose your language / Wähle deine Sprache:</strong></div><div style="display: flex; gap: 16px; justify-content: center; margin-top: 24px;"><button id="langEN" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border: 2px solid #ef4444; border-radius: 12px; color: white; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">🇬🇧 English</button><button id="langDE" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #eab308, #ca8a04); border: 2px solid #eab308; border-radius: 12px; color: white; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);">🇩🇪 Deutsch</button></div>',
+                spotlight: null,
+                cardPosition: 'center',
+                isLanguageSelect: true
+            },
+            {
+                icon: '🗺️',
+                title: 'Route planen',
+                content: '<strong>Klicke auf die Karte</strong> um Wegpunkte zu setzen.<br><br>Ab <strong>2 Wegpunkten</strong> wird automatisch eine Route berechnet!<br><br>Die Engine wählt automatisch die besten Wege für Gravel & Bikepacking.',
+                spotlight: '#map',
+                cardPosition: 'center'
+            },
+            {
+                icon: '📍',
+                title: 'Waypoints Panel',
+                content: '<strong>Verwalte deine Wegpunkte:</strong><br>• Per <strong>Drag & Drop</strong> verschieben<br>• Zwischen Punkten neue einfügen<br>• Einzelne Punkte löschen<br>• Routing-Engine pro Segment wählen<br><br>Die Route wird automatisch neu berechnet!',
+                spotlight: '[data-panel="waypoints"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔍',
+                title: 'X-Ray Magnifier (Lupe)',
+                content: 'Drücke <strong>L</strong> für die Lupe!<br><br><strong>Zeigt dir:</strong><br>• Kartenlayer-Highlights & Zoom<br>• Aktuelles Steigungsprofil<br>• Koordinaten & Entfernung zum Start<br>• <strong>Oberflächenbeschaffenheit</strong><br>• Mini-Höhenprofil<br><br>Perfekt um Abzweigungen zu finden!<br><br>💡 <strong>SPACE</strong> friert Position ein',
+                spotlight: '[data-panel="magnifier"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📊',
+                title: 'Elevation Profile (Höhenprofil)',
+                content: '<strong>Interaktive Abwicklung</strong> deines Streckenprofils:<br><br>• Steigungen & Gefälle visualisiert<br>• <strong>Oberflächenbeschaffenheit</strong> (Gravel/Road/Trail)<br>• <strong>Wetter-Prognose</strong> zum Zeitpunkt wenn du dort ankommst<br>• Klicke ins Profil → Zeigt Position auf Karte<br><br>Perfekt für Planung von Anstiegen!',
+                spotlight: '[data-panel="elevation"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📈',
+                title: 'Statistics (Routendetails)',
+                content: '<strong>Alle wichtigen Zahlen:</strong><br><br>• Gesamtdistanz<br>• Höhenmeter (Aufstieg/Abstieg)<br>• <strong>Gravel/Road Score</strong><br>• <strong>Geschätzte Fahrzeit</strong><br>• Oberflächenverteilung (%)<br>• Durchschnittliche Steigung<br><br>💡 Die <strong>Fahrzeit</strong> berechnet sich nach dem Geschwindigkeits-Schieberegler unten links!',
+                spotlight: '[data-panel="stats"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '⭐',
+                title: 'POI (Points of Interest)',
+                content: '<strong>Nützliche Highlights</strong> entlang deiner Route:<br><br>• Cafés & Restaurants<br>• Bike-Shops & Reparatur<br>• Trinkwasser-Stellen<br>• Campingplätze<br>• Supermärkte<br><br>💡 Klicke auf POI-Icons für Details!',
+                spotlight: '[data-panel="poi"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🗺️',
+                title: 'Kartenlayer',
+                content: '<strong>Ultrastarke Auswahl</strong> an Kartenansichten:<br><br>• OpenStreetMap<br>• Satellitenbilder<br>• Topographische Karten<br>• Spezialisierte Bike-Karten<br>• Overlay-Layer kombinierbar<br><br>Wähle die beste Ansicht für deine Planung!',
+                spotlight: '[data-panel="layers"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔍',
+                title: 'Adresssuche',
+                content: '<strong>Komfortable Suche</strong> nach Adressen:<br><br>• Städte, Straßen, Orte<br>• Postleitzahlen<br>• Sehenswürdigkeiten<br>• Koordinaten-Eingabe<br><br>Springe direkt zu deinem Startpunkt!',
+                spotlight: '[data-panel="search"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📂',
+                title: 'GPX Import & Export',
+                content: '<strong>Import:</strong> Lade bestehende GPX-Routen hoch<br>• Automatische Waypoint-Generierung<br>• Abstand anpassbar<br>• <strong>Routen kombinieren</strong> (Anhänge-Modus!)<br><br><strong>Export:</strong> Speichere als GPX<br>• Kompatibel mit Garmin, Wahoo, etc.<br>• Mit allen Details & Höhendaten',
+                spotlight: '[data-panel="import"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔑',
+                title: 'API Settings',
+                content: '<strong>Power-User Feature:</strong><br><br>Hole dir <strong>kostenlose persönliche APIs</strong>:<br>• Mehr Routing-Engines<br>• Erweiterte Wetter-Layer<br>• Höhere API-Limits<br>• Zusätzliche Features<br><br>💡 Links zu Anbietern sind im Panel!',
+                spotlight: '[data-panel="api"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🌦️',
+                title: 'Weather Overlay',
+                content: '<strong>Weltweites Echtzeit-Wetter</strong> auf der Karte:<br><br>• Temperatur<br>• Niederschlag<br>• Wolken<br>• Wind<br><br>Plane deine Route nach Wetterlage und vermeide Regen!',
+                spotlight: '[data-panel="weather-overlay"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🎉',
+                title: 'Los geht\'s!',
+                content: 'Du kennst jetzt alle Features!<br><br><strong>Starte deine erste Route:</strong><br>1. Klicke auf die Karte<br>2. Setze Wegpunkte<br>3. Route wird automatisch berechnet<br><br>Klicke auf <strong>?</strong> um dieses Tutorial jederzeit neu zu starten.<br><br><strong>Viel Spaß beim Planen! 🚴</strong>',
+                spotlight: '#tutorialBtn',
+                cardPosition: 'left'
+            }
+        ];
+        
+        const STEPS_EN = [
+            {
+                icon: '🌍',
+                title: 'Welcome to PixelRuud! / Willkommen bei PixelRuud!',
+                content: '<div style="text-align: center; margin: 20px 0;"><strong>Choose your language / Wähle deine Sprache:</strong></div><div style="display: flex; gap: 16px; justify-content: center; margin-top: 24px;"><button id="langEN" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border: 2px solid #ef4444; border-radius: 12px; color: white; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">🇬🇧 English</button><button id="langDE" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #eab308, #ca8a04); border: 2px solid #eab308; border-radius: 12px; color: white; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);">🇩🇪 Deutsch</button></div>',
+                spotlight: null,
+                cardPosition: 'center',
+                isLanguageSelect: true
+            },
+            {
+                icon: '🗺️',
+                title: 'Plan Your Route',
+                content: '<strong>Click on the map</strong> to set waypoints.<br><br>From <strong>2 waypoints</strong> onwards, a route is automatically calculated!<br><br>The engine automatically chooses the best paths for gravel & bikepacking.',
+                spotlight: '#map',
+                cardPosition: 'center'
+            },
+            {
+                icon: '📍',
+                title: 'Waypoints Panel',
+                content: '<strong>Manage your waypoints:</strong><br>• Move via <strong>Drag & Drop</strong><br>• Insert new points between existing ones<br>• Delete individual points<br>• Choose routing engine per segment<br><br>Route recalculates automatically!',
+                spotlight: '[data-panel="waypoints"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔍',
+                title: 'X-Ray Magnifier',
+                content: 'Press <strong>L</strong> for the magnifier!<br><br><strong>Shows you:</strong><br>• Map layer highlights & zoom<br>• Current gradient profile<br>• Coordinates & distance to start<br>• <strong>Surface quality</strong><br>• Mini elevation profile<br><br>Perfect for finding junctions!<br><br>💡 <strong>SPACE</strong> freezes position',
+                spotlight: '[data-panel="magnifier"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📊',
+                title: 'Elevation Profile',
+                content: '<strong>Interactive visualization</strong> of your route profile:<br><br>• Climbs & descents visualized<br>• <strong>Surface types</strong> (Gravel/Road/Trail)<br>• <strong>Weather forecast</strong> for when you arrive<br>• Click on profile → Shows position on map<br><br>Perfect for planning climbs!',
+                spotlight: '[data-panel="elevation"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📈',
+                title: 'Statistics (Route Details)',
+                content: '<strong>All important numbers:</strong><br><br>• Total distance<br>• Elevation gain/loss<br>• <strong>Gravel/Road Score</strong><br>• <strong>Estimated riding time</strong><br>• Surface distribution (%)<br>• Average gradient<br><br>💡 <strong>Riding time</strong> is calculated based on the speed slider at the bottom left!',
+                spotlight: '[data-panel="stats"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '⭐',
+                title: 'POI (Points of Interest)',
+                content: '<strong>Useful highlights</strong> along your route:<br><br>• Cafés & Restaurants<br>• Bike shops & Repair<br>• Water sources<br>• Campsites<br>• Supermarkets<br><br>💡 Click on POI icons for details!',
+                spotlight: '[data-panel="poi"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🗺️',
+                title: 'Map Layers',
+                content: '<strong>Powerful selection</strong> of map views:<br><br>• OpenStreetMap<br>• Satellite imagery<br>• Topographic maps<br>• Specialized bike maps<br>• Combinable overlay layers<br><br>Choose the best view for your planning!',
+                spotlight: '[data-panel="layers"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔍',
+                title: 'Address Search',
+                content: '<strong>Convenient search</strong> for addresses:<br><br>• Cities, streets, places<br>• Postal codes<br>• Points of interest<br>• Coordinate input<br><br>Jump directly to your starting point!',
+                spotlight: '[data-panel="search"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '📂',
+                title: 'GPX Import & Export',
+                content: '<strong>Import:</strong> Upload existing GPX routes<br>• Automatic waypoint generation<br>• Adjustable spacing<br>• <strong>Combine routes</strong> (append mode!)<br><br><strong>Export:</strong> Save as GPX<br>• Compatible with Garmin, Wahoo, etc.<br>• With all details & elevation data',
+                spotlight: '[data-panel="import"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔑',
+                title: 'API Settings',
+                content: '<strong>Power-User Feature:</strong><br><br>Get <strong>free personal APIs</strong>:<br>• More routing engines<br>• Extended weather layers<br>• Higher API limits<br>• Additional features<br><br>💡 Links to providers are in the panel!',
+                spotlight: '[data-panel="api"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🌦️',
+                title: 'Weather Overlay',
+                content: '<strong>Worldwide real-time weather</strong> on the map:<br><br>• Temperature<br>• Precipitation<br>• Clouds<br>• Wind<br><br>Plan your route according to weather and avoid rain!',
+                spotlight: '[data-panel="weather-overlay"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🎉',
+                title: 'Let\'s Go!',
+                content: 'You now know all features!<br><br><strong>Start your first route:</strong><br>1. Click on the map<br>2. Set waypoints<br>3. Route calculates automatically<br><br>Click <strong>?</strong> to restart this tutorial anytime.<br><br><strong>Happy Planning! 🚴</strong>',
+                spotlight: '#tutorialBtn',
+                cardPosition: 'left'
+            }
+        ];
+        
+        let STEPS = STEPS_DE; // Default to German
+        let currentLanguage = localStorage.getItem('pixelruud_tutorial_language') || 'de';
+        
+        // Set STEPS based on language
+        if (currentLanguage === 'en') {
+            STEPS = STEPS_EN;
+        } else {
+            STEPS = STEPS_DE;
+        }
+        
+        let currentStep = 0;
+        const overlay = document.getElementById('tutorialOverlay');
+        const spotlight = document.getElementById('tutorialSpotlight');
+        const card = document.getElementById('tutorialCard');
+        const iconEl = document.getElementById('tutorialIcon');
+        const titleEl = document.getElementById('tutorialTitle');
+        const stepEl = document.getElementById('tutorialStep');
+        const contentEl = document.getElementById('tutorialContent');
+        const skipBtn = document.getElementById('tutorialSkip');
+        const backBtn = document.getElementById('tutorialBack');
+        const nextBtn = document.getElementById('tutorialNext');
+        const tutorialBtn = document.getElementById('tutorialBtn');
+        
+        function startTutorial() {
+            currentStep = 0;
+            overlay.classList.add('active');
+            showStep(0);
+            console.log('📚 Tutorial started');
+        }
+        
+        function endTutorial() {
+            overlay.classList.remove('active');
+            localStorage.setItem('pixelruud_tutorial_completed', 'true');
+            console.log('✅ Tutorial completed');
+        }
+        
+        function showStep(idx) {
+            const step = STEPS[idx];
+            iconEl.textContent = step.icon;
+            titleEl.textContent = step.title;
+            stepEl.textContent = `Schritt ${idx + 1}/${STEPS.length}`;
+            contentEl.innerHTML = step.content;
+            
+            // Language selection buttons (first step only)
+            if (step.isLanguageSelect) {
+                setTimeout(() => {
+                    const langEN = document.getElementById('langEN');
+                    const langDE = document.getElementById('langDE');
+                    
+                    if (langEN && langDE) {
+                        langEN.addEventListener('click', () => {
+                            STEPS = STEPS_EN;
+                            currentLanguage = 'en';
+                            localStorage.setItem('pixelruud_tutorial_language', 'en');
+                            currentStep++;
+                            showStep(currentStep);
+                        });
+                        
+                        langDE.addEventListener('click', () => {
+                            STEPS = STEPS_DE;
+                            currentLanguage = 'de';
+                            localStorage.setItem('pixelruud_tutorial_language', 'de');
+                            currentStep++;
+                            showStep(currentStep);
+                        });
+                    }
+                }, 100);
+                
+                // Hide next/back buttons on language select
+                nextBtn.style.display = 'none';
+                backBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'block';
+            }
+            
+            // Update buttons
+            nextBtn.textContent = idx === STEPS.length - 1 ? 'Fertig! 🎉' : 'Weiter →';
+            backBtn.style.display = idx === 0 ? 'none' : 'block';
+            
+            if (step.spotlight) {
+                const el = document.querySelector(step.spotlight);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    spotlight.style.left = (rect.left - 10) + 'px';
+                    spotlight.style.top = (rect.top - 10) + 'px';
+                    spotlight.style.width = (rect.width + 20) + 'px';
+                    spotlight.style.height = (rect.height + 20) + 'px';
+                    spotlight.style.display = 'block';
+                }
+            } else {
+                spotlight.style.display = 'none';
+            }
+            
+            // Improved card positioning - keep visible on screen
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const cw = 500;
+            
+            // Wait for card to render to get real height
+            setTimeout(() => {
+                const ch = card.offsetHeight;
+                
+                if (step.cardPosition === 'center') {
+                    card.style.left = `${Math.max(20, (w - cw) / 2)}px`;
+                    card.style.top = `${Math.max(20, Math.min((h - ch) / 2, h - ch - 20))}px`;
+                } else if (step.cardPosition === 'left') {
+                    const el = document.querySelector(step.spotlight || '#floatingToolbar');
+                    if (el) {
+                        const rect = el.getBoundingClientRect();
+                        const leftPos = Math.max(20, rect.left - cw - 40);
+                        const topPos = Math.max(20, Math.min(rect.top, h - ch - 20));
+                        card.style.left = `${leftPos}px`;
+                        card.style.top = `${topPos}px`;
+                    }
+                }
+            }, 50);
+        }
+        
+        function nextStep() {
+            if (currentStep < STEPS.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            } else {
+                endTutorial();
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+        
+        skipBtn.addEventListener('click', endTutorial);
+        nextBtn.addEventListener('click', nextStep);
+        backBtn.addEventListener('click', prevStep);
+        
+        if (tutorialBtn) {
+            tutorialBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startTutorial();
+            });
+            console.log('✅ Tutorial button ready');
+        }
+        
+        // Auto-start on first visit
+        setTimeout(() => {
+            const seen = localStorage.getItem('pixelruud_tutorial_completed');
+            if (!seen && waypoints.length === 0) {
+                console.log('🎬 Auto-starting tutorial');
+                startTutorial();
+            }
+        }, 2000);
+        
+        // Expose globally
+        window.startTutorial = startTutorial;
+        console.log('✅ Tutorial system initialized');
     })();
     
     // ==========================================
