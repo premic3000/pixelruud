@@ -432,6 +432,238 @@
         .stats-highlight { background: linear-gradient(135deg, #002855, #003366); padding: 10px; border-radius: 8px; margin: 6px 0; border-left: 3px solid #ccff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.2); }
         .stats-highlight .stat-item { border: none; padding: 3px 0; }
         .profile-selector { display: flex; gap: 4px; background: linear-gradient(135deg, #001f3f, #002855); backdrop-filter: blur(10px); padding: 5px; border-radius: 10px; border: 2px solid #00f0ff; box-shadow: 0 0 10px rgba(0, 255, 65, 0.3); }
+        
+        /* Unified Route Settings Menu */
+        .route-settings-container {
+            position: relative;
+            width: auto;
+            display: inline-block;
+        }
+        
+        .route-settings-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #001f3f, #002855);
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            white-space: nowrap;
+        }
+        
+        .route-settings-trigger:hover {
+            border-color: #ccff00;
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+        }
+        
+        .settings-icon {
+            font-size: 18px;
+        }
+        
+        .settings-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: flex-start;
+        }
+        
+        .settings-profile {
+            color: #ccff00;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .settings-elevation {
+            color: #64748b;
+            font-size: 9px;
+        }
+        
+        .settings-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s ease;
+        }
+        
+        .route-settings-trigger.open .settings-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .route-settings-menu {
+            position: fixed;
+            background: linear-gradient(135deg, #001f3f, #002855);
+            border: 2px solid #00f0ff;
+            border-radius: 12px;
+            padding: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 -4px 20px rgba(0, 240, 255, 0.4);
+            z-index: 999999 !important;
+            max-height: 450px;
+            overflow-y: auto;
+            min-width: 300px;
+        }
+        
+        .route-settings-menu.open {
+            display: flex;
+        }
+        
+        .settings-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .settings-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #00f0ff;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding-bottom: 6px;
+            border-bottom: 2px solid rgba(0, 240, 255, 0.3);
+        }
+        
+        .profile-category {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .profile-category-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 4px 0;
+        }
+        
+        .profile-options {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-left: 20px;
+        }
+        
+        .profile-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .profile-option:hover {
+            background: rgba(0, 240, 255, 0.05);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+        
+        .profile-option input[type="radio"] {
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #00f0ff;
+        }
+        
+        .profile-option input[type="radio"]:checked + .profile-option-label {
+            color: #ccff00;
+        }
+        
+        .profile-option input[type="radio"]:checked + .profile-option-label .profile-option-name {
+            font-weight: 900;
+            text-shadow: 0 0 8px rgba(204, 255, 0, 0.6);
+        }
+        
+        .profile-option-label {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            flex: 1;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        
+        .profile-option-name {
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #e2e8f0;
+        }
+        
+        .profile-option-desc {
+            font-size: 8px;
+            color: #64748b;
+            line-height: 1.3;
+        }
+        
+        /* Elevation Options */
+        .elevation-options {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .elevation-option {
+            flex: 1;
+            display: flex;
+            cursor: pointer;
+        }
+        
+        .elevation-option input[type="radio"] {
+            display: none;
+        }
+        
+        .elevation-option-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: transparent;
+            border: 2px solid #333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .elevation-option input[type="radio"]:checked + .elevation-option-label {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+        
+        .elevation-option:hover .elevation-option-label {
+            border-color: #00f0ff;
+        }
+        
+        .elevation-icon {
+            font-size: 16px;
+        }
+        
+        .elevation-text {
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #e2e8f0;
+        }
+        
+        .elevation-option input[type="radio"]:checked + .elevation-option-label .elevation-text {
+            color: #ccff00;
+            font-weight: 900;
+        }
+        
         .profile-btn { 
             padding: 7px 12px; 
             border: 1px solid #333333; 
@@ -3401,6 +3633,16 @@
             <div class="drag-dots">⋮⋮</div>
         </div>
         
+        <!-- NEW: Routing Settings -->
+        <button class="toolbar-btn" data-panel="routing" title="Routing Einstellungen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6"></path>
+                <path d="M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24"></path>
+                <path d="M18.36 5.64l-4.24 4.24m-4.24 4.24l-4.24 4.24"></path>
+            </svg>
+        </button>
+        
         <!-- 1. Waypoints -->
         <button class="toolbar-btn" data-panel="waypoints" title="Waypoints">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3918,32 +4160,7 @@
     </div>
     
     <div class="control-panel">
-        <div class="profile-selector">
-            <button class="profile-btn active" id="gravelBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
-                    <circle cx="12" cy="5" r="3"></circle>
-                    <path d="M12 22V8M5 12H2l10-5 10 5h-3"></path>
-                </svg>
-                Gravel
-            </button>
-            <button class="profile-btn" id="roadBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
-                    <circle cx="12" cy="5" r="3"></circle>
-                    <path d="M12 22V8M5 12H2l10-5 10 5h-3"></path>
-                </svg>
-                Rennrad
-            </button>
-        </div>
-        <div class="elevation-preference">
-            <button class="elevation-pref-btn active" id="flatElevBtn" title="Flachste Route (min. Höhenmeter)">
-                <span class="pref-icon">🏞️</span>
-                <span class="pref-label">Flach</span>
-            </button>
-            <button class="elevation-pref-btn" id="hillyElevBtn" title="Bergigste Route (max. Höhenmeter)">
-                <span class="pref-icon">🏔️</span>
-                <span class="pref-label">Bergig</span>
-            </button>
-        </div>
+        <!-- Unified Route Settings Menu -->
         <div class="speed-control">
             <label>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -5042,7 +5259,19 @@
         // ==========================================
         
         let map, waypoints = [], markers = [], routes = [], routeLines = [];
-        let currentProfile = 'gravel', averageSpeed = 25;
+        let currentProfile = 'gravel';
+        let currentSubProfile = 'road-safe'; // New: Track specific sub-profile
+        let averageSpeed = 25;
+        
+        // BRouter profile mapping for extended profiles
+        const BROUTER_PROFILE_MAP = {
+            'road-fast': 'fastbike',
+            'road-safe': 'fastbike-lowtraffic',
+            'road-safety': 'safety',
+            'gravel-balanced': 'trekking',
+            'gravel-offroad': 'gravel',
+            'gravel-max': 'hiking-mountain'
+        };
         let currentEngine = 'auto'; // Default engine for new waypoints
         let waypointIdCounter = 0; // For unique IDs
         let currentElevationPref = 'flat'; // 'flat' or 'hilly'
@@ -5208,16 +5437,11 @@
             document.getElementById('saveBtn').onclick = promptSaveRoute;
             document.getElementById('undoBtn').onclick = undo;
             document.getElementById('redoBtn').onclick = redo;
-            document.getElementById('gravelBtn').onclick = () => setProfile('gravel');
-            document.getElementById('roadBtn').onclick = () => setProfile('road');
+            
             document.getElementById('speedSlider').oninput = e => updateSpeed(e.target.value);
             
             // Auto-Calc Toggle
             setupAutoCalc();
-            
-            // Elevation Preference Buttons (2 options)
-            document.getElementById('flatElevBtn').onclick = () => setElevationPreference('flat');
-            document.getElementById('hillyElevBtn').onclick = () => setElevationPreference('hilly');
             
             // API Settings
             setupAPISettings();
@@ -9338,12 +9562,15 @@
                          Math.sin(dLon/2) * Math.sin(dLon/2);
                 const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 
-                let profile;
-                if (distance < 2 && currentProfile === 'gravel') {
+                // Use the new profile mapping based on currentSubProfile
+                let profile = BROUTER_PROFILE_MAP[currentSubProfile] || 'trekking';
+                
+                // For very short distances in gravel mode, use hiking-mountain
+                if (distance < 2 && currentProfile === 'gravel' && currentSubProfile === 'gravel-max') {
                     profile = 'hiking-mountain';
-                } else {
-                    profile = currentProfile === 'gravel' ? 'gravel' : 'fastbike';
                 }
+                
+                console.log(`🚴 BRouter profile selected: ${profile} (from ${currentSubProfile})`);
                 
                 // Try to request alternative routes from BRouter
                 const params = new URLSearchParams({
@@ -9894,20 +10121,18 @@
         // Make exportGPX globally available
         window.exportGPX = exportGPX;
         
-        function setProfile(p) {
-            currentProfile = p;
-            document.getElementById('gravelBtn').classList.toggle('active', p === 'gravel');
-            document.getElementById('roadBtn').classList.toggle('active', p === 'road');
-            console.log(`✓ Bike profile: ${p}`);
+        function setProfile(category, subProfile) {
+            currentProfile = category;
+            currentSubProfile = subProfile || currentSubProfile;
+            
+            console.log(`✓ Profile: ${category} → ${subProfile} (BRouter: ${BROUTER_PROFILE_MAP[subProfile] || 'default'})`);
             
             // Track profile change
-            trackEvent(`profile-${p}`);
+            trackEvent(`profile-${category}-${subProfile}`);
         }
         
         function setElevationPreference(pref) {
             currentElevationPref = pref;
-            document.getElementById('flatElevBtn').classList.toggle('active', pref === 'flat');
-            document.getElementById('hillyElevBtn').classList.toggle('active', pref === 'hilly');
             console.log(`✓ Elevation preference: ${pref}`);
             
             // Track elevation preference
@@ -11329,6 +11554,15 @@
         
         function getPanelContent(type) {
             const panels = {
+                routing: `
+                    <div class="panel-header">
+                        <div class="panel-title">⚙️ Routing Einstellungen</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelRouting"></div>
+                    </div>
+                `,
                 waypoints: `
                     <div class="panel-header">
                         <div class="panel-title">📍 Waypoints</div>
@@ -11448,6 +11682,9 @@
             const panelContent = panel.querySelector('.panel-content > div');
             
             switch(type) {
+                case 'routing':
+                    initRoutingPanel(panelContent);
+                    break;
                 case 'waypoints':
                     initWaypointsPanel(panelContent);
                     break;
@@ -11568,6 +11805,116 @@
                 
                 console.log('✅ Waypoints panel initialized');
             }
+        }
+        
+        function initRoutingPanel(container) {
+            container.innerHTML = `
+                <div class="routing-panel-content">
+                    <!-- Profile Selection -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">Routing-Profil</div>
+                        <div class="profile-category">
+                            <div class="profile-category-header">
+                                <span>⚙️ Road</span>
+                            </div>
+                            <div class="profile-options">
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="road-fast" data-category="road" data-label="Road: Schnell">
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Schnell</span>
+                                        <span class="profile-option-desc">Kürzeste Strecke</span>
+                                    </span>
+                                </label>
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="road-safe" data-category="road" data-label="Road: Wenig Verkehr" checked>
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Wenig Verkehr</span>
+                                        <span class="profile-option-desc">Nebenstraßen bevorzugt</span>
+                                    </span>
+                                </label>
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="road-safety" data-category="road" data-label="Road: Sicher">
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Sicher</span>
+                                        <span class="profile-option-desc">Radwege priorisiert</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-category">
+                            <div class="profile-category-header">
+                                <span>🚵 Gravel</span>
+                            </div>
+                            <div class="profile-options">
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="gravel-balanced" data-category="gravel" data-label="Gravel: Balanced">
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Balanced</span>
+                                        <span class="profile-option-desc">Mix Asphalt & Gravel</span>
+                                    </span>
+                                </label>
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="gravel-offroad" data-category="gravel" data-label="Gravel: Mehr Offroad">
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Mehr Offroad</span>
+                                        <span class="profile-option-desc">Schotterwege bevorzugt</span>
+                                    </span>
+                                </label>
+                                <label class="profile-option">
+                                    <input type="radio" name="routingProfilePanel" value="gravel-max" data-category="gravel" data-label="Gravel: Max Offroad">
+                                    <span class="profile-option-label">
+                                        <span class="profile-option-name">Max Offroad</span>
+                                        <span class="profile-option-desc">Max Trail</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Elevation Preference -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">Höhenmeter</div>
+                        <div class="elevation-options">
+                            <label class="elevation-option">
+                                <input type="radio" name="elevationPrefPanel" value="flat" data-label="Wenig HM" checked>
+                                <span class="elevation-option-label">
+                                    <span class="elevation-icon">🏞️</span>
+                                    <span class="elevation-text">Wenig HM</span>
+                                </span>
+                            </label>
+                            <label class="elevation-option">
+                                <input type="radio" name="elevationPrefPanel" value="hilly" data-label="Viel HM">
+                                <span class="elevation-option-label">
+                                    <span class="elevation-icon">🏔️</span>
+                                    <span class="elevation-text">Viel HM</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Profile Radio Buttons
+            container.querySelectorAll('input[name="routingProfilePanel"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        const subProfile = e.target.value;
+                        const category = e.target.getAttribute('data-category');
+                        setProfile(category, subProfile);
+                    }
+                });
+            });
+            
+            // Elevation Preference Radio Buttons
+            container.querySelectorAll('input[name="elevationPrefPanel"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        const pref = e.target.value;
+                        setElevationPreference(pref);
+                    }
+                });
+            });
         }
         
         function initMagnifierPanel(container) {
