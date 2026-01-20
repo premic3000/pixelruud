@@ -4217,24 +4217,6 @@
             <span class="btn-badge" id="redoBadge">0</span>
         </button>
         
-        <button class="btn btn-success" id="exportBtn" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            GPX
-        </button>
-        
-        <button class="btn" id="saveBtn" disabled style="background: linear-gradient(145deg, #8b5cf6, #7c3aed); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            Speichern
-        </button>
-        
         <!-- Engine Selector -->
         
         <span class="loading" id="loading">⏳ Berechne...</span>
@@ -5433,8 +5415,11 @@
             });
             document.getElementById('reverseBtn').onclick = reverseRoute;
             document.getElementById('clearBtn').onclick = clearAll;
-            document.getElementById('exportBtn').onclick = exportGPX;
-            document.getElementById('saveBtn').onclick = promptSaveRoute;
+            // Export and Save buttons (may not exist in control panel anymore)
+            const exportBtn = document.getElementById('exportBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            if (exportBtn) exportBtn.onclick = exportGPX;
+            if (saveBtn) saveBtn.onclick = promptSaveRoute;
             document.getElementById('undoBtn').onclick = undo;
             document.getElementById('redoBtn').onclick = redo;
             
@@ -8848,8 +8833,10 @@
         function updateButtons() {
             document.getElementById('calculateBtn').disabled = waypoints.length < 2;
             document.getElementById('reverseBtn').disabled = waypoints.length < 2;
-            document.getElementById('exportBtn').disabled = routes.length === 0;
-            document.getElementById('saveBtn').disabled = routes.length === 0;
+            const exportBtn = document.getElementById('exportBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            if (exportBtn) exportBtn.disabled = routes.length === 0;
+            if (saveBtn) saveBtn.disabled = routes.length === 0;
         }
         
         function clearRoutes() {
