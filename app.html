@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud - Every pixel of your ride | Gravel Route Planner</title>
+    <title>Pixelruud v3.31 - DRAGEND FIXED | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -5284,6 +5284,39 @@
         // Define BEFORE init() to avoid "Cannot access before initialization" error
         let autoCalcEnabled = localStorage.getItem('pixelruud_autoCalc') !== 'false';
         let autoCalcTimeout = null;
+        
+        // ==========================================
+        // MAGNIFIER INITIALIZATION
+        // ==========================================
+        window.magnifierEnabled = false;
+        window.magnifierFrozen = false;
+        window.magnifierMap = null;
+        window.magnifierRouteLayer = null;
+        window.magnifierMarkersLayer = null;
+        window.magnifierPOILayer = null;
+        window.magnifierCanvas = null;
+        window.magnifierCtx = null;
+        window.currentMode = 'satellite';
+        window.currentSize = 250;
+        window.currentZoom = 4;
+        window.frozenPosition = null;
+        
+        window.magnifierFeatures = {
+            route: true,
+            surface: true,
+            poi: true,
+            coords: true,
+            profile: false,
+            measure: false,
+            smartFocus: true
+        };
+        
+        // ==========================================
+        // DRAGEND FIX - DEBOUNCE & ABORT CONTROLLER
+        // ==========================================
+        let dragDebounceTimer = null;
+        let currentRoutingController = null;
+        let isDraggingWaypoint = false;
 
         (function init() {
             // Timeout counter to prevent infinite loading
@@ -5469,6 +5502,7 @@
             setupProximityFading();
             
             console.log('✓ App initialisiert (inkl. POI + Adresssuche + Lupe + Route-Bibliothek)');
+            console.log('🎯 PixelRuud v3.31 - DRAGEND FIXED - Debounced waypoint dragging with race condition prevention');
             
         } catch (error) {
             // Catch any initialization errors
@@ -6597,28 +6631,52 @@
                     draggable: true
                 }).addTo(map);
                 
+                // DRAGSTART: Mark that we're dragging
+                marker.on('dragstart', function(e) {
+                    isDraggingWaypoint = true;
+                    console.log(`🚀 DRAGSTART: GPX Waypoint ${actualWaypointNumber}`);
+                });
+                
+                // DRAGEND: Debounced route recalculation
                 marker.on('dragend', function(e) {
-                    // Update position but keep ID and engine
                     const newPos = e.target.getLatLng();
                     const actualIndex = actualWaypointNumber - 1; // Convert to 0-based index
-                    waypoints[actualIndex].lat = newPos.lat;
-                    waypoints[actualIndex].lng = newPos.lng;
                     
-                    // SMART LOCK: Invalidate affected segments (DELETE them, don't just unlock!)
-                    if (actualIndex > 0 && waypoints[actualIndex - 1].segmentToNext) {
-                        waypoints[actualIndex - 1].segmentToNext = null;
-                        console.log(`🔓 Invalidated segment ${actualIndex-1}→${actualIndex} (endpoint moved)`);
-                    }
-                    if (waypoints[actualIndex].segmentToNext) {
-                        waypoints[actualIndex].segmentToNext = null;
-                        console.log(`🔓 Invalidated segment ${actualIndex}→${actualIndex+1} (startpoint moved)`);
-                    }
+                    console.log(`🎯 DRAGEND: GPX Waypoint ${actualWaypointNumber} moved to ${newPos.lat.toFixed(5)}, ${newPos.lng.toFixed(5)}`);
                     
-                    // Update list to show lock status
-                    updateList();
+                    // Clear any pending debounce timer
+                    clearTimeout(dragDebounceTimer);
                     
-                    // Enable recalculation after dragging
-                    document.getElementById('calculateBtn').disabled = false;
+                    // Schedule waypoint update and route recalculation with debounce
+                    dragDebounceTimer = setTimeout(() => {
+                        console.log('⏱️ Debounce finished - updating GPX waypoints from marker positions');
+                        
+                        // Rebuild waypoints array from current marker positions
+                        waypoints = markers.map((m, i) => {
+                            const pos = m.getLatLng();
+                            return {
+                                id: waypoints[i]?.id || `wp_${Date.now()}_${i}`,
+                                lat: pos.lat,
+                                lng: pos.lng,
+                                engine: waypoints[i]?.engine || currentEngine,
+                                segmentToNext: null  // Invalidate all segments after drag
+                            };
+                        });
+                        
+                        console.log('✅ GPX Waypoints rebuilt from marker positions');
+                        
+                        // Update UI
+                        updateList();
+                        updateMarkerColors();
+                        
+                        // Enable recalculation after dragging
+                        document.getElementById('calculateBtn').disabled = false;
+                        
+                        // Mark dragging as complete
+                        isDraggingWaypoint = false;
+                        
+                        console.log(`✅ GPX Waypoint ${actualWaypointNumber} drag complete`);
+                    }, 300); // 300ms debounce
                 });
                 
                 markers.push(marker);
@@ -6965,30 +7023,8 @@
         };
         
         // ==========================================
-        // MAGNIFIER - GLOBAL STATE (using window to avoid TDZ issues)
+        // MAGNIFIER SETUP
         // ==========================================
-        window.magnifierEnabled = false;
-        window.magnifierFrozen = false;
-        window.magnifierMap = null;
-        window.magnifierRouteLayer = null;
-        window.magnifierMarkersLayer = null;
-        window.magnifierPOILayer = null;
-        window.magnifierCanvas = null;
-        window.magnifierCtx = null;
-        window.currentMode = 'satellite';
-        window.currentSize = 250;
-        window.currentZoom = 4;
-        window.frozenPosition = null;
-        
-        window.magnifierFeatures = {
-            route: true,
-            surface: true,
-            poi: true,
-            coords: true,
-            profile: false,
-            measure: false,
-            smartFocus: true
-        };
         
         function setupMagnifier() {
             console.log('🔧 setupMagnifier() called!');
@@ -7385,23 +7421,61 @@
             
             Object.keys(featureToggles).forEach(id => {
                 const element = document.getElementById(id);
+                if (!element) {
+                    console.warn(`⚠️ Toggle element not found: ${id}`);
+                    return;
+                }
+                
                 const feature = featureToggles[id];
+                
+                // Sync initial CSS class with magnifierFeatures state
+                if (window.magnifierFeatures[feature]) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+                
+                // Add click handler
                 element.addEventListener('click', () => {
                     element.classList.toggle('active');
-                    magnifierFeatures[feature] = element.classList.contains('active');
-                    console.log(`Feature ${feature}: ${magnifierFeatures[feature]}`);
+                    window.magnifierFeatures[feature] = element.classList.contains('active');
+                    console.log(`✅ Feature ${feature}: ${window.magnifierFeatures[feature]}`);
                     
-                    // Update visibility
+                    // Update visibility for coords
                     if (feature === 'coords') {
-                        document.getElementById('magnifierCoords').style.display = magnifierFeatures.coords ? 'block' : 'none';
-                        document.getElementById('magnifierElevation').style.display = magnifierFeatures.coords ? 'block' : 'none';
-                        document.getElementById('magnifierSurface').style.display = magnifierFeatures.coords ? 'block' : 'none';
+                        document.getElementById('magnifierCoords').style.display = window.magnifierFeatures.coords ? 'block' : 'none';
+                        document.getElementById('magnifierElevation').style.display = window.magnifierFeatures.coords ? 'block' : 'none';
+                        document.getElementById('magnifierSurface').style.display = window.magnifierFeatures.coords ? 'block' : 'none';
+                    }
+                    
+                    // CRITICAL: Refresh magnifier map to apply changes
+                    if (window.magnifierMap && magnifierEnabled) {
+                        console.log('🔄 Refreshing magnifier after feature toggle');
+                        
+                        // Update route styling based on new feature state
+                        if (feature === 'route' || feature === 'surface' || feature === 'poi') {
+                            updateMagnifierRoute();
+                        }
+                        
+                        // For profile/measure/coords, just trigger a redraw
+                        if (feature === 'profile' || feature === 'measure') {
+                            const center = window.magnifierMap.getCenter();
+                            if (center) {
+                                drawSurfaceHeatmap(center);
+                                updateOverlays(center);
+                            }
+                        }
                     }
                 });
             });
             
             // Snapshot button
-            document.getElementById('magSnapshot').addEventListener('click', takeSnapshot);
+            const snapshotBtn = document.getElementById('magSnapshot');
+            if (snapshotBtn) {
+                snapshotBtn.addEventListener('click', takeSnapshot);
+            } else {
+                console.warn('⚠️ Snapshot button not found');
+            }
             
             // Toggle magnifier with 'L' key
             document.addEventListener('keydown', function(e) {
@@ -7461,6 +7535,28 @@
                     // Snapshot with 'S'
                     if ((e.key === 's' || e.key === 'S') && magnifierEnabled && magnifier.style.display === 'block') {
                         takeSnapshot();
+                    }
+                    
+                    // Toggle route visibility with 'R'
+                    if ((e.key === 'r' || e.key === 'R') && magnifierEnabled) {
+                        e.preventDefault();
+                        window.magnifierFeatures.route = !window.magnifierFeatures.route;
+                        console.log(`🛣️ Route visibility toggled: ${window.magnifierFeatures.route ? 'ON' : 'OFF'} (R key)`);
+                        
+                        // Update toggle button CSS
+                        const routeToggle = document.getElementById('featureRoute');
+                        if (routeToggle) {
+                            if (window.magnifierFeatures.route) {
+                                routeToggle.classList.add('active');
+                            } else {
+                                routeToggle.classList.remove('active');
+                            }
+                        }
+                        
+                        // Refresh magnifier route
+                        if (window.magnifierMap) {
+                            updateMagnifierRoute();
+                        }
                     }
                 } catch (error) {
                     console.error('❌ Keyboard handler error:', error);
@@ -7652,9 +7748,9 @@
                 if (routes.length > 0 && routes[0].coordinates) {
                     // Check if we should show surface colors
                     const currentMode = window.currentMode || 'satellite';
-                    const showSurfaceColors = currentMode === 'surface' && magnifierFeatures.surface && window.surfaceData && window.surfaceData.length > 0;
+                    const showSurfaceColors = currentMode === 'surface' && window.magnifierFeatures.surface && window.surfaceData && window.surfaceData.length > 0;
                     
-                    if (showSurfaceColors && magnifierFeatures.route) {
+                    if (showSurfaceColors && window.magnifierFeatures.route) {
                         // Multi-colored route based on surface type
                         window.magnifierRouteLayer = L.layerGroup();
                         
@@ -7686,8 +7782,8 @@
                             const segmentLine = L.polyline(segmentCoords, {
                                 color: color,
                                 weight: 5,
-                                opacity: magnifierFeatures.route ? 1.0 : 0.3,  // Transparent wenn ausgeschaltet
-                                dashArray: magnifierFeatures.route ? null : '5, 10'  // Gestrichelt wenn ausgeschaltet
+                                opacity: window.magnifierFeatures.route ? 1.0 : 0.3,  // Transparent wenn ausgeschaltet
+                                dashArray: window.magnifierFeatures.route ? null : '5, 10'  // Gestrichelt wenn ausgeschaltet
                             }).addTo(window.magnifierRouteLayer);
                         }
                         
@@ -7697,9 +7793,9 @@
                         const routeColor = currentMode === 'satellite' ? '#ffffff' : '#3b82f6';
                         window.magnifierRouteLayer = L.polyline(routes[0].coordinates, {
                             color: routeColor,
-                            weight: magnifierFeatures.route ? 4 : 3,
-                            opacity: magnifierFeatures.route ? 0.9 : 0.3,  // Transparent wenn ausgeschaltet
-                            dashArray: magnifierFeatures.route ? null : '5, 10'  // Gestrichelt wenn ausgeschaltet
+                            weight: window.magnifierFeatures.route ? 4 : 3,
+                            opacity: window.magnifierFeatures.route ? 0.9 : 0.3,  // Transparent wenn ausgeschaltet
+                            dashArray: window.magnifierFeatures.route ? null : '5, 10'  // Gestrichelt wenn ausgeschaltet
                         }).addTo(magnifierMap);
                     }
                 }
@@ -7712,12 +7808,12 @@
                         const color = idx === 0 ? '#10b981' : idx === waypoints.length - 1 ? '#ef4444' : '#3b82f6';
                         
                         const miniMarker = L.circleMarker([wp.lat, wp.lng], {
-                            radius: magnifierFeatures.route ? 5 : 3,  // Kleiner wenn ausgeschaltet
+                            radius: window.magnifierFeatures.route ? 5 : 3,  // Kleiner wenn ausgeschaltet
                             fillColor: color,
                             color: 'white',
                             weight: 2,
-                            opacity: magnifierFeatures.route ? 1 : 0.4,  // Transparenter wenn ausgeschaltet
-                            fillOpacity: magnifierFeatures.route ? 0.9 : 0.4
+                            opacity: window.magnifierFeatures.route ? 1 : 0.4,  // Transparenter wenn ausgeschaltet
+                            fillOpacity: window.magnifierFeatures.route ? 0.9 : 0.4
                         }).addTo(window.magnifierMarkersLayer);
                     });
                     
@@ -7725,7 +7821,7 @@
                 }
                 
                 // Add POI layer if enabled
-                if (magnifierFeatures.poi) {
+                if (window.magnifierFeatures.poi) {
                     window.magnifierPOILayer = L.layerGroup();
                     
                     Object.values(poiLayers).forEach(layer => {
@@ -7825,13 +7921,16 @@
             
             // Draw surface quality heatmap on canvas
             function drawSurfaceHeatmap(latlng) {
-                if (!magnifierFeatures.surface || !magnifierCtx) return;
+                if (!magnifierCtx) return;
+                
+                // Clear canvas first
+                magnifierCtx.clearRect(0, 0, currentSize, currentSize);
+                
+                // Exit if feature is disabled
+                if (!window.magnifierFeatures || !window.magnifierFeatures.surface) return;
                 
                 const surfaceInfo = getSurfaceQuality(latlng);
                 if (!surfaceInfo) return;
-                
-                // Clear canvas
-                magnifierCtx.clearRect(0, 0, currentSize, currentSize);
                 
                 // Create radial gradient based on quality
                 const centerX = currentSize / 2;
@@ -7869,10 +7968,15 @@
             // Update info overlays
             function updateOverlays(latlng) {
                 // Update coordinates, elevation, surface displays
-                if (magnifierFeatures.coords) {
+                if (window.magnifierFeatures && window.magnifierFeatures.coords) {
                     const coordsEl = document.getElementById('magnifierCoords');
                     const elevEl = document.getElementById('magnifierElevation');
                     const surfaceEl = document.getElementById('magnifierSurface');
+                    
+                    // Show elements
+                    coordsEl.style.display = 'block';
+                    elevEl.style.display = 'block';
+                    surfaceEl.style.display = 'block';
                     
                     // Update coordinates
                     coordsEl.textContent = `${latlng.lat.toFixed(5)}°N, ${latlng.lng.toFixed(5)}°E`;
@@ -7895,6 +7999,11 @@
                             surfaceEl.style.color = '#ef4444';
                         }
                     }
+                } else {
+                    // Hide elements when coords feature is disabled
+                    document.getElementById('magnifierCoords').style.display = 'none';
+                    document.getElementById('magnifierElevation').style.display = 'none';
+                    document.getElementById('magnifierSurface').style.display = 'none';
                 }
                 
                 // Update mini profile - independent of coords feature
@@ -7908,7 +8017,7 @@
             function updateMiniProfile(latlng) {
                 const profileCanvas = document.getElementById('magnifierMiniProfile');
                 
-                if (!magnifierFeatures.profile || !routes[0] || !routes[0].elevations) {
+                if (!window.magnifierFeatures || !window.magnifierFeatures.profile || !routes[0] || !routes[0].elevations) {
                     profileCanvas.style.display = 'none';
                     return;
                 }
@@ -7997,7 +8106,7 @@
             function updateMeasureTool(latlng) {
                 const measureOverlay = document.getElementById('magnifierMeasure');
                 
-                if (!magnifierFeatures.measure || !routes[0]) {
+                if (!window.magnifierFeatures || !window.magnifierFeatures.measure || !routes[0]) {
                     measureOverlay.style.display = 'none';
                     return;
                 }
@@ -8424,30 +8533,54 @@
             const marker = L.marker([lat, lng], { icon, draggable: true }).addTo(map);
             marker.bindPopup(`<b>Wegpunkt ${number}</b><br>${lat.toFixed(5)}°, ${lng.toFixed(5)}°`);
             
+            // DRAGSTART: Mark that we're dragging
+            marker.on('dragstart', e => {
+                isDraggingWaypoint = true;
+                console.log(`🚀 DRAGSTART: Waypoint ${markers.indexOf(marker) + 1}`);
+            });
+            
+            // DRAGEND: Debounced route recalculation
             marker.on('dragend', e => { 
                 const idx = markers.indexOf(marker);
+                const newLatLng = e.target.getLatLng();
                 
-                // Update position FIRST
-                waypoints[idx].lat = e.target.getLatLng().lat;
-                waypoints[idx].lng = e.target.getLatLng().lng;
+                console.log(`🎯 DRAGEND: Waypoint ${idx + 1} moved to ${newLatLng.lat.toFixed(5)}, ${newLatLng.lng.toFixed(5)}`);
                 
-                // SMART LOCK: Invalidate affected segments because coordinates changed
-                // Segment BEFORE this waypoint (i-1 → i)
-                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
-                    waypoints[idx - 1].segmentToNext = null;
-                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved to ${waypoints[idx].lat.toFixed(5)}, ${waypoints[idx].lng.toFixed(5)})`);
-                }
+                // Clear any pending debounce timer
+                clearTimeout(dragDebounceTimer);
                 
-                // Segment AFTER this waypoint (i → i+1)
-                if (waypoints[idx].segmentToNext) {
-                    waypoints[idx].segmentToNext = null;
-                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved from old position)`);
-                }
-                
-                updateList();
-                
-                // Trigger auto-calculation after drag
-                triggerAutoCalc(1000);
+                // Schedule waypoint update and route recalculation with debounce
+                dragDebounceTimer = setTimeout(() => {
+                    console.log('⏱️ Debounce finished - updating waypoints from marker positions');
+                    
+                    // Rebuild waypoints array from current marker positions
+                    // This ensures waypoint order matches visual order on map
+                    waypoints = markers.map((m, i) => {
+                        const pos = m.getLatLng();
+                        return {
+                            id: waypoints[i]?.id || `wp_${Date.now()}_${i}`,
+                            lat: pos.lat,
+                            lng: pos.lng,
+                            engine: waypoints[i]?.engine || currentEngine,
+                            segmentToNext: null  // Invalidate all segments after drag
+                        };
+                    });
+                    
+                    console.log('✅ Waypoints rebuilt from marker positions');
+                    waypoints.forEach((wp, i) => {
+                        console.log(`  WP ${i+1}: ${wp.lat.toFixed(5)}, ${wp.lng.toFixed(5)}`);
+                    });
+                    
+                    // Update UI
+                    updateList();
+                    updateMarkerColors();
+                    
+                    // Mark dragging as complete
+                    isDraggingWaypoint = false;
+                    
+                    // Trigger auto-calculation
+                    triggerAutoCalc(500);
+                }, 300); // 300ms debounce - wait for multiple drags to complete
             });
             
             markers.push(marker);
@@ -9552,13 +9685,47 @@
         async function calculateRoutes() {
             console.log('🔄 calculateRoutes() called');
             
+            // ABORT PREVIOUS ROUTING REQUEST if still running
+            if (currentRoutingController) {
+                currentRoutingController.abort();
+                console.log('🛑 Aborted previous routing request');
+            }
+            
+            // Create new abort controller for this request
+            currentRoutingController = new AbortController();
+            
             if (isCalculating) {
                 console.log('⚠️ Already calculating, ignoring duplicate call');
                 return;
             }
             
+            // Don't start new calculation while dragging
+            if (isDraggingWaypoint) {
+                console.log('⚠️ Still dragging waypoint, postponing calculation');
+                return;
+            }
+            
             if (waypoints.length < 2) {
                 console.log('⚠️ Not enough waypoints (<2), aborting');
+                return;
+            }
+            
+            // SANITY CHECK: Validate waypoint coordinates
+            let hasInvalidCoords = false;
+            waypoints.forEach((wp, i) => {
+                if (!wp.lat || !wp.lng || isNaN(wp.lat) || isNaN(wp.lng)) {
+                    console.error(`❌ INVALID WAYPOINT ${i+1}: lat=${wp.lat}, lng=${wp.lng}`);
+                    hasInvalidCoords = true;
+                }
+                if (Math.abs(wp.lat) > 90 || Math.abs(wp.lng) > 180) {
+                    console.error(`❌ OUT OF BOUNDS WAYPOINT ${i+1}: lat=${wp.lat}, lng=${wp.lng}`);
+                    hasInvalidCoords = true;
+                }
+            });
+            
+            if (hasInvalidCoords) {
+                alert('❌ Ungültige Waypoint-Koordinaten gefunden!\n\nBitte Seite neu laden und Route neu planen.');
+                isCalculating = false;
                 return;
             }
             
@@ -9961,9 +10128,17 @@
                             marker.on('dragend', function(e) {
                                 const idx = markers.indexOf(marker);
                                 
+                                console.log(`🖱️ Waypoint ${idx+1} dragged to new position`);
+                                
                                 // Update position FIRST
+                                const oldLat = waypoints[idx].lat;
+                                const oldLng = waypoints[idx].lng;
                                 waypoints[idx].lat = e.target.getLatLng().lat;
                                 waypoints[idx].lng = e.target.getLatLng().lng;
+                                
+                                console.log(`   Old: ${oldLat.toFixed(5)}, ${oldLng.toFixed(5)}`);
+                                console.log(`   New: ${waypoints[idx].lat.toFixed(5)}, ${waypoints[idx].lng.toFixed(5)}`);
+                                
                                 marker.setPopupContent(`<b>Wegpunkt ${idx + 1}</b><br>${waypoints[idx].lat.toFixed(5)}°, ${waypoints[idx].lng.toFixed(5)}°`);
                                 
                                 // SMART LOCK: Invalidate affected segments
@@ -9976,7 +10151,13 @@
                                     console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
                                 }
                                 
+                                // CRITICAL: Update marker visual position to match waypoint
+                                marker.setLatLng([waypoints[idx].lat, waypoints[idx].lng]);
+                                
                                 updateList();
+                                updateMarkerColors();
+                                
+                                console.log(`✅ Waypoint ${idx+1} drag complete, segments invalidated`);
                             });
                             
                             markers.splice(dragSegmentIndex + 1, 0, marker);
@@ -10115,10 +10296,17 @@
                 }
                 
             } catch (e) {
+                // Don't show error if request was aborted (expected behavior)
+                if (e.name === 'AbortError') {
+                    console.log('⚠️ Routing request aborted (expected during rapid waypoint changes)');
+                    return;
+                }
+                
                 alert('Fehler: ' + e.message);
                 console.error('❌ Route calculation error:', e);
             } finally {
                 isCalculating = false;  // Reset guard
+                currentRoutingController = null;  // Clear abort controller
                 console.log('✅ Calculation finished, guard reset');
                 
                 document.getElementById('loading').classList.remove('show');
@@ -12645,8 +12833,9 @@
                     <p style="color: rgba(0, 240, 255, 0.9); margin-bottom: 8px; font-size: 13px; font-weight: 600;">
                         🔍 X-Ray Magnifier
                     </p>
-                    <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0;">
-                        Tastatur: <strong style="color: #00f0ff;">L</strong> = Ein/Aus &nbsp;•&nbsp; <strong style="color: #00f0ff;">SPACE</strong> = Einfrieren &nbsp;•&nbsp; <strong style="color: #00f0ff;">S</strong> = Screenshot
+                    <p style="color: rgba(0, 240, 255, 0.7); font-size: 11px; margin: 0; line-height: 1.6;">
+                        Tastatur: <strong style="color: #00f0ff;">L</strong> = Ein/Aus &nbsp;•&nbsp; <strong style="color: #00f0ff;">SPACE</strong> = Einfrieren &nbsp;•&nbsp; <strong style="color: #00f0ff;">S</strong> = Screenshot<br>
+                        <strong style="color: #00f0ff;">R</strong> = Route transparent (zeigt Untergrund)
                     </p>
                 </div>
             ` + oldSettings.innerHTML;
