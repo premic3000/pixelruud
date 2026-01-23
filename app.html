@@ -3748,6 +3748,14 @@
             </svg>
         </button>
         
+        <!-- 13. Route Surgery (NEW!) -->
+        <button class="toolbar-btn" data-panel="route-surgery" title="Route Surgery - Hindernisse & Baustellen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+            <span class="toolbar-badge" id="surgeryBadge" style="display: none;">0</span>
+        </button>
+        
         <!-- DIVIDER -->
         <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
         
@@ -8533,42 +8541,51 @@
             const marker = L.marker([lat, lng], { icon, draggable: true }).addTo(map);
             marker.bindPopup(`<b>Wegpunkt ${number}</b><br>${lat.toFixed(5)}°, ${lng.toFixed(5)}°`);
             
+            // Store waypoint metadata DIRECTLY on marker to survive reordering
+            marker.waypointId = waypoints[markers.length]?.id || `wp_${Date.now()}_${markers.length}`;
+            marker.waypointEngine = waypoints[markers.length]?.engine || currentEngine;
+            
+            // Store the marker's index at creation time to avoid indexOf issues
+            const markerIndex = markers.length;
+            
             // DRAGSTART: Mark that we're dragging
             marker.on('dragstart', e => {
                 isDraggingWaypoint = true;
-                console.log(`🚀 DRAGSTART: Waypoint ${markers.indexOf(marker) + 1}`);
+                console.log(`🚀 DRAGSTART: Waypoint ${markerIndex + 1}`);
             });
             
             // DRAGEND: Debounced route recalculation
             marker.on('dragend', e => { 
-                const idx = markers.indexOf(marker);
                 const newLatLng = e.target.getLatLng();
                 
-                console.log(`🎯 DRAGEND: Waypoint ${idx + 1} moved to ${newLatLng.lat.toFixed(5)}, ${newLatLng.lng.toFixed(5)}`);
+                console.log(`🎯 DRAGEND: Waypoint ${markerIndex + 1} moved to ${newLatLng.lat.toFixed(5)}, ${newLatLng.lng.toFixed(5)}`);
                 
                 // Clear any pending debounce timer
                 clearTimeout(dragDebounceTimer);
                 
                 // Schedule waypoint update and route recalculation with debounce
                 dragDebounceTimer = setTimeout(() => {
-                    console.log('⏱️ Debounce finished - updating waypoints from marker positions');
+                    console.log('⏱️ Debounce finished - rebuilding waypoints from MARKER DATA');
                     
-                    // Rebuild waypoints array from current marker positions
-                    // This ensures waypoint order matches visual order on map
-                    waypoints = markers.map((m, i) => {
+                    // CRITICAL: Rebuild waypoints from marker positions AND marker metadata
+                    // This preserves engine/id even when marker order changes
+                    const newWaypoints = markers.map((m, i) => {
                         const pos = m.getLatLng();
                         return {
-                            id: waypoints[i]?.id || `wp_${Date.now()}_${i}`,
+                            id: m.waypointId || `wp_${Date.now()}_${i}`,
                             lat: pos.lat,
                             lng: pos.lng,
-                            engine: waypoints[i]?.engine || currentEngine,
+                            engine: m.waypointEngine || currentEngine,
                             segmentToNext: null  // Invalidate all segments after drag
                         };
                     });
                     
-                    console.log('✅ Waypoints rebuilt from marker positions');
+                    // Replace waypoints array atomically
+                    waypoints = newWaypoints;
+                    
+                    console.log('✅ Waypoints rebuilt from MARKER DATA:');
                     waypoints.forEach((wp, i) => {
-                        console.log(`  WP ${i+1}: ${wp.lat.toFixed(5)}, ${wp.lng.toFixed(5)}`);
+                        console.log(`  WP ${i+1}: ${wp.lat.toFixed(5)}, ${wp.lng.toFixed(5)} [${wp.engine || 'auto'}]`);
                     });
                     
                     // Update UI
@@ -8602,6 +8619,13 @@
                 
                 const color = getColor(idx, markers.length);
                 const number = idx + 1;
+                
+                // CRITICAL: Sync marker metadata with waypoint data
+                // This ensures markers always have correct engine/id after reordering
+                if (waypoints[idx]) {
+                    marker.waypointId = waypoints[idx].id;
+                    marker.waypointEngine = waypoints[idx].engine;
+                }
                 
                 const icon = L.divIcon({
                     className: 'custom-marker',
@@ -9534,17 +9558,32 @@
          * Smart route surgery - only reroute around selected closures
          */
         window.performSmartRouteSurgery = async function() {
-            const selectedIndices = [];
-            document.querySelectorAll('.closure-checkbox:checked').forEach(cb => {
-                selectedIndices.push(parseInt(cb.id.split('-')[1]));
-            });
+            // Support both old warning popup and new panel
+            let selectedClosures = [];
             
-            if (selectedIndices.length === 0) {
+            // Check if we have pre-selected closures from panel
+            if (window.selectedClosuresToAvoid && window.selectedClosuresToAvoid.length > 0) {
+                selectedClosures = window.selectedClosuresToAvoid;
+                window.selectedClosuresToAvoid = null; // Clear after use
+            } else {
+                // Fallback: Check old popup checkboxes
+                const selectedIndices = [];
+                document.querySelectorAll('.closure-checkbox:checked').forEach(cb => {
+                    selectedIndices.push(parseInt(cb.id.split('-')[1]));
+                });
+                
+                if (selectedIndices.length === 0) {
+                    alert('Bitte wähle mindestens ein Hindernis zum Umfahren!');
+                    return;
+                }
+                
+                selectedClosures = selectedIndices.map(i => window.currentClosures[i]);
+            }
+            
+            if (selectedClosures.length === 0) {
                 alert('Bitte wähle mindestens ein Hindernis zum Umfahren!');
                 return;
             }
-            
-            const selectedClosures = selectedIndices.map(i => window.currentClosures[i]);
             
             dismissClosureWarning();
             
@@ -10125,39 +10164,62 @@
                             const marker = L.marker([newPoint.lat, newPoint.lng], { icon, draggable: true }).addTo(map);
                             marker.bindPopup(`<b>Anpassung (Punkt ${dragSegmentIndex + 2})</b><br>${newPoint.lat.toFixed(5)}°, ${newPoint.lng.toFixed(5)}°`);
                             
-                            marker.on('dragend', function(e) {
-                                const idx = markers.indexOf(marker);
+                            // CRITICAL: Store metadata on marker for dragend reconstruction
+                            marker.waypointId = `wp_${Date.now()}_${dragSegmentIndex + 1}`;
+                            marker.waypointEngine = currentEngine;
+                            
+                            // Store marker's index at creation time
+                            const markerCreationIndex = dragSegmentIndex + 1;
+                            
+                            // DRAGSTART: Mark that we're dragging
+                            marker.on('dragstart', e => {
+                                isDraggingWaypoint = true;
+                                console.log(`🚀 DRAGSTART: Inserted waypoint at position ${markerCreationIndex + 1}`);
+                            });
+                            
+                            // DRAGEND: Use same debounced handler as addWaypoint
+                            marker.on('dragend', e => { 
+                                const newLatLng = e.target.getLatLng();
                                 
-                                console.log(`🖱️ Waypoint ${idx+1} dragged to new position`);
+                                console.log(`🎯 DRAGEND: Inserted waypoint moved to ${newLatLng.lat.toFixed(5)}, ${newLatLng.lng.toFixed(5)}`);
                                 
-                                // Update position FIRST
-                                const oldLat = waypoints[idx].lat;
-                                const oldLng = waypoints[idx].lng;
-                                waypoints[idx].lat = e.target.getLatLng().lat;
-                                waypoints[idx].lng = e.target.getLatLng().lng;
+                                // Clear any pending debounce timer
+                                clearTimeout(dragDebounceTimer);
                                 
-                                console.log(`   Old: ${oldLat.toFixed(5)}, ${oldLng.toFixed(5)}`);
-                                console.log(`   New: ${waypoints[idx].lat.toFixed(5)}, ${waypoints[idx].lng.toFixed(5)}`);
-                                
-                                marker.setPopupContent(`<b>Wegpunkt ${idx + 1}</b><br>${waypoints[idx].lat.toFixed(5)}°, ${waypoints[idx].lng.toFixed(5)}°`);
-                                
-                                // SMART LOCK: Invalidate affected segments
-                                if (idx > 0 && waypoints[idx - 1].segmentToNext) {
-                                    waypoints[idx - 1].segmentToNext = null;
-                                    console.log(`🔓 Invalidated segment ${idx-1}→${idx} (endpoint moved)`);
-                                }
-                                if (waypoints[idx].segmentToNext) {
-                                    waypoints[idx].segmentToNext = null;
-                                    console.log(`🔓 Invalidated segment ${idx}→${idx+1} (startpoint moved)`);
-                                }
-                                
-                                // CRITICAL: Update marker visual position to match waypoint
-                                marker.setLatLng([waypoints[idx].lat, waypoints[idx].lng]);
-                                
-                                updateList();
-                                updateMarkerColors();
-                                
-                                console.log(`✅ Waypoint ${idx+1} drag complete, segments invalidated`);
+                                // Schedule waypoint update and route recalculation with debounce
+                                dragDebounceTimer = setTimeout(() => {
+                                    console.log('⏱️ Debounce finished - rebuilding waypoints from MARKER DATA');
+                                    
+                                    // CRITICAL: Rebuild waypoints from marker positions AND marker metadata
+                                    const newWaypoints = markers.map((m, i) => {
+                                        const pos = m.getLatLng();
+                                        return {
+                                            id: m.waypointId || `wp_${Date.now()}_${i}`,
+                                            lat: pos.lat,
+                                            lng: pos.lng,
+                                            engine: m.waypointEngine || currentEngine,
+                                            segmentToNext: null  // Invalidate all segments after drag
+                                        };
+                                    });
+                                    
+                                    // Replace waypoints array atomically
+                                    waypoints = newWaypoints;
+                                    
+                                    console.log('✅ Waypoints rebuilt from MARKER DATA:');
+                                    waypoints.forEach((wp, i) => {
+                                        console.log(`  WP ${i+1}: ${wp.lat.toFixed(5)}, ${wp.lng.toFixed(5)} [${wp.engine || 'auto'}]`);
+                                    });
+                                    
+                                    // Update UI
+                                    updateList();
+                                    updateMarkerColors();
+                                    
+                                    // Mark dragging as complete
+                                    isDraggingWaypoint = false;
+                                    
+                                    // Trigger auto-calculation
+                                    triggerAutoCalc(500);
+                                }, 300); // 300ms debounce
                             });
                             
                             markers.splice(dragSegmentIndex + 1, 0, marker);
@@ -10287,12 +10349,25 @@
                 console.log('🔍 Initiating closure detection...');
                 const closures = await checkRoadClosures(allCoords);
                 
+                // Store closures globally
+                window.currentClosures = closures || [];
+                
+                // Update badge (no auto-popup!)
+                const badge = document.getElementById('surgeryBadge');
+                if (badge) {
+                    if (closures.length > 0) {
+                        badge.textContent = closures.length;
+                        badge.style.display = 'flex';
+                        console.log(`⚠️ Found ${closures.length} closures - badge updated`);
+                    } else {
+                        badge.style.display = 'none';
+                        console.log('✅ No closures detected');
+                    }
+                }
+                
+                // Show markers on map
                 if (closures.length > 0) {
-                    console.log(`⚠️ Found ${closures.length} closures on route!`);
                     showClosureMarkers(closures);
-                    showClosureWarning(closures);
-                } else {
-                    console.log('✅ No closures detected on route');
                 }
                 
             } catch (e) {
@@ -12572,6 +12647,15 @@
                     <div class="panel-content">
                         <div id="panelWeatherOverlay"></div>
                     </div>
+                `,
+                'route-surgery': `
+                    <div class="panel-header">
+                        <div class="panel-title">🚧 Route Surgery</div>
+                        <button class="panel-close">×</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="panelRouteSurgery"></div>
+                    </div>
                 `
             };
             
@@ -12582,6 +12666,11 @@
             console.log('🔧 Initializing panel:', type);
             
             const panelContent = panel.querySelector('.panel-content > div');
+            
+            if (!panelContent) {
+                console.error(`❌ Panel content div not found for type: ${type}`);
+                return;
+            }
             
             switch(type) {
                 case 'routing':
@@ -12622,6 +12711,9 @@
                     break;
                 case 'weather-overlay':
                     initWeatherOverlayPanel(panelContent);
+                    break;
+                case 'route-surgery':
+                    initRouteSurgeryPanel(panelContent);
                     break;
             }
         }
@@ -14093,6 +14185,225 @@
             }
             
             console.log('✅ Weather overlay panel initialized');
+        }
+        
+        function initRouteSurgeryPanel(container) {
+            console.log('🔧 Initializing Route Surgery panel');
+            
+            // Get current closures
+            const closures = window.currentClosures || [];
+            
+            container.innerHTML = `
+                <div style="padding: 15px; color: #e2e8f0;">
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="color: #ccff00; font-size: 14px; margin-bottom: 8px;">
+                            🚧 Route Surgery
+                        </h3>
+                        <p style="font-size: 11px; color: rgba(226, 232, 240, 0.7); line-height: 1.5;">
+                            Automatische Erkennung von Baustellen, Straßensperrungen und Hindernissen auf deiner Route.
+                        </p>
+                    </div>
+                    
+                    <div id="surgeryStatus" style="margin-bottom: 15px;">
+                        ${closures.length === 0 ? `
+                            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 8px;">✅</div>
+                                <div style="font-size: 12px; color: #10b981; font-weight: 600;">Keine Hindernisse gefunden</div>
+                                <div style="font-size: 10px; color: rgba(16, 185, 129, 0.7); margin-top: 4px;">Deine Route ist frei!</div>
+                            </div>
+                        ` : `
+                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
+                                <div style="font-size: 12px; color: #f59e0b; font-weight: 600;">${closures.length} Hindernis${closures.length > 1 ? 'se' : ''} gefunden</div>
+                                <div style="font-size: 10px; color: rgba(245, 158, 11, 0.7); margin-top: 4px;">Wähle welche umfahren werden sollen</div>
+                            </div>
+                        `}
+                    </div>
+                    
+                    ${closures.length > 0 ? `
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button class="select-btn-surgery" data-action="all">Alle auswählen</button>
+                                <button class="select-btn-surgery" data-action="none">Keine</button>
+                                <button class="select-btn-surgery" data-action="high">Nur schwer</button>
+                            </div>
+                        </div>
+                        
+                        <div id="closureListSurgery" style="max-height: 400px; overflow-y: auto;">
+                            ${closures.map((closure, idx) => {
+                                const severity = getClosureSeverity(closure);
+                                return `
+                                    <div class="closure-item-surgery closure-severity-${severity.level}" data-index="${idx}">
+                                        <input type="checkbox" class="closure-checkbox-surgery" data-index="${idx}">
+                                        <div style="flex: 1; font-size: 11px;">
+                                            <div style="font-weight: 600; color: #e2e8f0; margin-bottom: 4px;">
+                                                ${severity.icon} ${severity.label}
+                                            </div>
+                                            <div style="color: rgba(226, 232, 240, 0.6);">
+                                                ${closure.tags?.construction || closure.tags?.barrier || 'Hindernis'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        <button id="avoidsClosuresBtn" style="
+                            width: 100%;
+                            margin-top: 15px;
+                            padding: 12px;
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            border: none;
+                            border-radius: 6px;
+                            color: white;
+                            font-weight: 600;
+                            font-size: 12px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                        ">
+                            🔄 Umfahrungen berechnen
+                        </button>
+                    ` : `
+                        <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 6px; padding: 12px; margin-top: 15px;">
+                            <div style="font-size: 11px; color: rgba(0, 240, 255, 0.8); line-height: 1.5;">
+                                <strong>💡 Wie funktioniert's?</strong><br>
+                                Route Surgery prüft automatisch bei jeder Berechnung auf Hindernisse in OpenStreetMap.
+                                Erkannt werden: Baustellen, Sperrungen, Hindernisse.<br><br>
+                                <strong>✅ Status: Voll funktionsfähig!</strong><br>
+                                Badge am Button zeigt Anzahl gefundener Hindernisse.
+                            </div>
+                        </div>
+                    `}
+                </div>
+            `;
+            
+            // Add styles for closure items
+            const style = document.createElement('style');
+            style.textContent = `
+                .closure-item-surgery {
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 10px;
+                    margin: 6px 0;
+                    border-radius: 6px;
+                    border-left: 4px solid #ef4444;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .closure-item-surgery:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    transform: translateX(-2px);
+                }
+                .closure-item-surgery.selected {
+                    background: rgba(16, 185, 129, 0.1);
+                    border-left-color: #10b981;
+                }
+                .closure-severity-high { border-left-color: #dc2626; }
+                .closure-severity-medium { border-left-color: #f59e0b; }
+                .closure-severity-low { border-left-color: #fbbf24; }
+                .closure-checkbox-surgery {
+                    min-width: 16px;
+                    min-height: 16px;
+                    margin-top: 2px;
+                    cursor: pointer;
+                }
+                .select-btn-surgery {
+                    background: rgba(0, 240, 255, 0.1);
+                    border: 1px solid rgba(0, 240, 255, 0.3);
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    cursor: pointer;
+                    color: #00f0ff;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                }
+                .select-btn-surgery:hover {
+                    background: rgba(0, 240, 255, 0.2);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Setup event listeners
+            if (closures.length > 0) {
+                // Checkbox clicks
+                const checkboxes = container.querySelectorAll('.closure-checkbox-surgery');
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        const item = e.target.closest('.closure-item-surgery');
+                        if (e.target.checked) {
+                            item.classList.add('selected');
+                        } else {
+                            item.classList.remove('selected');
+                        }
+                    });
+                });
+                
+                // Item clicks (toggle checkbox)
+                const items = container.querySelectorAll('.closure-item-surgery');
+                items.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (e.target.type === 'checkbox') return; // Don't double-toggle
+                        const checkbox = item.querySelector('.closure-checkbox-surgery');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    });
+                });
+                
+                // Select buttons
+                const selectBtns = container.querySelectorAll('.select-btn-surgery');
+                selectBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const action = btn.dataset.action;
+                        checkboxes.forEach(cb => {
+                            const item = cb.closest('.closure-item-surgery');
+                            const severity = item.classList.contains('closure-severity-high') ? 'high' : 
+                                           item.classList.contains('closure-severity-medium') ? 'medium' : 'low';
+                            
+                            if (action === 'all') {
+                                cb.checked = true;
+                            } else if (action === 'none') {
+                                cb.checked = false;
+                            } else if (action === 'high') {
+                                cb.checked = (severity === 'high');
+                            }
+                            cb.dispatchEvent(new Event('change'));
+                        });
+                    });
+                });
+                
+                // Avoid button
+                const avoidBtn = container.querySelector('#avoidClosuresBtn');
+                if (avoidBtn) {
+                    avoidBtn.addEventListener('click', () => {
+                        const selected = Array.from(checkboxes)
+                            .filter(cb => cb.checked)
+                            .map(cb => parseInt(cb.dataset.index));
+                        
+                        if (selected.length === 0) {
+                            alert('⚠️ Bitte wähle mindestens ein Hindernis aus!');
+                            return;
+                        }
+                        
+                        const selectedClosures = selected.map(idx => closures[idx]);
+                        console.log(`🔄 Avoiding ${selected.length} closures...`);
+                        
+                        // Store selected closures globally for performSmartRouteSurgery
+                        window.selectedClosuresToAvoid = selectedClosures;
+                        
+                        // Call the surgery function
+                        if (typeof window.performSmartRouteSurgery === 'function') {
+                            window.performSmartRouteSurgery();
+                        } else {
+                            alert('⚠️ Route Surgery Funktion nicht verfügbar. Bitte Route neu berechnen.');
+                        }
+                    });
+                }
+            }
+            
+            console.log('✅ Route Surgery panel initialized');
         }
         
         console.log('✅ Floating Toolbar V3.0 initialized!');
