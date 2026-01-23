@@ -8592,6 +8592,13 @@
                     updateList();
                     updateMarkerColors();
                     
+                    // CRITICAL: Update elevation profile immediately to show new waypoint positions
+                    // The chart needs to redraw waypoint markers at their new locations
+                    if (routes.length > 0 && routes[0].elevations) {
+                        showElevationProfile();
+                        console.log(`📊 Elevation profile refreshed after drag: ${waypoints.length} waypoints`);
+                    }
+                    
                     // Mark dragging as complete
                     isDraggingWaypoint = false;
                     
@@ -8604,6 +8611,12 @@
             updateList();
             updateButtons();
             updateMarkerColors();
+            
+            // CRITICAL: Update elevation profile with new waypoint
+            if (routes.length > 0 && routes[0].elevations) {
+                showElevationProfile();
+                console.log(`📊 Elevation profile refreshed: ${waypoints.length} waypoints`);
+            }
             
             // Trigger auto-calculation after adding waypoint
             triggerAutoCalc(1000);
@@ -10214,6 +10227,12 @@
                                     updateList();
                                     updateMarkerColors();
                                     
+                                    // CRITICAL: Update elevation profile after drag
+                                    if (routes.length > 0 && routes[0].elevations) {
+                                        showElevationProfile();
+                                        console.log(`📊 Elevation profile refreshed after drag: ${waypoints.length} waypoints`);
+                                    }
+                                    
                                     // Mark dragging as complete
                                     isDraggingWaypoint = false;
                                     
@@ -10225,6 +10244,13 @@
                             markers.splice(dragSegmentIndex + 1, 0, marker);
                             updateList();
                             updateMarkerColors();
+                            
+                            // CRITICAL: Update elevation profile with new waypoint count
+                            // This ensures chart shows all waypoints even before route recalculation
+                            if (routes.length > 0 && routes[0].elevations) {
+                                showElevationProfile();
+                                console.log(`📊 Elevation profile refreshed: ${waypoints.length} waypoints`);
+                            }
                             
                             console.log(`✓ Waypoint inserted at position ${dragSegmentIndex + 2}`);
                             console.log(`  Total waypoints: ${waypoints.length}`);
@@ -10278,8 +10304,11 @@
                     window.updateMagnifierRoute();
                 }
                 
-                // Show elevation profile
+                // CRITICAL: Always refresh elevation profile with current waypoints
+                // This ensures profile stays in sync even after inserting waypoints
                 showElevationProfile();
+                
+                console.log(`✅ Elevation profile updated with ${waypoints.length} waypoints`);
                 
                 // Show toggle buttons (if they exist)
                 const statsToggle = document.getElementById('statsToggle');
