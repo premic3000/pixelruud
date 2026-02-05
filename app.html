@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud v3.31 - DRAGEND FIXED | Gravel Route Planner</title>
+    <title>Pixelruud v3.32 - AI GENERATOR | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -3625,11 +3625,382 @@
             to { transform: translateX(400px); opacity: 0; }
         }
         
+        /* ========================================
+           AI ROUTE GENERATOR STYLES
+           ======================================== */
+        
+        .ai-generator-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, #001f3f 0%, #002855 100%);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 -4px 20px rgba(0, 255, 65, 0.3), 0 4px 20px rgba(0, 255, 65, 0.3);
+            border: 2px solid #00f0ff;
+            z-index: 10000;
+            min-width: 400px;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+            animation: aiSlideIn 0.3s ease;
+        }
+        
+        .ai-generator-container.show {
+            display: block;
+        }
+        
+        /* Custom Scrollbar for AI Generator */
+        .ai-generator-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .ai-generator-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        .ai-generator-container::-webkit-scrollbar-thumb {
+            background: #00f0ff;
+            border-radius: 4px;
+        }
+        
+        .ai-generator-container::-webkit-scrollbar-thumb:hover {
+            background: #ccff00;
+        }
+        
+        @keyframes aiSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .ai-generator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+        }
+        
+        .ai-generator-title {
+            color: #00f0ff;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Consolas', monospace;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+            letter-spacing: 2px;
+        }
+        
+        .ai-generator-close {
+            background: transparent;
+            border: 2px solid #ff0055;
+            color: #ff0055;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ai-generator-close:hover {
+            background: #ff0055;
+            color: #001f3f;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+            transform: rotate(90deg);
+        }
+        
+        .ai-generator-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #003366;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+            resize: vertical;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        
+        .ai-generator-input:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        
+        .ai-generator-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .ai-generator-examples {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .ai-example-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #001f3f, #002855);
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Consolas', monospace;
+            font-weight: 700;
+            transition: all 0.2s;
+            white-space: nowrap;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+        }
+        
+        .ai-example-btn:hover {
+            background: linear-gradient(135deg, #002855, #003366);
+            border-color: #ccff00;
+            color: #ccff00;
+            text-shadow: 0 0 8px rgba(204, 255, 0, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        }
+        
+        .ai-generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ccff00, #00ff41);
+            border: 2px solid #ccff00;
+            color: #001f3f;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Consolas', monospace;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-shadow: 0 0 5px rgba(204, 255, 0, 0.5);
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+        }
+        
+        .ai-generate-btn:hover {
+            background: linear-gradient(135deg, #ffff00, #00ff41);
+            border-color: #ffff00;
+            color: #001f3f;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.6);
+            text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+        }
+        
+        .ai-generate-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #003366;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            text-shadow: none;
+        }
+        
+        .ai-loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #00f0ff;
+        }
+        
+        .ai-loading.show {
+            display: block;
+        }
+        
+        .ai-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 240, 255, 0.2);
+            border-top-color: #00f0ff;
+            border-radius: 50%;
+            animation: aiSpin 1s linear infinite;
+            margin: 0 auto 12px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        
+        @keyframes aiSpin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .ai-error {
+            display: none;
+            padding: 12px;
+            background: rgba(255, 0, 85, 0.1);
+            border: 2px solid #ff0055;
+            border-radius: 12px;
+            color: #ff0055;
+            margin-top: 12px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .ai-error.show {
+            display: block;
+        }
+        
+        .ai-result {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            border: 2px solid #003366;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .ai-result.show {
+            display: block;
+        }
+        
+        /* Custom Scrollbar for Result */
+        .ai-result::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .ai-result::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .ai-result::-webkit-scrollbar-thumb {
+            background: #00f0ff;
+            border-radius: 3px;
+        }
+        
+        .ai-result::-webkit-scrollbar-thumb:hover {
+            background: #ccff00;
+        }
+        
+        .ai-result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .ai-result-item {
+            background: linear-gradient(135deg, #001f3f, #002855);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #003366;
+        }
+        
+        .ai-result-label {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .ai-result-value {
+            font-size: 14px;
+            color: #00f0ff;
+            font-weight: 600;
+            font-family: 'Consolas', monospace;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+        }
+        
+        .ai-apply-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ccff00, #00ff41);
+            border: 2px solid #ccff00;
+            color: #001f3f;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Consolas', monospace;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+            text-shadow: 0 0 5px rgba(204, 255, 0, 0.5);
+        }
+        
+        .ai-apply-btn:hover {
+            background: linear-gradient(135deg, #ffff00, #00ff41);
+            border-color: #ffff00;
+            color: #001f3f;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.6);
+            text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+        }
+        
+        .ai-cost-info {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 8px;
+            font-family: 'Consolas', monospace;
+        }
+        
     </style>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
     <div id="map"></div>
+    
+    <!-- ========================================== -->
+    <!-- AI ROUTE GENERATOR - EARLY LOAD -->
+    <!-- ========================================== -->
+    <div class="ai-generator-container" id="aiGeneratorContainer">
+        <div class="ai-generator-header">
+            <div class="ai-generator-title">🤖 AI Route Generator</div>
+            <button class="ai-generator-close" id="aiGeneratorClose">×</button>
+        </div>
+        
+        <textarea 
+            class="ai-generator-input" 
+            id="aiGeneratorInput" 
+            placeholder="Describe your route in natural language...&#10;&#10;Example: '80km gravel route from Munich to the Alps with lots of hills'"></textarea>
+        
+        <div class="ai-generator-examples">
+            <button class="ai-example-btn" data-example="50km flat gravel route from Berlin to Potsdam">50km flat</button>
+            <button class="ai-example-btn" data-example="100km road bike route with lots of elevation in the Alps">100km HM</button>
+            <button class="ai-example-btn" data-example="40km MTB trail with technical climbs in Bavaria">MTB Trail</button>
+        </div>
+        
+        <button class="ai-generate-btn" id="aiGenerateBtn">
+            <span>✨ Generate Route</span>
+        </button>
+        
+        <div class="ai-loading" id="aiLoading">
+            <div class="ai-spinner"></div>
+            <div>Claude is thinking...</div>
+        </div>
+        
+        <div class="ai-error" id="aiError"></div>
+        
+        <div class="ai-result" id="aiResult">
+            <div class="ai-result-grid" id="aiResultGrid"></div>
+            <button class="ai-apply-btn" id="aiApplyBtn">📍 Show route on map</button>
+            <div class="ai-cost-info" id="aiCostInfo"></div>
+        </div>
+    </div>
     
     <!-- ========================================== -->
     <!-- FLOATING TOOLBAR V3.0 -->
@@ -3721,6 +4092,15 @@
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        </button>
+        
+        <!-- 8b. AI Route Generator ⚡ NEW! -->
+        <button class="toolbar-btn" data-panel="ai-generator" title="AI Route Generator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 14v7"></path>
             </svg>
         </button>
         
@@ -7488,6 +7868,19 @@
             // Toggle magnifier with 'L' key
             document.addEventListener('keydown', function(e) {
                 try {
+                    // IGNORE keyboard shortcuts if user is typing in input/textarea
+                    const activeElement = document.activeElement;
+                    const isTyping = activeElement && (
+                        activeElement.tagName === 'INPUT' ||
+                        activeElement.tagName === 'TEXTAREA' ||
+                        activeElement.isContentEditable
+                    );
+                    
+                    if (isTyping) {
+                        // User is typing, don't intercept!
+                        return;
+                    }
+                    
                     console.log('🎹 Keydown event:', e.key);
                     
                     if (e.key === 'l' || e.key === 'L') {
@@ -12379,6 +12772,12 @@
         }
         
         function openPanel(type) {
+            // AI Generator uses its own modal, not the panel system!
+            if (type === 'ai-generator') {
+                console.log('🎯 AI Generator uses modal, not panel - skipping panel creation');
+                return;
+            }
+            
             const panel = document.createElement('div');
             panel.className = 'floating-panel';
             panel.dataset.type = type;
@@ -12693,6 +13092,12 @@
         
         function initPanelFunctionality(type, panel) {
             console.log('🔧 Initializing panel:', type);
+            
+            // AI Generator is a modal, not a panel - skip it!
+            if (type === 'ai-generator') {
+                console.log('✅ AI Generator is a modal, skipping panel initialization');
+                return;
+            }
             
             const panelContent = panel.querySelector('.panel-content > div');
             
@@ -14895,6 +15300,669 @@
         }
         
         console.log('✅ Elevation Profile draggable initialized');
+    })();
+    
+    // ==========================================
+    // AI ROUTE GENERATOR
+    // ==========================================
+    
+    (function initAIGenerator() {
+        console.log('🤖 Initializing AI Route Generator...');
+        
+        // Configuration
+        // AI Backend URL - Auto-detect environment
+        const AI_BACKEND_URL = (() => {
+            const hostname = window.location.hostname;
+            
+            // Local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3001';
+            }
+            
+            // Production (Railway)
+            return 'https://pixelruud-ai-backend-production.up.railway.app';
+        })();
+        
+        console.log('🤖 AI Backend URL:', AI_BACKEND_URL);
+        
+        // Elements
+        const container = document.getElementById('aiGeneratorContainer');
+        const closeBtn = document.getElementById('aiGeneratorClose');
+        const input = document.getElementById('aiGeneratorInput');
+        const generateBtn = document.getElementById('aiGenerateBtn');
+        const loading = document.getElementById('aiLoading');
+        const errorDiv = document.getElementById('aiError');
+        const result = document.getElementById('aiResult');
+        const resultGrid = document.getElementById('aiResultGrid');
+        const applyBtn = document.getElementById('aiApplyBtn');
+        const costInfo = document.getElementById('aiCostInfo');
+        
+        // Debug: Check if elements exist
+        console.log('🔍 AI Generator elements check:', {
+            container: !!container,
+            closeBtn: !!closeBtn,
+            input: !!input,
+            generateBtn: !!generateBtn,
+            loading: !!loading,
+            errorDiv: !!errorDiv,
+            result: !!result,
+            resultGrid: !!resultGrid,
+            applyBtn: !!applyBtn,
+            costInfo: !!costInfo
+        });
+        
+        if (!container) {
+            console.error('❌ AI Generator container not found!');
+            return;
+        }
+        
+        // Open AI Generator from toolbar
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-panel="ai-generator"]');
+            if (btn) {
+                console.log('🎯 AI Generator button clicked!');
+                container.classList.add('show');
+            }
+        });
+        
+        // Close button
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                console.log('❌ Closing AI Generator');
+                container.classList.remove('show');
+                resetUI();
+            });
+        }
+        
+        // Example buttons
+        document.querySelectorAll('.ai-example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                input.value = btn.dataset.example;
+                console.log('✅ Example set:', btn.dataset.example);
+            });
+        });
+        
+        // Generate button
+        if (generateBtn) {
+            generateBtn.addEventListener('click', generateAIRoute);
+        }
+        
+        // Keyboard shortcut: Ctrl+Enter to generate
+        if (input) {
+            input.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    generateAIRoute();
+                }
+            });
+        }
+        
+        let currentParsedRoute = null;
+        
+        async function generateAIRoute() {
+            const prompt = input.value.trim();
+            if (!prompt) {
+                showError('Please enter a route description!');
+                return;
+            }
+            
+            // Reset UI
+            errorDiv.classList.remove('show');
+            result.classList.remove('show');
+            loading.classList.add('show');
+            generateBtn.disabled = true;
+            
+            console.log('🚀 Generating route with prompt:', prompt);
+            
+            try {
+                const response = await fetch(`${AI_BACKEND_URL}/api/ai-route`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Backend error');
+                }
+                
+                const data = await response.json();
+                console.log('✅ Response:', data);
+                
+                if (data.parsed) {
+                    // Add original prompt to parsed data for round trip detection
+                    currentParsedRoute = {...data.parsed, prompt: prompt};
+                    showAIResult(data.parsed, data.metadata?.cost);
+                } else {
+                    throw new Error('No route parsed');
+                }
+                
+            } catch (error) {
+                console.error('❌ AI Generation error:', error);
+                showError(error.message || 'Error generating route. Is the backend server running?');
+            } finally {
+                loading.classList.remove('show');
+                generateBtn.disabled = false;
+            }
+        }
+        
+        function showAIResult(parsed, cost) {
+            // Clear previous results
+            resultGrid.innerHTML = '';
+            
+            console.log('📊 Showing result:', parsed);
+            
+            // Create result items
+            const items = [
+                { label: 'Distance', value: parsed.distance || 'Not specified' },
+                { label: 'Type', value: mapRouteType(parsed.type) },
+                { label: 'Elevation', value: mapElevation(parsed.elevation) },
+                { label: 'Start', value: parsed.start || 'Not specified' },
+                { label: 'Direction', value: parsed.direction || 'Not specified' },
+                { label: 'Traffic', value: mapTraffic(parsed.traffic) }
+            ];
+            
+            // Add POIs if present
+            if (parsed.pois && parsed.pois.length > 0) {
+                items.push({ label: 'POIs', value: parsed.pois.join(', ') });
+            }
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'ai-result-item';
+                div.innerHTML = `
+                    <div class="ai-result-label">${item.label}</div>
+                    <div class="ai-result-value">${item.value}</div>
+                `;
+                resultGrid.appendChild(div);
+            });
+            
+            // Show cost
+            if (cost) {
+                costInfo.textContent = `Cost: €${cost.toFixed(4)}`;
+            }
+            
+            result.classList.add('show');
+        }
+        
+        function mapRouteType(type) {
+            const mapping = {
+                'gravel': '🚵 Gravel',
+                'road': '🚴 Road',
+                'mtb': '🏔️ MTB',
+                'touring': '🚲 Touring'
+            };
+            return mapping[type] || type || 'Standard';
+        }
+        
+        function mapElevation(elevation) {
+            const mapping = {
+                'flat': '⚡ Flat',
+                'moderate': '📊 Moderate',
+                'hilly': '⛰️ Hilly',
+                'mountainous': '🏔️ Mountainous'
+            };
+            return mapping[elevation] || elevation || 'Normal';
+        }
+        
+        function mapTraffic(traffic) {
+            const mapping = {
+                'avoid': '🚫 Avoid',
+                'minimal': '✅ Minimal',
+                'moderate': '⚠️ Moderate',
+                'any': '🚗 Any'
+            };
+            return mapping[traffic] || traffic || 'Normal';
+        }
+        
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            console.error('❌ Error:', message);
+        }
+        
+        function resetUI() {
+            input.value = '';
+            loading.classList.remove('show');
+            errorDiv.classList.remove('show');
+            result.classList.remove('show');
+            generateBtn.disabled = false;
+            currentParsedRoute = null;
+        }
+        
+        // ==========================================
+        // BROUTER INTEGRATION - FULL PIXELRUUD INTEGRATION
+        // ==========================================
+        
+        async function geocodeLocation(locationName) {
+            console.log('📍 Geocoding location:', locationName);
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const location = {
+                        lat: parseFloat(data[0].lat),
+                        lon: parseFloat(data[0].lon),
+                        name: data[0].display_name
+                    };
+                    console.log('✅ Geocoded:', location);
+                    return location;
+                }
+                throw new Error('Location not found');
+            } catch (error) {
+                console.error('❌ Geocoding error:', error);
+                throw error;
+            }
+        }
+        
+        function calculateEndPoint(start, distance, direction) {
+            // Account for road distance vs straight line (roads are ~1.5-2x longer)
+            // User wants X km road distance, so calculate endpoint as X/1.7 km straight line
+            const ROAD_FACTOR = 1.7; // Roads are typically 1.7x longer than straight line
+            const MAX_DIRECT_DISTANCE = 60; // km (absolute maximum)
+            
+            const originalDistance = distance;
+            let adjustedDistance = distance / ROAD_FACTOR;
+            
+            console.log(`🧮 Distance calculation:`);
+            console.log(`   Requested road distance: ${originalDistance}km`);
+            console.log(`   Adjusted straight-line distance: ${adjustedDistance.toFixed(1)}km (÷${ROAD_FACTOR})`);
+            
+            if (adjustedDistance > MAX_DIRECT_DISTANCE) {
+                console.warn(`⚠️ Adjusted distance ${adjustedDistance.toFixed(1)}km exceeds max ${MAX_DIRECT_DISTANCE}km`);
+                console.warn(`   💡 Tip: Use POIs for very long routes (e.g., "via Garmisch")`);
+                adjustedDistance = MAX_DIRECT_DISTANCE;
+            }
+            
+            distance = adjustedDistance;
+            
+            // Direction mapping
+            const directions = {
+                'north': 0,
+                'northeast': 45,
+                'east': 90,
+                'southeast': 135,
+                'south': 180,
+                'southwest': 225,
+                'west': 270,
+                'northwest': 315,
+                'süden': 180,
+                'norden': 0,
+                'osten': 90,
+                'westen': 270
+            };
+            
+            let bearing = 90; // Default: East
+            
+            if (direction) {
+                const dirLower = direction.toLowerCase();
+                for (const [key, value] of Object.entries(directions)) {
+                    if (dirLower.includes(key)) {
+                        bearing = value;
+                        break;
+                    }
+                }
+            }
+            
+            // Convert distance from km to degrees (rough approximation)
+            const distanceInDegrees = distance / 111; // 1 degree ≈ 111 km
+            
+            // Calculate end point using bearing
+            const bearingRad = bearing * Math.PI / 180;
+            const lat1 = start.lat * Math.PI / 180;
+            const lon1 = start.lon * Math.PI / 180;
+            
+            const lat2 = Math.asin(
+                Math.sin(lat1) * Math.cos(distanceInDegrees * Math.PI / 180) +
+                Math.cos(lat1) * Math.sin(distanceInDegrees * Math.PI / 180) * Math.cos(bearingRad)
+            );
+            
+            const lon2 = lon1 + Math.atan2(
+                Math.sin(bearingRad) * Math.sin(distanceInDegrees * Math.PI / 180) * Math.cos(lat1),
+                Math.cos(distanceInDegrees * Math.PI / 180) - Math.sin(lat1) * Math.sin(lat2)
+            );
+            
+            const endPoint = {
+                lat: lat2 * 180 / Math.PI,
+                lon: lon2 * 180 / Math.PI
+            };
+            
+            console.log(`📍 End point calculated: ${endPoint.lat.toFixed(5)}, ${endPoint.lon.toFixed(5)} - bearing: ${bearing}°`);
+            console.log(`   Expected road distance: ~${(adjustedDistance * ROAD_FACTOR).toFixed(0)}km`);
+            
+            return endPoint;
+        }
+        
+        function selectBRouterProfile(type) {
+            const profiles = {
+                'gravel': 'gravel',
+                'road': 'fastbike',
+                'mtb': 'trekking',
+                'touring': 'touring'
+            };
+            return profiles[type] || 'trekking';
+        }
+        
+        async function generateRouteWithBRouter(waypoints, profile) {
+            console.log('🚴 Calling BRouter API with multiple waypoints...');
+            console.log('  Waypoints:', waypoints.length);
+            waypoints.forEach((wp, i) => {
+                console.log(`    ${i + 1}. ${wp.name || 'Point'}: ${wp.lat.toFixed(5)}, ${wp.lon.toFixed(5)}`);
+            });
+            console.log('  Profile:', profile);
+            
+            try {
+                // Build lonlats parameter: lon,lat|lon,lat|lon,lat
+                const lonlats = waypoints.map(wp => `${wp.lon},${wp.lat}`).join('|');
+                
+                const url = `https://brouter.de/brouter?lonlats=${lonlats}&profile=${profile}&alternativeidx=0&format=geojson`;
+                
+                console.log('🌐 BRouter URL:', url);
+                
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ BRouter response:', errorText);
+                    throw new Error(`BRouter API error: ${response.status}`);
+                }
+                
+                const geojson = await response.json();
+                console.log('✅ BRouter response received:', geojson);
+                
+                return geojson;
+            } catch (error) {
+                console.error('❌ BRouter error:', error);
+                throw error;
+            }
+        }
+        
+        async function buildRouteWaypoints(parsedRoute) {
+            console.log('🔧 Building route waypoints from parsed data...');
+            console.log('  Parsed:', parsedRoute);
+            
+            const waypoints = [];
+            
+            // 1. Geocode start location
+            if (!parsedRoute.start) {
+                throw new Error('No start location specified');
+            }
+            
+            const startLocation = await geocodeLocation(parsedRoute.start);
+            startLocation.name = parsedRoute.start;
+            waypoints.push(startLocation);
+            
+            // 2. Add POIs (if any)
+            if (parsedRoute.pois && parsedRoute.pois.length > 0) {
+                console.log('📍 Geocoding POIs:', parsedRoute.pois);
+                for (const poi of parsedRoute.pois) {
+                    try {
+                        // POI can be string OR object - handle both!
+                        const poiName = typeof poi === 'string' ? poi : (poi.name || poi.location || JSON.stringify(poi));
+                        console.log(`  🔍 Processing POI: "${poiName}" (type: ${typeof poi})`);
+                        
+                        const poiLocation = await geocodeLocation(poiName);
+                        poiLocation.name = poiName;
+                        waypoints.push(poiLocation);
+                        console.log(`  ✅ ${poiName}:`, poiLocation);
+                    } catch (error) {
+                        console.warn(`  ⚠️ Could not geocode POI:`, error.message);
+                        // Continue with other POIs
+                    }
+                }
+            }
+            
+            // 3. Determine if round trip - check MULTIPLE fields!
+            const promptLower = (parsedRoute.prompt || '').toLowerCase();
+            const directionLower = (parsedRoute.direction || '').toLowerCase();
+            
+            const isRoundTrip = 
+                promptLower.includes('zurück') ||
+                promptLower.includes('rückweg') ||
+                promptLower.includes('rundkurs') ||
+                promptLower.includes('round') ||
+                promptLower.includes('loop') ||
+                directionLower.includes('zurück') ||
+                directionLower.includes('rückweg') ||
+                directionLower.includes('rundkurs') ||
+                directionLower.includes('round') ||
+                directionLower.includes('loop');
+            
+            console.log('🔄 Round trip detected:', isRoundTrip, '(from prompt or direction)');
+            
+            // 4. Add end point
+            if (isRoundTrip) {
+                // Round trip: End = Start
+                console.log('🔄 Adding start as end point (round trip)');
+                waypoints.push({...startLocation, name: startLocation.name + ' (Rückweg)'});
+            } else if (waypoints.length === 1) {
+                // No POIs: Calculate end point based on distance and direction
+                const distance = parseInt(parsedRoute.distance) || 50;
+                const endPoint = calculateEndPoint(startLocation, distance, parsedRoute.direction);
+                endPoint.name = 'Ziel';
+                waypoints.push(endPoint);
+            }
+            // Else: POIs were added, last POI is the end
+            
+            console.log('✅ Route waypoints built:', waypoints.length);
+            waypoints.forEach((wp, i) => {
+                console.log(`  ${i + 1}. ${wp.name}: ${wp.lat.toFixed(5)}, ${wp.lon.toFixed(5)}`);
+            });
+            
+            return waypoints;
+        }
+        
+        function convertBRouterToWaypoints(geojson, numWaypoints = 10) {
+            console.log('🔄 Converting BRouter route to PixelRuud waypoints...');
+            
+            // Extract coordinates from GeoJSON
+            const allCoords = geojson.features[0].geometry.coordinates;
+            console.log(`📊 Total BRouter points: ${allCoords.length}`);
+            
+            // Select evenly spaced waypoints
+            const step = Math.floor(allCoords.length / (numWaypoints - 1));
+            const selectedWaypoints = [];
+            
+            for (let i = 0; i < numWaypoints; i++) {
+                let index;
+                if (i === 0) {
+                    index = 0; // Start
+                } else if (i === numWaypoints - 1) {
+                    index = allCoords.length - 1; // End
+                } else {
+                    index = i * step;
+                }
+                
+                const coord = allCoords[index];
+                selectedWaypoints.push({
+                    id: `ai_wp_${Date.now()}_${i}`,
+                    lat: coord[1],
+                    lng: coord[0],
+                    engine: 'auto',
+                    segmentToNext: null
+                });
+            }
+            
+            console.log(`✅ Created ${selectedWaypoints.length} waypoints from route`);
+            return selectedWaypoints;
+        }
+        
+        function integrateAIRouteIntoPixelRuud(newWaypoints) {
+            console.log('🔧 Integrating AI route into PixelRuud system...');
+            
+            // IMPORTANT: Save state for undo BEFORE clearing!
+            if (typeof saveState === 'function') {
+                saveState('AI_ROUTE_GENERATE');
+                console.log('💾 State saved for undo');
+            }
+            
+            // Clear existing route
+            clearRoutes();
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            waypoints = [];
+            
+            // Add new waypoints to system
+            waypoints = [...newWaypoints];
+            
+            console.log('✅ Waypoints integrated:', waypoints.length);
+            
+            // Create markers for each waypoint
+            waypoints.forEach((wp, i) => {
+                const getColor = (idx, total) => {
+                    if (idx === 0) return 'green';
+                    if (idx === total - 1) return 'red';
+                    return 'blue';
+                };
+                
+                const color = getColor(i, waypoints.length);
+                const number = i + 1;
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="position: relative;">
+                        <div style="background-color: ${color}; width: 25px; height: 25px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>
+                        <div style="position: absolute; top: 4px; left: 50%; transform: translateX(-50%) rotate(45deg); color: white; font-weight: bold; font-size: 11px; text-shadow: 0 0 2px rgba(0,0,0,0.5);">${number}</div>
+                    </div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 24],
+                    popupAnchor: [0, -24]
+                });
+                
+                const marker = L.marker([wp.lat, wp.lng], { icon, draggable: true }).addTo(map);
+                marker.bindPopup(`<b>AI Wegpunkt ${number}</b><br>${wp.lat.toFixed(5)}°, ${wp.lng.toFixed(5)}°`);
+                
+                // Store waypoint metadata on marker
+                marker.waypointId = wp.id;
+                marker.waypointEngine = wp.engine;
+                
+                const markerIndex = i;
+                
+                // Drag handlers
+                marker.on('dragstart', e => {
+                    isDraggingWaypoint = true;
+                    console.log(`🚀 DRAGSTART: AI Waypoint ${markerIndex + 1}`);
+                });
+                
+                marker.on('dragend', e => {
+                    const newLatLng = e.target.getLatLng();
+                    console.log(`🎯 DRAGEND: AI Waypoint ${markerIndex + 1} moved to ${newLatLng.lat.toFixed(5)}, ${newLatLng.lng.toFixed(5)}`);
+                    
+                    clearTimeout(dragDebounceTimer);
+                    
+                    dragDebounceTimer = setTimeout(() => {
+                        console.log('⏱️ Debounce finished - rebuilding AI waypoints from MARKER DATA');
+                        
+                        const newWaypoints = markers.map((m, i) => {
+                            const pos = m.getLatLng();
+                            return {
+                                id: m.waypointId || `wp_${Date.now()}_${i}`,
+                                lat: pos.lat,
+                                lng: pos.lng,
+                                engine: m.waypointEngine || currentEngine,
+                                segmentToNext: null
+                            };
+                        });
+                        
+                        waypoints = newWaypoints;
+                        
+                        console.log('✅ AI Waypoints rebuilt from MARKER DATA:');
+                        waypoints.forEach((wp, i) => {
+                            console.log(`  WP ${i+1}: ${wp.lat.toFixed(5)}, ${wp.lng.toFixed(5)} [${wp.engine || 'auto'}]`);
+                        });
+                        
+                        updateList();
+                        updateMarkerColors();
+                        
+                        if (routes.length > 0 && routes[0].elevations) {
+                            showElevationProfile();
+                            console.log(`📊 Elevation profile refreshed after drag: ${waypoints.length} waypoints`);
+                        }
+                        
+                        isDraggingWaypoint = false;
+                        
+                        // Trigger auto-calculation (same as normal waypoints)
+                        triggerAutoCalc(500);
+                    }, 300); // 300ms debounce
+                });
+                
+                markers.push(marker);
+            });
+            
+            // Update UI
+            updateList();
+            
+            console.log('✅ Markers created and added to map');
+        }
+        
+        // Apply route to map - FULL INTEGRATION with Multi-Waypoint Support
+        if (applyBtn) {
+            applyBtn.addEventListener('click', async () => {
+                if (!currentParsedRoute) return;
+                
+                console.log('🤖 AI Route to apply (MULTI-WAYPOINT):', currentParsedRoute);
+                
+                // Show loading
+                applyBtn.disabled = true;
+                applyBtn.textContent = '⏳ Generating route...';
+                
+                try {
+                    // 1. Build route waypoints (Start + POIs + End/Round-trip)
+                    applyBtn.textContent = '📍 Geocoding locations...';
+                    const routeWaypoints = await buildRouteWaypoints(currentParsedRoute);
+                    
+                    // 2. Select BRouter profile
+                    const profile = selectBRouterProfile(currentParsedRoute.type);
+                    console.log('🚴 Using profile:', profile);
+                    
+                    // 3. Generate route with BRouter (multi-waypoint)
+                    applyBtn.textContent = '🌐 Calling BRouter...';
+                    const geojson = await generateRouteWithBRouter(routeWaypoints, profile);
+                    
+                    // 4. Convert to PixelRuud waypoints
+                    applyBtn.textContent = '🔄 Converting to waypoints...';
+                    const pixelRuudWaypoints = convertBRouterToWaypoints(geojson, 10);
+                    
+                    // 5. Integrate into PixelRuud
+                    applyBtn.textContent = '🔧 Integrating route...';
+                    integrateAIRouteIntoPixelRuud(pixelRuudWaypoints);
+                    
+                    // 6. Calculate route (triggers elevation, stats, etc.)
+                    applyBtn.textContent = '📊 Calculating route...';
+                    await calculateRoutes();
+                    
+                    console.log('✅ AI Route fully integrated into PixelRuud!');
+                    
+                    // Success
+                    applyBtn.textContent = '✅ Route integrated!';
+                    applyBtn.style.background = 'linear-gradient(135deg, #00ff41, #00dd38)';
+                    
+                    setTimeout(() => {
+                        container.classList.remove('show');
+                        
+                        setTimeout(() => {
+                            applyBtn.textContent = '📍 Show route on map';
+                            applyBtn.style.background = '';
+                            applyBtn.disabled = false;
+                        }, 300);
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('❌ Error applying route:', error);
+                    showError(`Error: ${error.message}`);
+                    applyBtn.textContent = '❌ Error - Try again';
+                    applyBtn.disabled = false;
+                    
+                    setTimeout(() => {
+                        applyBtn.textContent = '📍 Show route on map';
+                    }, 3000);
+                }
+            });
+        }
+        
+        console.log('✅ AI Route Generator initialized');
     })();
     </script>
 
