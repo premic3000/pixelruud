@@ -1,0 +1,9 @@
+# Redirect www to non-www
+   https://www.pixelruud.com/* https://pixelruud.com/:splat 301!
+
+   # Redirect netlify subdomain to custom domain
+   https://pixelruud.netlify.app/* https://pixelruud.com/:splat 301!
+
+   # Force HTTPS
+   http://pixelruud.com/* https://pixelruud.com/:splat 301!
+   http://www.pixelruud.com/* https://pixelruud.com/:splat 301!
