@@ -4156,12 +4156,13 @@
     <div class="tutorial-overlay" id="tutorialOverlay">
         <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
         <div class="tutorial-card" id="tutorialCard">
-            <div class="tutorial-card-header">
+            <div class="tutorial-card-header" id="tutorialCardHeader" style="cursor: move;">
                 <div class="tutorial-card-icon" id="tutorialIcon">🎯</div>
                 <div style="flex: 1;">
                     <h2 class="tutorial-card-title" id="tutorialTitle">Willkommen!</h2>
                     <p class="tutorial-card-step" id="tutorialStep">Schritt 1/5</p>
                 </div>
+                <div style="opacity: 0.5; font-size: 14px; user-select: none;">⋮⋮</div>
             </div>
             <div class="tutorial-card-content" id="tutorialContent">
                 Lass uns gemeinsam die wichtigsten Features entdecken!
@@ -14945,6 +14946,20 @@
                 cardPosition: 'left'
             },
             {
+                icon: '🤖',
+                title: 'AI Route Generator (NEU!)',
+                content: '<strong>Beschreibe deine Route in Worten!</strong><br><br>Beispiele:<br>• "50km Gravel von München"<br>• "80km via Tegernsee zurück"<br>• "Rennrad, ruhige Straßen, flach"<br><br>Die KI plant automatisch:<br>• Start & Ziel<br>• POIs & Zwischenstopps<br>• Rundkurse<br>• Distanz & Richtung<br><br>💡 Klick auf <strong>🤖</strong> in der Toolbar!',
+                spotlight: '[data-panel="ai-generator"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔧',
+                title: 'Route Surgery (NEU!)',
+                content: '<strong>Automatische Hinderniserkennung!</strong><br><br>Erkennt:<br>• Straßensperrungen<br>• Baustellen<br>• Gesperrte Wege<br><br>Zeigt dir:<br>• Betroffene Segmente<br>• Alternative Routen<br>• Umgehungsvorschläge<br><br>💡 Button in der Toolbar!<br>💡 Nutzt OpenStreetMap Live-Daten',
+                spotlight: '[data-panel="route-surgery"]',
+                cardPosition: 'left'
+            },
+            {
                 icon: '🎉',
                 title: 'Los geht\'s!',
                 content: 'Du kennst jetzt alle Features!<br><br><strong>Starte deine erste Route:</strong><br>1. Klicke auf die Karte<br>2. Setze Wegpunkte<br>3. Route wird automatisch berechnet<br><br>Klicke auf <strong>?</strong> um dieses Tutorial jederzeit neu zu starten.<br><br><strong>Viel Spaß beim Planen! 🚴</strong>',
@@ -15040,6 +15055,20 @@
                 cardPosition: 'left'
             },
             {
+                icon: '🤖',
+                title: 'AI Route Generator (NEW!)',
+                content: '<strong>Describe your route in words!</strong><br><br>Examples:<br>• "50km gravel from Munich"<br>• "80km via Tegernsee back"<br>• "Road bike, quiet roads, flat"<br><br>AI automatically plans:<br>• Start & destination<br>• POIs & waypoints<br>• Round trips<br>• Distance & direction<br><br>💡 Click <strong>🤖</strong> in toolbar!',
+                spotlight: '[data-panel="ai-generator"]',
+                cardPosition: 'left'
+            },
+            {
+                icon: '🔧',
+                title: 'Route Surgery (NEW!)',
+                content: '<strong>Automatic obstacle detection!</strong><br><br>Detects:<br>• Road closures<br>• Construction sites<br>• Blocked paths<br><br>Shows you:<br>• Affected segments<br>• Alternative routes<br>• Detour suggestions<br><br>💡 Button in toolbar!<br>💡 Uses OpenStreetMap live data',
+                spotlight: '[data-panel="route-surgery"]',
+                cardPosition: 'left'
+            },
+            {
                 icon: '🎉',
                 title: 'Let\'s Go!',
                 content: 'You now know all features!<br><br><strong>Start your first route:</strong><br>1. Click on the map<br>2. Set waypoints<br>3. Route calculates automatically<br><br>Click <strong>?</strong> to restart this tutorial anytime.<br><br><strong>Happy Planning! 🚴</strong>',
@@ -15130,40 +15159,100 @@
             if (step.spotlight) {
                 const el = document.querySelector(step.spotlight);
                 if (el) {
-                    const rect = el.getBoundingClientRect();
-                    spotlight.style.left = (rect.left - 10) + 'px';
-                    spotlight.style.top = (rect.top - 10) + 'px';
-                    spotlight.style.width = (rect.width + 20) + 'px';
-                    spotlight.style.height = (rect.height + 20) + 'px';
-                    spotlight.style.display = 'block';
+                    // Scroll element into view first (for scrollable toolbars)
+                    const toolbar = document.getElementById('floatingToolbar');
+                    const isInToolbar = toolbar && toolbar.contains(el);
+                    
+                    if (isInToolbar) {
+                        // Scroll element into center of toolbar
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Wait for scroll animation, then position spotlight
+                        setTimeout(() => {
+                            positionSpotlight(el);
+                        }, 400);
+                    } else {
+                        // Not in toolbar, position immediately
+                        positionSpotlight(el);
+                    }
+                } else {
+                    spotlight.style.display = 'none';
                 }
             } else {
                 spotlight.style.display = 'none';
             }
             
-            // Improved card positioning - keep visible on screen
+            // CRITICAL FIX: ALWAYS center card and ensure full visibility
             const w = window.innerWidth;
             const h = window.innerHeight;
-            const cw = 500;
+            const cw = Math.min(500, w - 80); // Card width (responsive)
+            const minPadding = 40;
             
-            // Wait for card to render to get real height
+            // Wait for card to render
             setTimeout(() => {
                 const ch = card.offsetHeight;
+                const maxAllowedHeight = h - (minPadding * 2);
                 
-                if (step.cardPosition === 'center') {
-                    card.style.left = `${Math.max(20, (w - cw) / 2)}px`;
-                    card.style.top = `${Math.max(20, Math.min((h - ch) / 2, h - ch - 20))}px`;
-                } else if (step.cardPosition === 'left') {
-                    const el = document.querySelector(step.spotlight || '#floatingToolbar');
-                    if (el) {
-                        const rect = el.getBoundingClientRect();
-                        const leftPos = Math.max(20, rect.left - cw - 40);
-                        const topPos = Math.max(20, Math.min(rect.top, h - ch - 20));
-                        card.style.left = `${leftPos}px`;
-                        card.style.top = `${topPos}px`;
+                // ALWAYS CENTER - ignore cardPosition for now
+                // (Users can drag if they want different position)
+                
+                let topPos, leftPos;
+                
+                // Center horizontally
+                leftPos = Math.max(minPadding, (w - cw) / 2);
+                
+                // Check if card fits vertically
+                if (ch > maxAllowedHeight) {
+                    // Card too tall - add scrollbar and position at top
+                    card.style.maxHeight = `${maxAllowedHeight}px`;
+                    card.style.overflowY = 'auto';
+                    topPos = minPadding;
+                    console.log('⚠️ Card too tall, adding scrollbar');
+                } else {
+                    // Card fits - center it vertically
+                    card.style.maxHeight = 'none';
+                    card.style.overflowY = 'visible';
+                    topPos = Math.max(minPadding, (h - ch) / 2);
+                    
+                    // Safety check - ensure not off bottom
+                    if (topPos + ch > h - minPadding) {
+                        topPos = h - ch - minPadding;
+                        console.log('⚠️ Card would be off-screen, moving up');
                     }
                 }
-            }, 50);
+                
+                card.style.left = `${leftPos}px`;
+                card.style.top = `${topPos}px`;
+                card.style.position = 'fixed';
+                
+                console.log('📐 Card CENTERED:', {
+                    screen: `${w}x${h}`,
+                    card: `${cw}x${ch}`,
+                    position: `${leftPos},${topPos}`,
+                    buttonsAt: topPos + ch,
+                    screenBottom: h - minPadding,
+                    buttonsVisible: (topPos + ch) <= (h - minPadding),
+                    hasScrollbar: card.style.overflowY === 'auto'
+                });
+            }, 100);
+        }
+        
+        // Helper function to position spotlight accounting for scroll
+        function positionSpotlight(el) {
+            const rect = el.getBoundingClientRect();
+            spotlight.style.left = (rect.left - 10) + 'px';
+            spotlight.style.top = (rect.top - 10) + 'px';
+            spotlight.style.width = (rect.width + 20) + 'px';
+            spotlight.style.height = (rect.height + 20) + 'px';
+            spotlight.style.display = 'block';
+            
+            console.log('✨ Spotlight positioned:', {
+                element: el.id || el.className,
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height
+            });
         }
         
         function nextStep() {
@@ -15206,6 +15295,87 @@
         // Expose globally
         window.startTutorial = startTutorial;
         console.log('✅ Tutorial system initialized');
+        
+        // ==========================================
+        // MAKE TUTORIAL CARD DRAGGABLE
+        // ==========================================
+        
+        (function makeTutorialCardDraggable() {
+            const tutorialCard = document.getElementById('tutorialCard');
+            const tutorialHeader = document.getElementById('tutorialCardHeader');
+            
+            if (!tutorialCard || !tutorialHeader) {
+                console.warn('⚠️ Tutorial card drag elements not found');
+                return;
+            }
+            
+            let isDragging = false;
+            let currentX, currentY, initialX, initialY;
+            let xOffset = 0, yOffset = 0;
+            
+            tutorialHeader.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+            
+            // Touch support
+            tutorialHeader.addEventListener('touchstart', dragStart);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', dragEnd);
+            
+            function dragStart(e) {
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                
+                if (e.target === tutorialHeader || tutorialHeader.contains(e.target)) {
+                    isDragging = true;
+                    tutorialCard.style.transition = 'none';
+                }
+            }
+            
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    
+                    // Prevent dragging off screen
+                    const rect = tutorialCard.getBoundingClientRect();
+                    const maxX = window.innerWidth - rect.width - 20;
+                    const maxY = window.innerHeight - rect.height - 20;
+                    
+                    const clampedX = Math.max(20, Math.min(currentX + parseInt(tutorialCard.style.left || 0), maxX));
+                    const clampedY = Math.max(20, Math.min(currentY + parseInt(tutorialCard.style.top || 0), maxY));
+                    
+                    tutorialCard.style.left = clampedX + 'px';
+                    tutorialCard.style.top = clampedY + 'px';
+                }
+            }
+            
+            function dragEnd() {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    tutorialCard.style.transition = 'all 0.3s ease';
+                }
+            }
+            
+            console.log('✅ Tutorial card draggable initialized');
+        })();
     })();
     
     // ==========================================
