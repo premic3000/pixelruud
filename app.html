@@ -26,6 +26,51 @@
     <script data-goatcounter="https://pixelruud.goatcounter.com/count"
             async src="//gc.zgo.at/count.js"></script>
     
+    <!-- Custom Event Tracking for PixelRuud Features -->
+    <script>
+    (function() {
+        'use strict';
+        
+        // Wait for GoatCounter to load
+        window.addEventListener('load', function() {
+            console.log('📊 Initializing PixelRuud event tracking...');
+            
+            // Central tracking function
+            window.trackPixelRuudEvent = function(eventName, details = {}) {
+                if (!window.goatcounter) {
+                    console.log('📊 Event (tracking not ready):', eventName, details);
+                    return;
+                }
+                
+                const title = details.title || eventName;
+                const path = `event-${eventName.toLowerCase().replace(/\s+/g, '-')}`;
+                
+                try {
+                    window.goatcounter.count({
+                        path: path,
+                        title: title,
+                        event: true
+                    });
+                    console.log('📊 Tracked:', eventName, '-', title);
+                } catch (e) {
+                    console.warn('Failed to track event:', e);
+                }
+            };
+            
+            // Track page load
+            setTimeout(function() {
+                if (window.trackPixelRuudEvent) {
+                    window.trackPixelRuudEvent('App Loaded', { 
+                        title: 'PixelRuud Loaded' 
+                    });
+                }
+            }, 1000);
+            
+            console.log('✅ Event tracking ready');
+        });
+    })();
+    </script>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         /* Consolas Font wird system-weit verwendet (keine Import nötig) */
@@ -11482,7 +11527,14 @@
             a.download = 'route.gpx';
             a.click();
             
-            // Track GPX export
+            // ✅ TRACK: GPX Export
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('GPX Export', {
+                    title: `GPX: ${waypoints.length} waypoints`
+                });
+            }
+            
+            // Track GPX export (old tracking, keeping for compatibility)
             trackEvent('gpx-exported');
         }
         
@@ -15110,6 +15162,15 @@
         function endTutorial() {
             overlay.classList.remove('active');
             localStorage.setItem('pixelruud_tutorial_completed', 'true');
+            
+            // ✅ TRACK: Tutorial Completed
+            if (window.trackPixelRuudEvent) {
+                const language = currentLanguage || 'de';
+                window.trackPixelRuudEvent('Tutorial Completed', {
+                    title: `Tutorial: ${language}`
+                });
+            }
+            
             console.log('✅ Tutorial completed');
         }
         
@@ -15604,6 +15665,15 @@
                     // Add original prompt to parsed data for round trip detection
                     currentParsedRoute = {...data.parsed, prompt: prompt};
                     showAIResult(data.parsed, data.metadata?.cost);
+                    
+                    // ✅ TRACK: AI Route Generated Successfully
+                    if (window.trackPixelRuudEvent) {
+                        const distance = data.parsed.distance || '?';
+                        const type = data.parsed.type || 'mixed';
+                        window.trackPixelRuudEvent('AI Route Generated', {
+                            title: `AI: ${distance}km ${type}`
+                        });
+                    }
                 } else {
                     throw new Error('No route parsed');
                 }
@@ -15611,6 +15681,13 @@
             } catch (error) {
                 console.error('❌ AI Generation error:', error);
                 showError(error.message || 'Error generating route. Is the backend server running?');
+                
+                // ❌ TRACK: AI Route Failed
+                if (window.trackPixelRuudEvent) {
+                    window.trackPixelRuudEvent('AI Route Failed', {
+                        title: `Error: ${error.message || 'Unknown'}`
+                    });
+                }
             } finally {
                 loading.classList.remove('show');
                 generateBtn.disabled = false;
