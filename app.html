@@ -3825,6 +3825,44 @@
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
         }
         
+        .ai-generator-options {
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(0, 50, 100, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 8px;
+        }
+        
+        .ai-option-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .ai-option-checkbox input[type="checkbox"] {
+            margin-top: 2px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ccff00;
+        }
+        
+        .ai-option-checkbox span {
+            flex: 1;
+            color: #00f0ff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .ai-option-hint {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 4px;
+            margin-left: 28px;
+        }
+        
         .ai-generate-btn {
             width: 100%;
             padding: 12px;
@@ -4027,6 +4065,14 @@
             <button class="ai-example-btn" data-example="50km flat gravel route from Berlin to Potsdam">50km flat</button>
             <button class="ai-example-btn" data-example="100km road bike route with lots of elevation in the Alps">100km HM</button>
             <button class="ai-example-btn" data-example="40km MTB trail with technical climbs in Bavaria">MTB Trail</button>
+        </div>
+        
+        <div class="ai-generator-options">
+            <label class="ai-option-checkbox">
+                <input type="checkbox" id="aiAutoWaypointsCheckbox" checked>
+                <span>🎯 Auto-Zwischenpunkte für Rundkurse</span>
+                <div class="ai-option-hint">Generiert automatisch Wegpunkte für Rundtouren ohne POIs</div>
+            </label>
         </div>
         
         <button class="ai-generate-btn" id="aiGenerateBtn">
@@ -15978,6 +16024,25 @@
                 directionLower.includes('loop');
             
             console.log('🔄 Round trip detected:', isRoundTrip, '(from prompt or direction)');
+            
+            // 3.5 AUTO-WAYPOINTS: If round trip WITHOUT POIs and checkbox is checked
+            const autoWaypointsCheckbox = document.getElementById('aiAutoWaypointsCheckbox');
+            const autoWaypointsEnabled = autoWaypointsCheckbox ? autoWaypointsCheckbox.checked : true;
+            
+            if (isRoundTrip && waypoints.length === 1 && autoWaypointsEnabled) {
+                console.log('🎯 Auto-generating intermediate waypoint for round trip...');
+                
+                const distance = parseInt(parsedRoute.distance) || 50;
+                const direction = parsedRoute.direction || 'south';
+                
+                // Calculate midpoint in specified direction
+                const halfDistance = distance / 2;
+                const midPoint = calculateEndPoint(startLocation, halfDistance, direction);
+                midPoint.name = `${halfDistance}km ${direction}`;
+                
+                waypoints.push(midPoint);
+                console.log(`  ✅ Added auto-waypoint: ${midPoint.name} at ${midPoint.lat.toFixed(5)}, ${midPoint.lon.toFixed(5)}`);
+            }
             
             // 4. Add end point
             if (isRoundTrip) {
