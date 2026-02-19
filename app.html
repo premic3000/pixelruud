@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud v3.32 - AI GENERATOR | Gravel Route Planner</title>
+    <title>Pixelruud v3.47 - AI GENERATOR geocoding | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -15832,7 +15832,11 @@
             console.log('📍 Geocoding location:', locationName);
             
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`);
+                // Use CORS proxy to avoid CORS issues with Nominatim
+                const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(nominatimUrl)}`;
+                
+                const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
