@@ -16412,13 +16412,37 @@
                     await calculateRoutes();
                     
                     console.log('✅ AI Route fully integrated into PixelRuud!');
-                    
+
                     // Success
                     applyBtn.textContent = '✅ Route integrated!';
                     applyBtn.style.background = 'linear-gradient(135deg, #00ff41, #00dd38)';
                     
                     setTimeout(() => {
                         container.classList.remove('show');
+                        
+                        // 7. Karte zur Route springen – NACH Modal-Close damit resize fertig ist
+                        setTimeout(() => {
+                            try {
+                                if (routeLines && routeLines.length > 0) {
+                                    // Beste Option: Bounds direkt von der gezeichneten Route
+                                    const bounds = routeLines[0].getBounds();
+                                    map.flyToBounds(bounds, { padding: [60, 60], duration: 1.5 });
+                                    console.log('🗺️ Karte zur AI-Route geflogen (via routeLines)');
+                                } else if (waypoints && waypoints.length > 0) {
+                                    // Fallback: Waypoint-Koordinaten
+                                    const lats = waypoints.map(wp => wp.lat);
+                                    const lngs = waypoints.map(wp => wp.lng);
+                                    const bounds = L.latLngBounds(
+                                        [Math.min(...lats), Math.min(...lngs)],
+                                        [Math.max(...lats), Math.max(...lngs)]
+                                    );
+                                    map.flyToBounds(bounds, { padding: [60, 60], duration: 1.5 });
+                                    console.log('🗺️ Karte zur AI-Route geflogen (via waypoints)');
+                                }
+                            } catch (boundsErr) {
+                                console.warn('⚠️ flyToBounds fehlgeschlagen:', boundsErr);
+                            }
+                        }, 400); // kurz warten bis Modal-Animation fertig + map resize
                         
                         setTimeout(() => {
                             applyBtn.textContent = '📍 Show route on map';
