@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud v3.32 - AI GENERATOR | Gravel Route Planner</title>
+    <title>Pixelruud v3.49 - AI ROUTE PLANNER | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -5982,7 +5982,7 @@
             setupProximityFading();
             
             console.log('✓ App initialisiert (inkl. POI + Adresssuche + Lupe + Route-Bibliothek)');
-            console.log('🎯 PixelRuud v3.31 - DRAGEND FIXED - Debounced waypoint dragging with race condition prevention');
+            console.log('🎯 PixelRuud v3.49 - AI Route Fallback Chain: BRouter → GraphHopper → OSRM');
             
         } catch (error) {
             // Catch any initialization errors
@@ -15994,6 +15994,10 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('❌ BRouter response:', errorText);
+                    // Check if it's a coverage issue → trigger fallback
+                    if (response.status === 400 && errorText.includes('not mapped')) {
+                        throw new Error('BROUTER_COVERAGE');
+                    }
                     throw new Error(`BRouter API error: ${response.status}`);
                 }
                 
@@ -16005,6 +16009,130 @@
                 console.error('❌ BRouter error:', error);
                 throw error;
             }
+        }
+
+        // AI Route Generator: GraphHopper fallback (wenn User API Key hat)
+        async function generateRouteWithGraphHopperAI(waypoints, profile) {
+            const apiKey = localStorage.getItem('graphhopper_api_key');
+            if (!apiKey) {
+                console.log('⏭️ GraphHopper: kein API Key → überspringe');
+                return null;
+            }
+
+            console.log('🗺️ Fallback: GraphHopper mit', waypoints.length, 'Waypoints...');
+
+            // GraphHopper supports multi-point via repeated `point` params
+            const profileMap = { 'gravel': 'bike', 'road': 'racingbike', 'mtb': 'mtb' };
+            const vehicle = profileMap[profile] || 'bike';
+
+            // Build URL manually because URLSearchParams deduplicates `point`
+            const pointParams = waypoints.map(wp => `point=${wp.lat},${wp.lon}`).join('&');
+            const url = `https://graphhopper.com/api/1/route?${pointParams}&vehicle=${vehicle}&locale=de&points_encoded=false&elevation=true&key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errText = await response.text();
+                    console.warn('❌ GraphHopper fallback fehlgeschlagen:', errText);
+                    return null;
+                }
+                const data = await response.json();
+                if (!data.paths || data.paths.length === 0) {
+                    console.warn('❌ GraphHopper: keine Route zurückgegeben');
+                    return null;
+                }
+
+                // Convert GraphHopper response → GeoJSON compatible with convertBRouterToWaypoints
+                const coords = data.paths[0].points.coordinates; // [lon, lat, ele]
+                console.log('✅ GraphHopper Fallback erfolgreich:', coords.length, 'Punkte');
+                return {
+                    features: [{
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: coords // already [lon, lat, ele]
+                        }
+                    }]
+                };
+            } catch (err) {
+                console.warn('❌ GraphHopper Fallback Error:', err);
+                return null;
+            }
+        }
+
+        // AI Route Generator: OSRM fallback (immer verfügbar, kein Key nötig)
+        async function generateRouteWithOSRMAI(waypoints) {
+            console.log('🌍 Fallback: OSRM mit', waypoints.length, 'Waypoints...');
+
+            // OSRM multi-waypoint: /route/v1/bike/lon1,lat1;lon2,lat2;...
+            const coords = waypoints.map(wp => `${wp.lon},${wp.lat}`).join(';');
+            const url = `https://router.project-osrm.org/route/v1/bike/${coords}?geometries=geojson&overview=full`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.warn('❌ OSRM fallback fehlgeschlagen:', response.status);
+                    return null;
+                }
+                const data = await response.json();
+                if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                    console.warn('❌ OSRM: keine Route zurückgegeben');
+                    return null;
+                }
+
+                // Convert OSRM response → GeoJSON compatible with convertBRouterToWaypoints
+                const coords_geojson = data.routes[0].geometry.coordinates; // [lon, lat]
+                console.log('✅ OSRM Fallback erfolgreich:', coords_geojson.length, 'Punkte');
+                return {
+                    features: [{
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: coords_geojson
+                        }
+                    }]
+                };
+            } catch (err) {
+                console.warn('❌ OSRM Fallback Error:', err);
+                return null;
+            }
+        }
+
+        // Wrapper: versucht BRouter → GraphHopper (wenn Key) → OSRM
+        async function generateRouteWithFallback(waypoints, profile, statusCallback) {
+            // 1. BRouter
+            try {
+                statusCallback('🌐 Calling BRouter...');
+                const geojson = await generateRouteWithBRouter(waypoints, profile);
+                console.log('✅ Route via BRouter');
+                return geojson;
+            } catch (err) {
+                if (err.message === 'BROUTER_COVERAGE') {
+                    console.warn('⚠️ BRouter: Region nicht abgedeckt → Fallback');
+                } else {
+                    console.warn('⚠️ BRouter fehlgeschlagen → Fallback:', err.message);
+                }
+            }
+
+            // 2. GraphHopper (wenn User API Key gesetzt)
+            const ghKey = localStorage.getItem('graphhopper_api_key');
+            if (ghKey) {
+                statusCallback('🗺️ Trying GraphHopper...');
+                const ghResult = await generateRouteWithGraphHopperAI(waypoints, profile);
+                if (ghResult) {
+                    console.log('✅ Route via GraphHopper Fallback');
+                    return ghResult;
+                }
+            }
+
+            // 3. OSRM (immer verfügbar)
+            statusCallback('🌍 Trying OSRM (global fallback)...');
+            const osrmResult = await generateRouteWithOSRMAI(waypoints);
+            if (osrmResult) {
+                console.log('✅ Route via OSRM Fallback');
+                return osrmResult;
+            }
+
+            // Alles fehlgeschlagen
+            throw new Error('Routing fehlgeschlagen. BRouter, GraphHopper und OSRM konnten keine Route berechnen. Bitte Startpunkt und Ziel prüfen.');
         }
         
         async function buildRouteWaypoints(parsedRoute) {
@@ -16264,9 +16392,12 @@
                     const profile = selectBRouterProfile(currentParsedRoute.type);
                     console.log('🚴 Using profile:', profile);
                     
-                    // 3. Generate route with BRouter (multi-waypoint)
-                    applyBtn.textContent = '🌐 Calling BRouter...';
-                    const geojson = await generateRouteWithBRouter(routeWaypoints, profile);
+                    // 3. Generate route with Fallback Chain: BRouter → GraphHopper → OSRM
+                    const geojson = await generateRouteWithFallback(
+                        routeWaypoints,
+                        profile,
+                        (msg) => { applyBtn.textContent = msg; }
+                    );
                     
                     // 4. Convert to PixelRuud waypoints
                     applyBtn.textContent = '🔄 Converting to waypoints...';
