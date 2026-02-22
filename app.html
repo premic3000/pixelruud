@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud v3.50 - AI ROUTE PLANNER | Gravel Route Planner</title>
+    <title>Pixelruud v3.51 - AI ROUTE PLANNER | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -5692,7 +5692,7 @@
             
             try {
                 // Load user preferences
-                const { data: prefs, error } = await supabase
+                const { data: prefs, error } = await sb
                     .from('user_preferences')
                     .select('*')
                     .eq('user_id', currentUser.id)
@@ -5706,7 +5706,7 @@
                 
                 // Load subscription status (for premium later)
                 if (PIXELRUUD_CONFIG.PREMIUM_ENABLED) {
-                    const { data: sub } = await supabase
+                    const { data: sub } = await sb
                         .from('subscriptions')
                         .select('*')
                         .eq('user_id', currentUser.id)
@@ -5770,7 +5770,7 @@
             
             trackEvent('Route Saved', { storage: 'cloud' });
             
-            const { data, error } = await supabase
+            const { data, error } = await sb
                 .from('user_routes')
                 .insert({
                     user_id: currentUser.id,
@@ -5798,7 +5798,7 @@
         async function loadRoutesFromCloud() {
             if (!currentUser) return [];
             
-            const { data, error } = await supabase
+            const { data, error } = await sb
                 .from('user_routes')
                 .select('*')
                 .eq('user_id', currentUser.id)
@@ -5846,10 +5846,14 @@
                             currentUser = session.user;
                             loadUserData();
                             updateUIForAuthState(true);
+                            // Sync wardrobe from cloud on login
+                            syncWardrobeFromCloud();
                         } else if (event === 'SIGNED_OUT') {
                             currentUser = null;
                             userSubscription = null;
                             updateUIForAuthState(false);
+                            // Clear wardrobe cache on logout (keep localStorage as fallback)
+                            console.log('🚪 Logged out - wardrobe stays in localStorage');
                         }
                         // Ignore INITIAL_SESSION to prevent loops
                     });
@@ -5863,6 +5867,77 @@
             }
         }, 1000); // Wait 1 second for Supabase script to load
         
+        // ==========================================
+        // WARDROBE CLOUD SYNC
+        // ==========================================
+
+        async function syncWardrobeFromCloud() {
+            if (!currentUser || !sb) return;
+            try {
+                const { data, error } = await sb
+                    .from('wardrobe_items')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    console.warn('⚠️ wardrobe_items table not found - using localStorage only');
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    // Map cloud data to local format
+                    const items = data.map(row => ({
+                        name:      row.name,
+                        meta:      row.meta,
+                        temp:      row.temp,
+                        icon:      row.icon,
+                        layer:     row.layer,
+                        addedAt:   row.created_at,
+                        cloud_id:  row.id
+                    }));
+                    localStorage.setItem('pixelruud_wardrobe_v1', JSON.stringify(items));
+                    console.log(`✅ Wardrobe synced from cloud: ${items.length} items`);
+                }
+            } catch (e) {
+                console.warn('Wardrobe cloud sync failed:', e.message);
+            }
+        }
+
+        async function saveWardrobeItemToCloud(item) {
+            if (!currentUser || !sb) return null;
+            try {
+                const { data, error } = await sb
+                    .from('wardrobe_items')
+                    .insert({
+                        user_id: currentUser.id,
+                        name:    item.name,
+                        meta:    item.meta    || '',
+                        temp:    item.temp    || '',
+                        icon:    item.icon    || '👕',
+                        layer:   item.layer   || ''
+                    })
+                    .select()
+                    .single();
+                if (error) { console.warn('Cloud save failed:', error.message); return null; }
+                console.log('☁️ Wardrobe item saved to cloud:', item.name);
+                return data;
+            } catch (e) {
+                console.warn('Cloud save error:', e.message);
+                return null;
+            }
+        }
+
+        async function deleteWardrobeItemFromCloud(cloudId) {
+            if (!currentUser || !sb || !cloudId) return;
+            try {
+                await sb.from('wardrobe_items').delete().eq('id', cloudId);
+                console.log('☁️ Wardrobe item deleted from cloud:', cloudId);
+            } catch (e) {
+                console.warn('Cloud delete error:', e.message);
+            }
+        }
+
         // ==========================================
         // ORIGINAL APP CODE STARTS HERE
         // ==========================================
@@ -16683,8 +16758,13 @@
                 </div>
             `).join('');
             list.querySelectorAll('.wardrobe-item-delete').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
                     const items = loadWardrobe();
+                    const item  = items[parseInt(btn.dataset.idx)];
+                    // Delete from cloud if logged in and item has cloud_id
+                    if (currentUser && sb && item && item.cloud_id) {
+                        await deleteWardrobeItemFromCloud(item.cloud_id);
+                    }
                     items.splice(parseInt(btn.dataset.idx), 1);
                     saveWardrobe(items);
                     renderItemsList();
@@ -16850,7 +16930,7 @@
             document.getElementById('previewLayer').value = item.layer || '';
             document.getElementById('wardrobeItemPreview').style.display = 'block';
         }
-        document.getElementById('wardrobeSaveItem').addEventListener('click', () => {
+        document.getElementById('wardrobeSaveItem').addEventListener('click', async () => {
             const name  = document.getElementById('previewName').value.trim();
             const meta  = document.getElementById('previewMeta').value.trim();
             const temp  = document.getElementById('previewTemp').value.trim();
@@ -16858,18 +16938,27 @@
             const layer = document.getElementById('previewLayer').value || '';
             const status = document.getElementById('wardrobeAddStatus');
             if (!name) { status.textContent = '⚠️ Name darf nicht leer sein.'; return; }
+
+            const newItem = { name, meta, temp, icon, layer, addedAt: new Date().toISOString() };
+
+            // Save to cloud if logged in
+            if (currentUser && sb) {
+                const cloudData = await saveWardrobeItemToCloud(newItem);
+                if (cloudData) newItem.cloud_id = cloudData.id;
+            }
+
             const items = loadWardrobe();
-            items.push({ name, meta, temp, icon, layer, addedAt: new Date().toISOString() });
+            items.push(newItem);
             saveWardrobe(items);
             document.getElementById('wardrobeUrl').value = '';
             document.getElementById('wardrobePhotoPreview').style.display = 'none';
             document.getElementById('wardrobeItemPreview').style.display = 'none';
-            status.textContent = `✅ "${name}" gespeichert!`;
+            status.textContent = currentUser ? `✅ "${name}" gespeichert & mit Cloud synchronisiert!` : `✅ "${name}" gespeichert!`;
             updateOutfitWardrobeCount();
             setTimeout(() => {
                 document.querySelector('[data-wardrobe-tab="items"]').click();
                 status.textContent = '';
-            }, 1200);
+            }, 1500);
         });
 
         console.log('✅ Kleiderschrank initialized');
