@@ -12964,6 +12964,8 @@
             btn.addEventListener('click', () => {
                 // Skip tutorial button - it has its own handler
                 if (btn.id === 'tutorialBtn') return;
+                // Skip wardrobe button - it has its own modal handler
+                if (btn.id === 'wardrobeBtn') return;
                 
                 const panelType = btn.getAttribute('data-panel');
                 
