@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4045,264 +4045,61 @@
         /* KLEIDERSCHRANK / WARDROBE MODAL            */
         /* ========================================== */
         .wardrobe-container {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 560px;
-            max-width: 95vw;
-            max-height: 88vh;
+            display: none; position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 560px; max-width: 95vw; max-height: 88vh;
             background: linear-gradient(135deg, #001428, #002040);
-            border: 2px solid #00f0ff;
-            border-radius: 16px;
-            box-shadow: 0 0 60px rgba(0, 240, 255, 0.3), inset 0 0 40px rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            overflow: hidden;
-            flex-direction: column;
+            border: 2px solid #00f0ff; border-radius: 16px;
+            box-shadow: 0 0 60px rgba(0,240,255,0.3); z-index: 10000;
+            overflow: hidden; flex-direction: column;
         }
         .wardrobe-container.show { display: flex; }
-
         .wardrobe-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px; border-bottom: 1px solid rgba(0,240,255,0.2);
+            background: rgba(0,0,0,0.3); flex-shrink: 0;
         }
-        .wardrobe-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #00f0ff;
-            font-family: 'Consolas', monospace;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .wardrobe-close {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0 4px;
-        }
+        .wardrobe-title { font-size: 16px; font-weight: bold; color: #00f0ff; font-family: 'Consolas', monospace; letter-spacing: 2px; text-transform: uppercase; }
+        .wardrobe-close { background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; line-height: 1; padding: 0 4px; }
         .wardrobe-close:hover { color: #ff4444; }
-
-        .wardrobe-tabs {
-            display: flex;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
-            flex-shrink: 0;
-        }
-        .wardrobe-tab {
-            flex: 1;
-            padding: 10px 8px;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 12px;
-            font-family: 'Consolas', monospace;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
+        .wardrobe-tabs { display: flex; border-bottom: 1px solid rgba(0,240,255,0.15); flex-shrink: 0; }
+        .wardrobe-tab { flex: 1; padding: 10px 8px; background: none; border: none; color: #94a3b8; font-size: 12px; font-family: 'Consolas', monospace; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid transparent; transition: all 0.2s; }
         .wardrobe-tab:hover { color: #00f0ff; }
-        .wardrobe-tab.active {
-            color: #00f0ff;
-            border-bottom-color: #00f0ff;
-            background: rgba(0, 240, 255, 0.05);
-        }
-
-        .wardrobe-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
+        .wardrobe-tab.active { color: #00f0ff; border-bottom-color: #00f0ff; background: rgba(0,240,255,0.05); }
+        .wardrobe-body { flex: 1; overflow-y: auto; padding: 20px; }
         .wardrobe-body::-webkit-scrollbar { width: 6px; }
-        .wardrobe-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
         .wardrobe-body::-webkit-scrollbar-thumb { background: #00f0ff; border-radius: 3px; }
-
         .wardrobe-tab-content { display: none; }
         .wardrobe-tab-content.active { display: block; }
-
-        /* Add item section */
-        .wardrobe-add-section {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(0, 240, 255, 0.1);
-        }
-        .wardrobe-add-label {
-            font-size: 11px;
-            color: #94a3b8;
-            font-family: 'Consolas', monospace;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .wardrobe-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #003366;
-            border-radius: 8px;
-            color: #e2e8f0;
-            font-size: 13px;
-            padding: 10px 14px;
-            font-family: 'Consolas', monospace;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-            resize: none;
-        }
-        .wardrobe-input:focus {
-            outline: none;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-        }
+        .wardrobe-add-section { background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(0,240,255,0.1); }
+        .wardrobe-add-label { font-size: 11px; color: #94a3b8; font-family: 'Consolas', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .wardrobe-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #003366; border-radius: 8px; color: #e2e8f0; font-size: 13px; padding: 10px 14px; font-family: 'Consolas', monospace; box-sizing: border-box; transition: border-color 0.2s; resize: none; }
+        .wardrobe-input:focus { outline: none; border-color: #00f0ff; box-shadow: 0 0 10px rgba(0,240,255,0.2); }
         .wardrobe-input::placeholder { color: #475569; }
-
-        .wardrobe-btn {
-            width: 100%;
-            padding: 11px;
-            margin-top: 10px;
-            background: linear-gradient(135deg, #00b4d8, #0077b6);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 13px;
-            font-weight: bold;
-            font-family: 'Consolas', monospace;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .wardrobe-btn:hover {
-            background: linear-gradient(135deg, #00f0ff, #00b4d8);
-            color: #001428;
-            transform: translateY(-1px);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-        }
-        .wardrobe-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .wardrobe-btn.outfit-btn {
-            background: linear-gradient(135deg, #ccff00, #00ff41);
-            color: #001428;
-            margin-top: 0;
-        }
-        .wardrobe-btn.outfit-btn:hover {
-            background: linear-gradient(135deg, #ffff00, #ccff00);
-            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
-        }
-
-        /* Items list */
+        .wardrobe-btn { width: 100%; padding: 11px; margin-top: 10px; background: linear-gradient(135deg, #00b4d8, #0077b6); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: bold; font-family: 'Consolas', monospace; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .wardrobe-btn:hover { background: linear-gradient(135deg, #00f0ff, #00b4d8); color: #001428; transform: translateY(-1px); box-shadow: 0 0 20px rgba(0,240,255,0.4); }
+        .wardrobe-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .wardrobe-btn.outfit-btn { background: linear-gradient(135deg, #ccff00, #00ff41); color: #001428; margin-top: 0; }
+        .wardrobe-btn.outfit-btn:hover { background: linear-gradient(135deg, #ffff00, #ccff00); box-shadow: 0 0 20px rgba(204,255,0,0.4); }
         .wardrobe-items-list { display: flex; flex-direction: column; gap: 8px; }
-        .wardrobe-item-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(0, 240, 255, 0.15);
-            border-radius: 8px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            transition: border-color 0.2s;
-        }
-        .wardrobe-item-card:hover { border-color: rgba(0, 240, 255, 0.4); }
-        .wardrobe-item-icon {
-            font-size: 22px;
-            flex-shrink: 0;
-            width: 30px;
-            text-align: center;
-        }
+        .wardrobe-item-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,240,255,0.15); border-radius: 8px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; }
+        .wardrobe-item-icon { font-size: 22px; flex-shrink: 0; width: 30px; text-align: center; }
         .wardrobe-item-info { flex: 1; min-width: 0; }
-        .wardrobe-item-name {
-            font-size: 13px;
-            color: #e2e8f0;
-            font-weight: bold;
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .wardrobe-item-meta {
-            font-size: 11px;
-            color: #94a3b8;
-            font-family: 'Consolas', monospace;
-        }
-        .wardrobe-item-temp {
-            font-size: 11px;
-            color: #00f0ff;
-            font-family: 'Consolas', monospace;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .wardrobe-item-delete {
-            background: none;
-            border: none;
-            color: #475569;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0 2px;
-            flex-shrink: 0;
-            transition: color 0.2s;
-        }
+        .wardrobe-item-name { font-size: 13px; color: #e2e8f0; font-weight: bold; margin-bottom: 3px; }
+        .wardrobe-item-meta { font-size: 11px; color: #94a3b8; font-family: 'Consolas', monospace; }
+        .wardrobe-item-temp { font-size: 11px; color: #00f0ff; font-family: 'Consolas', monospace; white-space: nowrap; flex-shrink: 0; }
+        .wardrobe-item-delete { background: none; border: none; color: #475569; cursor: pointer; font-size: 16px; padding: 0 2px; flex-shrink: 0; transition: color 0.2s; }
         .wardrobe-item-delete:hover { color: #ff4444; }
-
-        .wardrobe-empty {
-            text-align: center;
-            color: #475569;
-            font-size: 13px;
-            font-family: 'Consolas', monospace;
-            padding: 30px 0;
-        }
+        .wardrobe-empty { text-align: center; color: #475569; font-size: 13px; font-family: 'Consolas', monospace; padding: 30px 0; }
         .wardrobe-empty-icon { font-size: 40px; margin-bottom: 12px; }
-
-        /* Outfit recommendation result */
-        .outfit-result {
-            display: none;
-            margin-top: 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid #ccff00;
-            border-radius: 12px;
-            padding: 16px;
-        }
+        .outfit-result { display: none; margin-top: 16px; background: rgba(0,0,0,0.4); border: 2px solid #ccff00; border-radius: 12px; padding: 16px; }
         .outfit-result.show { display: block; }
-        .outfit-result-title {
-            font-size: 12px;
-            color: #ccff00;
-            font-family: 'Consolas', monospace;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-        .outfit-result-text {
-            font-size: 13px;
-            color: #e2e8f0;
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }
-        .wardrobe-cost-info {
-            font-size: 11px;
-            color: #475569;
-            text-align: center;
-            margin-top: 10px;
-            font-family: 'Consolas', monospace;
-        }
-        .wardrobe-status {
-            font-size: 12px;
-            color: #00f0ff;
-            font-family: 'Consolas', monospace;
-            text-align: center;
-            margin-top: 8px;
-            min-height: 18px;
-        }
+        .outfit-result-title { font-size: 12px; color: #ccff00; font-family: 'Consolas', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .outfit-result-text { font-size: 13px; color: #e2e8f0; line-height: 1.7; white-space: pre-wrap; }
+        .wardrobe-cost-info { font-size: 11px; color: #475569; text-align: center; margin-top: 10px; font-family: 'Consolas', monospace; }
+        .wardrobe-status { font-size: 12px; color: #00f0ff; font-family: 'Consolas', monospace; text-align: center; margin-top: 8px; min-height: 18px; }
+        
+    </style>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
@@ -4487,6 +4284,9 @@
             </svg>
             <span class="toolbar-badge" id="surgeryBadge" style="display: none;">0</span>
         </button>
+        
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
 
         <!-- 14. Kleiderschrank -->
         <button class="toolbar-btn" id="wardrobeBtn" title="Kleiderschrank – Outfit Empfehlung">
@@ -4516,70 +4316,46 @@
             <div class="wardrobe-title">👕 Kleiderschrank</div>
             <button class="wardrobe-close" id="wardrobeClose">×</button>
         </div>
-
         <div class="wardrobe-tabs">
-            <button class="wardrobe-tab active" data-wardrobe-tab="outfit">🎽 Outfit Empfehlung</button>
+            <button class="wardrobe-tab active" data-wardrobe-tab="outfit">🎽 Outfit</button>
             <button class="wardrobe-tab" data-wardrobe-tab="add">➕ Hinzufügen</button>
             <button class="wardrobe-tab" data-wardrobe-tab="items">👗 Meine Klamotten</button>
         </div>
-
         <div class="wardrobe-body">
-
-            <!-- TAB: Outfit Empfehlung -->
+            <!-- TAB: Outfit -->
             <div class="wardrobe-tab-content active" id="wardrobeTabOutfit">
                 <div class="wardrobe-add-section">
-                    <div class="wardrobe-add-label">🌡️ Route & Wetter Info</div>
-                    <div id="outfitRouteInfo" style="font-size:12px; color:#94a3b8; font-family:'Consolas',monospace; margin-bottom:12px; line-height:1.6;">
-                        Keine aktive Route gefunden. Bitte zuerst eine Route planen.
-                    </div>
+                    <div class="wardrobe-add-label">🌡️ Route & Wetter</div>
+                    <div id="outfitRouteInfo" style="font-size:12px;color:#94a3b8;font-family:'Consolas',monospace;margin-bottom:12px;line-height:1.6;">Keine aktive Route. Bitte zuerst eine Route planen.</div>
                     <div class="wardrobe-add-label" style="margin-top:12px;">💬 Zusätzliche Hinweise (optional)</div>
-                    <textarea class="wardrobe-input" id="outfitHints" rows="2"
-                        placeholder="z.B. Ich friere schnell, oder: Ich schwitze viel..."></textarea>
-                    <div id="outfitWardroveCount" style="font-size:11px; color:#475569; font-family:'Consolas',monospace; margin-top:6px;"></div>
+                    <textarea class="wardrobe-input" id="outfitHints" rows="2" placeholder="z.B. Ich friere schnell..."></textarea>
+                    <div id="outfitWardrobeCount" style="font-size:11px;color:#475569;font-family:'Consolas',monospace;margin-top:6px;"></div>
                 </div>
-
-                <button class="wardrobe-btn outfit-btn" id="outfitGenerateBtn">
-                    🤖 Outfit empfehlen lassen
-                </button>
+                <button class="wardrobe-btn outfit-btn" id="outfitGenerateBtn">🤖 Outfit empfehlen lassen</button>
                 <div class="wardrobe-cost-info">~$0.004 pro Empfehlung · KI-gestützt</div>
                 <div class="wardrobe-status" id="outfitStatus"></div>
-
                 <div class="outfit-result" id="outfitResult">
                     <div class="outfit-result-title">✅ Dein Outfit für heute</div>
                     <div class="outfit-result-text" id="outfitResultText"></div>
                 </div>
             </div>
-
             <!-- TAB: Hinzufügen -->
             <div class="wardrobe-tab-content" id="wardrobeTabAdd">
                 <div class="wardrobe-add-section">
                     <div class="wardrobe-add-label">🔗 Produkt-URL einfügen</div>
-                    <input type="url" class="wardrobe-input" id="wardrobeUrl"
-                        placeholder="https://www.castelli-cycling.com/produkt...">
-                    <button class="wardrobe-btn" id="wardrobeAnalyzeUrl" style="margin-top:10px;">
-                        🤖 URL analysieren
-                    </button>
+                    <input type="url" class="wardrobe-input" id="wardrobeUrl" placeholder="https://www.castelli-cycling.com/produkt...">
+                    <button class="wardrobe-btn" id="wardrobeAnalyzeUrl">🤖 URL analysieren</button>
                 </div>
-
                 <div class="wardrobe-add-section">
                     <div class="wardrobe-add-label">📸 Oder Foto hochladen</div>
-                    <input type="file" id="wardrobePhotoInput" accept="image/*"
-                        style="display:none;">
-                    <button class="wardrobe-btn" id="wardrobePhotoBtn"
-                        style="background:linear-gradient(135deg,#003366,#001f3f); border:1px solid #003366;">
-                        📸 Foto auswählen
-                    </button>
-                    <div id="wardrobePhotoPreview" style="margin-top:10px; display:none;">
-                        <img id="wardrobePhotoImg" style="max-width:100%; border-radius:8px; border:1px solid #003366;">
-                        <button class="wardrobe-btn" id="wardrobeAnalyzePhoto" style="margin-top:8px;">
-                            🤖 Foto analysieren
-                        </button>
+                    <input type="file" id="wardrobePhotoInput" accept="image/*" style="display:none;">
+                    <button class="wardrobe-btn" id="wardrobePhotoBtn" style="background:linear-gradient(135deg,#003366,#001f3f);border:1px solid #003366;">📸 Foto auswählen</button>
+                    <div id="wardrobePhotoPreview" style="margin-top:10px;display:none;">
+                        <img id="wardrobePhotoImg" style="max-width:100%;border-radius:8px;border:1px solid #003366;">
+                        <button class="wardrobe-btn" id="wardrobeAnalyzePhoto" style="margin-top:8px;">🤖 Foto analysieren</button>
                     </div>
                 </div>
-
                 <div class="wardrobe-status" id="wardrobeAddStatus"></div>
-
-                <!-- Preview des analysierten Items -->
                 <div id="wardrobeItemPreview" style="display:none;">
                     <div class="wardrobe-add-section" style="border-color:rgba(204,255,0,0.3);">
                         <div class="wardrobe-add-label" style="color:#ccff00;">✅ Erkannt – bitte prüfen</div>
@@ -4588,25 +4364,20 @@
                         <input type="text" class="wardrobe-input" id="previewTemp" placeholder="Temperaturbereich z.B. 5–15°C" style="margin-bottom:8px;">
                         <input type="hidden" id="previewIcon">
                         <input type="hidden" id="previewLayer">
-                        <button class="wardrobe-btn" id="wardrobeSaveItem"
-                            style="background:linear-gradient(135deg,#ccff00,#00ff41); color:#001428;">
-                            💾 In Kleiderschrank speichern
-                        </button>
+                        <button class="wardrobe-btn" id="wardrobeSaveItem" style="background:linear-gradient(135deg,#ccff00,#00ff41);color:#001428;">💾 In Kleiderschrank speichern</button>
                     </div>
                 </div>
             </div>
-
             <!-- TAB: Meine Klamotten -->
             <div class="wardrobe-tab-content" id="wardrobeTabItems">
                 <div id="wardrobeItemsList" class="wardrobe-items-list">
                     <div class="wardrobe-empty">
                         <div class="wardrobe-empty-icon">👕</div>
                         <div>Noch keine Klamotten hinzugefügt.</div>
-                        <div style="margin-top:6px; font-size:11px;">Füge Kleidungsstücke über den Tab "Hinzufügen" ein.</div>
+                        <div style="margin-top:6px;font-size:11px;">Füge Kleidungsstücke über "Hinzufügen" ein.</div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -13104,11 +12875,6 @@
         const toolbar = document.getElementById('floatingToolbar');
         const dragHandle = document.getElementById('toolbarDragHandle');
         const panelsContainer = document.getElementById('floatingPanels');
-
-        if (!toolbar || !dragHandle || !panelsContainer) {
-            console.warn('Toolbar elements missing', {toolbar:!!toolbar, dragHandle:!!dragHandle, panelsContainer:!!panelsContainer});
-            return;
-        }
         
         let isDragging = false;
         let currentX, currentY, initialX, initialY;
@@ -16843,29 +16609,36 @@
     })();
 
     // ============================================================
-    // KLEIDERSCHRANK – WARDROBE FEATURE
+    // KLEIDERSCHRANK – WARDROBE FEATURE v3.50
     // ============================================================
     (() => {
         const STORAGE_KEY = 'pixelruud_wardrobe_v1';
-        const container   = document.getElementById('wardrobeContainer');
-        const closeBtn    = document.getElementById('wardrobeClose');
-        const openBtn     = document.getElementById('wardrobeBtn');
 
-        // ── Tabs ──────────────────────────────────────────────────
+        // Elements
+        const container = document.getElementById('wardrobeContainer');
+        const closeBtn  = document.getElementById('wardrobeClose');
+        const openBtn   = document.getElementById('wardrobeBtn');
+
+        if (!container || !closeBtn || !openBtn) {
+            console.warn('⚠️ Wardrobe elements not found');
+            return;
+        }
+
+        // ── Tabs ──────────────────────────────────────────────
         document.querySelectorAll('[data-wardrobe-tab]').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('[data-wardrobe-tab]').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.wardrobe-tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
-                document.getElementById('wardrobeTab' + capitalize(tab.dataset.wardrobeTab)).classList.add('active');
-                if (tab.dataset.wardrobeTab === 'items') renderItemsList();
-                if (tab.dataset.wardrobeTab === 'outfit') updateOutfitRouteInfo();
+                const name = tab.dataset.wardrobeTab;
+                const content = document.getElementById('wardrobeTab' + name.charAt(0).toUpperCase() + name.slice(1));
+                if (content) content.classList.add('active');
+                if (name === 'items') renderItemsList();
+                if (name === 'outfit') { updateOutfitRouteInfo(); updateOutfitWardrobeCount(); }
             });
         });
 
-        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-        // ── Open / Close ──────────────────────────────────────────
+        // ── Open / Close ──────────────────────────────────────
         openBtn.addEventListener('click', () => {
             container.classList.toggle('show');
             if (container.classList.contains('show')) {
@@ -16875,7 +16648,7 @@
         });
         closeBtn.addEventListener('click', () => container.classList.remove('show'));
 
-        // ── localStorage helpers ──────────────────────────────────
+        // ── Storage ───────────────────────────────────────────
         function loadWardrobe() {
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
             catch { return []; }
@@ -16883,17 +16656,17 @@
         function saveWardrobe(items) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         }
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
 
-        // ── Render items list ─────────────────────────────────────
+        // ── Items List ────────────────────────────────────────
         function renderItemsList() {
             const list  = document.getElementById('wardrobeItemsList');
             const items = loadWardrobe();
+            if (!list) return;
             if (items.length === 0) {
-                list.innerHTML = `<div class="wardrobe-empty">
-                    <div class="wardrobe-empty-icon">👕</div>
-                    <div>Noch keine Klamotten hinzugefügt.</div>
-                    <div style="margin-top:6px;font-size:11px;">Füge Kleidungsstücke über den Tab "Hinzufügen" ein.</div>
-                </div>`;
+                list.innerHTML = `<div class="wardrobe-empty"><div class="wardrobe-empty-icon">👕</div><div>Noch keine Klamotten hinzugefügt.</div></div>`;
                 return;
             }
             list.innerHTML = items.map((item, idx) => `
@@ -16918,164 +16691,118 @@
             });
         }
 
-        function escHtml(str) {
-            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        }
-
-        // ── Route info for outfit tab ─────────────────────────────
+        // ── Route Info ────────────────────────────────────────
         function updateOutfitRouteInfo() {
             const el = document.getElementById('outfitRouteInfo');
-            const info = collectRouteInfo();
-            if (!info) {
-                el.textContent = 'Keine aktive Route gefunden. Bitte zuerst eine Route planen.';
-                return;
-            }
-            el.innerHTML = `
-                📍 Start: <b style="color:#e2e8f0">${info.startCoords}</b><br>
-                📏 Distanz: <b style="color:#e2e8f0">${info.distance}</b> &nbsp;|&nbsp;
-                ⛰️ HM: <b style="color:#e2e8f0">${info.elevation}</b><br>
-                🕐 Startzeit: <b style="color:#e2e8f0">${info.time}</b> &nbsp;|&nbsp;
-                🌡️ Temp: <b style="color:#00f0ff">${info.temp}</b>
-            `;
-        }
-
-        function collectRouteInfo() {
+            if (!el) return;
             try {
-                // Distance + elevation from stats panel if available
-                const distEl = document.querySelector('.stat-value, #totalDistance, [id*="distance"]');
-                const elevEl = document.querySelector('[id*="elevation"], [id*="ascent"]');
-
-                // Use global waypoints for start coords
-                if (!window.waypoints || window.waypoints.length < 2) return null;
-                const start  = window.waypoints[0];
-                const coords = `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}`;
-
-                // Try to get distance from global routeStats or DOM
-                let distance = '?';
-                let elevation = '?';
+                if (!window.waypoints || window.waypoints.length < 2) {
+                    el.textContent = 'Keine aktive Route. Bitte zuerst eine Route planen.';
+                    return;
+                }
+                const start = window.waypoints[0];
+                let distance = '?', elevation = '?';
                 if (window.routeStats) {
                     distance  = (window.routeStats.totalDistance / 1000).toFixed(1) + ' km';
                     elevation = '+' + Math.round(window.routeStats.totalAscent || 0) + ' m';
-                } else {
-                    // Fallback: read from visible DOM elements
-                    const dEl = document.getElementById('statDistance') || document.getElementById('totalDistanceValue');
-                    const eEl = document.getElementById('statAscent')   || document.getElementById('totalAscentValue');
-                    if (dEl) distance  = dEl.textContent.trim();
-                    if (eEl) elevation = eEl.textContent.trim();
                 }
-
-                // Time: use weatherTimeDisplay if set, otherwise current time
                 const timeEl = document.getElementById('weatherTimeDisplay');
-                const time   = timeEl ? timeEl.textContent.trim() : new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-
-                // Temperature: try to find last fetched weather temp
-                let temp = 'Unbekannt';
-                const tempEl = document.querySelector('[data-weather-temp], .weather-temp-display');
-                if (tempEl) temp = tempEl.textContent.trim();
-                // Fallback: check weatherData if exists
-                if (temp === 'Unbekannt' && window.lastWeatherTemp) temp = window.lastWeatherTemp + '°C';
-
-                return { startCoords: coords, distance, elevation, time, temp };
+                const time   = timeEl ? timeEl.textContent.trim() : new Date().toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+                const temp   = window.lastWeatherTemp ? window.lastWeatherTemp + '°C' : 'Unbekannt';
+                el.innerHTML = `📍 Start: <b style="color:#e2e8f0">${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}</b><br>
+                    📏 Distanz: <b style="color:#e2e8f0">${distance}</b> &nbsp;|&nbsp; ⛰️ HM: <b style="color:#e2e8f0">${elevation}</b><br>
+                    🕐 Zeit: <b style="color:#e2e8f0">${time}</b> &nbsp;|&nbsp; 🌡️ Temp: <b style="color:#00f0ff">${temp}</b>`;
             } catch(e) {
-                console.warn('collectRouteInfo error:', e);
-                return null;
+                el.textContent = 'Routendaten nicht verfügbar.';
             }
         }
 
         function updateOutfitWardrobeCount() {
-            const el    = document.getElementById('outfitWardroveCount');
-            const items = loadWardrobe();
-            el.textContent = items.length === 0
-                ? '⚠️ Noch keine Kleidungsstücke im Schrank. Tab "Hinzufügen" verwenden.'
-                : `✓ ${items.length} Kleidungsstück${items.length !== 1 ? 'e' : ''} im Schrank`;
+            const el = document.getElementById('outfitWardrobeCount');
+            if (!el) return;
+            const n = loadWardrobe().length;
+            el.textContent = n === 0 ? '⚠️ Noch keine Kleidungsstücke. Tab "Hinzufügen" verwenden.' : `✓ ${n} Kleidungsstück${n !== 1 ? 'e' : ''} im Schrank`;
         }
 
-        // ── Outfit Recommendation ─────────────────────────────────
+        // ── Outfit Empfehlung ─────────────────────────────────
         document.getElementById('outfitGenerateBtn').addEventListener('click', async () => {
             const items = loadWardrobe();
-            if (items.length === 0) {
-                setOutfitStatus('⚠️ Bitte zuerst Kleidungsstücke hinzufügen.');
-                return;
-            }
-            const routeInfo = collectRouteInfo();
-            const hints     = document.getElementById('outfitHints').value.trim();
-            const btn       = document.getElementById('outfitGenerateBtn');
+            const statusEl = document.getElementById('outfitStatus');
+            if (items.length === 0) { statusEl.textContent = '⚠️ Bitte zuerst Kleidungsstücke hinzufügen.'; return; }
+
+            const btn = document.getElementById('outfitGenerateBtn');
             const resultEl  = document.getElementById('outfitResult');
             const resultTxt = document.getElementById('outfitResultText');
+            const hints = document.getElementById('outfitHints').value.trim();
 
-            btn.disabled = true;
-            btn.textContent = '⏳ KI analysiert...';
-            setOutfitStatus('🤖 Sende Anfrage...');
+            btn.disabled = true; btn.textContent = '⏳ KI analysiert...';
+            statusEl.textContent = '🤖 Sende Anfrage...';
             resultEl.classList.remove('show');
 
             try {
-                const payload = {
-                    wardrobe: items,
-                    routeInfo: routeInfo || null,
-                    hints: hints || null
-                };
+                const routeInfo = (() => {
+                    try {
+                        if (!window.waypoints || window.waypoints.length < 2) return null;
+                        const start = window.waypoints[0];
+                        let distance = '?', elevation = '?';
+                        if (window.routeStats) {
+                            distance  = (window.routeStats.totalDistance / 1000).toFixed(1) + ' km';
+                            elevation = '+' + Math.round(window.routeStats.totalAscent || 0) + ' m';
+                        }
+                        const timeEl = document.getElementById('weatherTimeDisplay');
+                        const time   = timeEl ? timeEl.textContent.trim() : 'Jetzt';
+                        const temp   = window.lastWeatherTemp ? window.lastWeatherTemp + '°C' : 'Unbekannt';
+                        return { startCoords: `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}`, distance, elevation, time, temp };
+                    } catch { return null; }
+                })();
 
-                const response = await fetch(`${AI_BACKEND_URL}/api/outfit-recommendation`, {
+                const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+
+                const response = await fetch(`${AI_URL}/api/outfit-recommendation`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ wardrobe: items, routeInfo, hints: hints || null })
                 });
-
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
-
                 resultTxt.textContent = data.recommendation;
                 resultEl.classList.add('show');
-                setOutfitStatus('');
+                statusEl.textContent = '';
             } catch (err) {
-                console.error('Outfit error:', err);
-                setOutfitStatus('❌ Fehler: ' + err.message);
+                statusEl.textContent = '❌ Fehler: ' + err.message;
             } finally {
-                btn.disabled = false;
-                btn.textContent = '🤖 Outfit empfehlen lassen';
+                btn.disabled = false; btn.textContent = '🤖 Outfit empfehlen lassen';
             }
         });
 
-        function setOutfitStatus(msg) {
-            document.getElementById('outfitStatus').textContent = msg;
-        }
-
-        // ── URL Analyse ───────────────────────────────────────────
+        // ── URL Analyse ───────────────────────────────────────
         document.getElementById('wardrobeAnalyzeUrl').addEventListener('click', async () => {
             const url    = document.getElementById('wardrobeUrl').value.trim();
             const status = document.getElementById('wardrobeAddStatus');
-            if (!url || !url.startsWith('http')) {
-                status.textContent = '⚠️ Bitte eine gültige URL eingeben.';
-                return;
-            }
+            if (!url || !url.startsWith('http')) { status.textContent = '⚠️ Bitte eine gültige URL eingeben.'; return; }
             const btn = document.getElementById('wardrobeAnalyzeUrl');
-            btn.disabled = true;
-            btn.textContent = '⏳ Analysiere URL...';
+            btn.disabled = true; btn.textContent = '⏳ Analysiere...';
             status.textContent = '🤖 KI liest Produktseite...';
-
             try {
-                const response = await fetch(`${AI_BACKEND_URL}/api/analyze-clothing`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                const response = await fetch(`${AI_URL}/api/analyze-clothing`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'url', url })
                 });
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
                 showItemPreview(data.item);
                 status.textContent = '';
-            } catch(err) {
-                status.textContent = '❌ Fehler: ' + err.message;
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '🤖 URL analysieren';
-            }
+            } catch(err) { status.textContent = '❌ Fehler: ' + err.message; }
+            finally { btn.disabled = false; btn.textContent = '🤖 URL analysieren'; }
         });
 
-        // ── Foto Upload ───────────────────────────────────────────
+        // ── Foto Upload ───────────────────────────────────────
         document.getElementById('wardrobePhotoBtn').addEventListener('click', () => {
             document.getElementById('wardrobePhotoInput').click();
         });
-
         document.getElementById('wardrobePhotoInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -17083,44 +16810,36 @@
             reader.onload = (ev) => {
                 document.getElementById('wardrobePhotoImg').src = ev.target.result;
                 document.getElementById('wardrobePhotoPreview').style.display = 'block';
-                // Store base64 for upload
                 document.getElementById('wardrobePhotoInput').dataset.base64 = ev.target.result.split(',')[1];
                 document.getElementById('wardrobePhotoInput').dataset.mime   = file.type;
             };
             reader.readAsDataURL(file);
         });
-
         document.getElementById('wardrobeAnalyzePhoto').addEventListener('click', async () => {
             const input  = document.getElementById('wardrobePhotoInput');
             const base64 = input.dataset.base64;
             const mime   = input.dataset.mime || 'image/jpeg';
             const status = document.getElementById('wardrobeAddStatus');
             if (!base64) { status.textContent = '⚠️ Bitte zuerst ein Foto auswählen.'; return; }
-
             const btn = document.getElementById('wardrobeAnalyzePhoto');
-            btn.disabled = true;
-            btn.textContent = '⏳ Analysiere Foto...';
+            btn.disabled = true; btn.textContent = '⏳ Analysiere...';
             status.textContent = '🤖 KI erkennt Kleidungsstück...';
-
             try {
-                const response = await fetch(`${AI_BACKEND_URL}/api/analyze-clothing`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                const response = await fetch(`${AI_URL}/api/analyze-clothing`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'photo', image: base64, mimeType: mime })
                 });
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 const data = await response.json();
                 showItemPreview(data.item);
                 status.textContent = '';
-            } catch(err) {
-                status.textContent = '❌ Fehler: ' + err.message;
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '🤖 Foto analysieren';
-            }
+            } catch(err) { status.textContent = '❌ Fehler: ' + err.message; }
+            finally { btn.disabled = false; btn.textContent = '🤖 Foto analysieren'; }
         });
 
-        // ── Item Preview & Save ───────────────────────────────────
+        // ── Item Preview & Save ───────────────────────────────
         function showItemPreview(item) {
             document.getElementById('previewName').value  = item.name  || '';
             document.getElementById('previewMeta').value  = item.meta  || '';
@@ -17129,30 +16848,25 @@
             document.getElementById('previewLayer').value = item.layer || '';
             document.getElementById('wardrobeItemPreview').style.display = 'block';
         }
-
         document.getElementById('wardrobeSaveItem').addEventListener('click', () => {
             const name  = document.getElementById('previewName').value.trim();
             const meta  = document.getElementById('previewMeta').value.trim();
             const temp  = document.getElementById('previewTemp').value.trim();
             const icon  = document.getElementById('previewIcon').value  || '👕';
             const layer = document.getElementById('previewLayer').value || '';
-            if (!name) { document.getElementById('wardrobeAddStatus').textContent = '⚠️ Name darf nicht leer sein.'; return; }
-
+            const status = document.getElementById('wardrobeAddStatus');
+            if (!name) { status.textContent = '⚠️ Name darf nicht leer sein.'; return; }
             const items = loadWardrobe();
             items.push({ name, meta, temp, icon, layer, addedAt: new Date().toISOString() });
             saveWardrobe(items);
-
-            // Reset form
             document.getElementById('wardrobeUrl').value = '';
             document.getElementById('wardrobePhotoPreview').style.display = 'none';
             document.getElementById('wardrobeItemPreview').style.display = 'none';
-            document.getElementById('wardrobeAddStatus').textContent = `✅ "${name}" gespeichert!`;
+            status.textContent = `✅ "${name}" gespeichert!`;
             updateOutfitWardrobeCount();
-
-            // Switch to items tab after short delay
             setTimeout(() => {
                 document.querySelector('[data-wardrobe-tab="items"]').click();
-                document.getElementById('wardrobeAddStatus').textContent = '';
+                status.textContent = '';
             }, 1200);
         });
 
