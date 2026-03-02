@@ -4473,6 +4473,13 @@
         <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
 
         <!-- 14. Kleiderschrank -->
+        <!-- pixel.story -->
+        <button class="toolbar-btn" id="pixelStoryBtn" title="pixel.story – Route zur Story">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+        </button>
+
         <button class="toolbar-btn" id="wardrobeBtn" title="Kleiderschrank – Outfit Empfehlung">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"></path>
@@ -12027,6 +12034,74 @@
         
         // Make exportGPX globally available
         window.exportGPX = exportGPX;
+
+        // ── pixel.story INTEGRATION ───────────────────────────────────────
+        function openPixelStory() {
+            if (!routes[0] || !routes[0].coordinates || routes[0].coordinates.length === 0) {
+                alert('Bitte zuerst eine Route berechnen.');
+                return;
+            }
+
+            // Build route data payload
+            const rd = {
+                coordinates: routes[0].coordinates,
+                elevations: routes[0].elevations || [],
+                distance: routes[0].distance || 0,
+                elevationGain: routes[0].elevationGain || 0,
+                name: document.title.replace(' - Pixelruud','') || 'PixelRuud Route'
+            };
+
+            // Open pixel.story in overlay iframe
+            let overlay = document.getElementById('pixelStoryOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'pixelStoryOverlay';
+                overlay.style.cssText = `
+                    position:fixed;top:0;right:0;bottom:0;
+                    width:0;z-index:9000;
+                    transition:width 0.4s cubic-bezier(0.16,1,0.3,1);
+                    background:#050a14;
+                    border-left:2px solid #00f0ff;
+                    box-shadow:-8px 0 40px rgba(0,240,255,0.15);
+                    display:flex;flex-direction:column;
+                `;
+                // Header bar
+                overlay.innerHTML = `
+                    <div style="height:40px;background:rgba(5,10,20,0.97);border-bottom:1px solid rgba(0,240,255,0.15);display:flex;align-items:center;padding:0 1rem;gap:0.75rem;flex-shrink:0;">
+                        <span style="font-family:'Courier New',monospace;font-size:0.6rem;color:#ccff00;letter-spacing:3px">// PIXEL.STORY</span>
+                        <span style="font-family:'Courier New',monospace;font-size:0.55rem;color:#94a3b8;opacity:0.6" id="psRouteName"></span>
+                        <button id="closePixelStory" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,0.15);color:#94a3b8;cursor:pointer;padding:3px 10px;font-family:'Courier New',monospace;font-size:0.6rem;letter-spacing:1px;transition:all 0.2s" onmouseover="this.style.borderColor='#00f0ff';this.style.color='#00f0ff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#94a3b8'">✕ CLOSE</button>
+                    </div>
+                    <iframe id="pixelStoryFrame" style="flex:1;border:none;width:100%;height:100%;" src="pixel-story.html"></iframe>
+                `;
+                document.body.appendChild(overlay);
+
+                document.getElementById('closePixelStory').addEventListener('click', () => {
+                    overlay.style.width = '0';
+                    setTimeout(() => overlay.style.display = 'none', 420);
+                    document.getElementById('pixelStoryBtn').classList.remove('active');
+                });
+            }
+
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => { overlay.style.width = '65vw'; });
+            document.getElementById('psRouteName').textContent = rd.name;
+            document.getElementById('pixelStoryBtn').classList.add('active');
+
+            // Pass route data once iframe loads
+            const frame = document.getElementById('pixelStoryFrame');
+            function sendData() {
+                try { frame.contentWindow.loadRouteFromPixelRuud(rd); } catch(e) {}
+            }
+            if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+                sendData();
+            } else {
+                frame.onload = sendData;
+            }
+        }
+
+        document.getElementById('pixelStoryBtn').addEventListener('click', openPixelStory);
+        window.openPixelStory = openPixelStory;
         
         function setProfile(category, subProfile) {
             currentProfile = category;
