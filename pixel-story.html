@@ -654,9 +654,9 @@ document.getElementById('genBtn').addEventListener('click',async()=>{
   };
   const lbls={blog:'// BLOG_POST',instagram:'// INSTAGRAM',strava:'// STRAVA',whatsapp:'// WHATSAPP_CHAT'};
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompts[fmt]}]})});
+    const res=await fetch('https://pixelruud-ai-backend-production.up.railway.app/api/story',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompts[fmt]})});
     const data=await res.json();
-    const text=data.content?.map(b=>b.text||'').join('')||'// Kein Inhalt.';
+    const text=data.story||data.error||'// Kein Inhalt.';
     document.getElementById('outLbl').textContent=lbls[fmt];
     document.getElementById('outText').textContent=text;
     document.getElementById('outPanel').classList.add('open');
