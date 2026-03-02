@@ -13343,6 +13343,8 @@
                 if (btn.id === 'wardrobeBtn') return;
                 // Skip skin button - it has its own panel handler
                 if (btn.id === 'skinBtn') return;
+                // Skip pixel.story button - it has its own overlay handler
+                if (btn.id === 'pixelStoryBtn') return;
                 
                 const panelType = btn.getAttribute('data-panel');
                 
