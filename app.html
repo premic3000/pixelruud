@@ -7579,19 +7579,30 @@
                     dragDebounceTimer = setTimeout(() => {
                         console.log('⏱️ Debounce finished - updating GPX waypoints from marker positions');
                         
-                        // Rebuild waypoints array from current marker positions
+                        const draggedIndex = actualWaypointNumber - 1; // 0-based index of dragged waypoint
+                        
+                        // Rebuild waypoints array from current marker positions,
+                        // but ONLY invalidate segments that touch the dragged waypoint.
+                        // All other locked GPX segments remain intact!
                         waypoints = markers.map((m, i) => {
                             const pos = m.getLatLng();
+                            const prev = waypoints[i];
+                            
+                            // Determine which segments to invalidate:
+                            // - segment [draggedIndex-1] → the segment ending AT the dragged point
+                            // - segment [draggedIndex]   → the segment starting FROM the dragged point
+                            const isTouchedSegment = (i === draggedIndex - 1 || i === draggedIndex);
+                            
                             return {
-                                id: waypoints[i]?.id || `wp_${Date.now()}_${i}`,
+                                id: prev?.id || `wp_${Date.now()}_${i}`,
                                 lat: pos.lat,
                                 lng: pos.lng,
-                                engine: waypoints[i]?.engine || currentEngine,
-                                segmentToNext: null  // Invalidate all segments after drag
+                                engine: prev?.engine || currentEngine,
+                                segmentToNext: isTouchedSegment ? null : (prev?.segmentToNext || null)
                             };
                         });
                         
-                        console.log('✅ GPX Waypoints rebuilt from marker positions');
+                        console.log(`✅ GPX Waypoints rebuilt - only segments [${draggedIndex-1}] and [${draggedIndex}] invalidated, rest preserved`);
                         
                         // Update UI
                         updateList();
