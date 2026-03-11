@@ -7356,6 +7356,16 @@
                 segmentDistances: segmentDistances  // For waypoint list display
             }];
             
+            // Save route stats globally so wardrobe AI can access them
+            window.routeStats = {
+                totalDistance: totalDistance * 1000,
+                totalAscent: stats.elevationGain,
+                totalDescent: stats.elevationLoss,
+                maxElevation: stats.maxElevation,
+                minElevation: stats.minElevation
+            };
+
+            
             // Draw route on map
             function drawGPXRouteOnMap(withSurfaceColors = false) {
                 // Remove old route lines
@@ -11242,6 +11252,16 @@
                 
                 updateButtons();
                 console.log(`✓ Route berechnet: ${(totalDist/1000).toFixed(2)} km`);
+                
+                // Save route stats globally so wardrobe AI can access them
+                window.routeStats = {
+                    totalDistance: totalDist,
+                    totalAscent: stats.elevationGain,
+                    totalDescent: stats.elevationLoss,
+                    maxElevation: stats.maxElevation,
+                    minElevation: stats.minElevation
+                };
+
                 
                 // Update magnifier if it exists
                 if (typeof window.updateMagnifierRoute === 'function') {
