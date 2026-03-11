@@ -11263,6 +11263,8 @@
                 };
 
                 
+                // Refresh wardrobe route info
+                if (typeof updateOutfitRouteInfo === 'function') updateOutfitRouteInfo();
                 // Update magnifier if it exists
                 if (typeof window.updateMagnifierRoute === 'function') {
                     window.updateMagnifierRoute();
@@ -17113,11 +17115,11 @@
             const el = document.getElementById('outfitRouteInfo');
             if (!el) return;
             try {
-                if (!window.waypoints || window.waypoints.length < 2) {
+                if (!waypoints || waypoints.length < 2) {
                     el.textContent = 'Keine aktive Route. Bitte zuerst eine Route planen.';
                     return;
                 }
-                const start = window.waypoints[0];
+                const start = waypoints[0];
                 let distance = '?', elevation = '?';
                 if (window.routeStats) {
                     distance  = (window.routeStats.totalDistance / 1000).toFixed(1) + ' km';
