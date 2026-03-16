@@ -5158,9 +5158,10 @@
         // ==========================================
         
         const DEMO_LIMITS = {
-            MAX_WAYPOINTS: 25,
-            MAX_DISTANCE_KM: 25,
-            MAX_API_CALLS: 50
+            MAX_WAYPOINTS: 100,
+            MAX_DISTANCE_KM: 300,
+            MAX_API_CALLS: 10,
+            MAX_GPX_EXPORTS: 5
         };
         
         let demoMode = {
@@ -5168,7 +5169,8 @@
             waypointsUsed: 0,
             distanceUsed: 0,
             apiCallsUsed: 0,
-            routesCreated: 0
+            routesCreated: 0,
+            gpxExports: 0
         };
         
         // Initialize demo mode from localStorage
@@ -5239,7 +5241,8 @@
                     waypointsUsed: demoMode.waypointsUsed,
                     distanceUsed: demoMode.distanceUsed,
                     apiCallsUsed: demoMode.apiCallsUsed,
-                    routesCreated: demoMode.routesCreated
+                    routesCreated: demoMode.routesCreated,
+                    gpxExports: demoMode.gpxExports
                 }));
             }
         }
@@ -5269,6 +5272,16 @@
                         return false;
                     }
                     demoMode.apiCallsUsed++;
+                    saveDemoState();
+                    updateDemoBanner();
+                    break;
+                
+                case 'gpx_export':
+                    if (demoMode.gpxExports >= DEMO_LIMITS.MAX_GPX_EXPORTS) {
+                        showDemoLimitReached('gpx_exports');
+                        return false;
+                    }
+                    demoMode.gpxExports++;
                     saveDemoState();
                     updateDemoBanner();
                     break;
@@ -5313,16 +5326,16 @@
             const apiLeft = DEMO_LIMITS.MAX_API_CALLS - demoMode.apiCallsUsed;
             
             let urgency = '';
-            if (apiLeft < 10 || wpLeft < 5) {
+            if (apiLeft <= 3 || demoMode.gpxExports >= DEMO_LIMITS.MAX_GPX_EXPORTS - 1) {
                 urgency = '<div style="color: var(--accent); font-weight: bold; margin-top: 8px;">⚠️ Demo Limit Fast Erreicht!</div>';
             }
             
             banner.innerHTML = `
                 <div style="font-weight: bold; margin-bottom: 8px; color: var(--accent);">🎮 DEMO MODE</div>
                 <div style="font-size: 10px; line-height: 1.6;">
-                    📍 Waypoints: ${waypoints.length}/${DEMO_LIMITS.MAX_WAYPOINTS}<br>
-                    🔄 API Calls: ${demoMode.apiCallsUsed}/${DEMO_LIMITS.MAX_API_CALLS}<br>
-                    📏 Max Distance: ${DEMO_LIMITS.MAX_DISTANCE_KM}km
+                    🔄 Routen: ${demoMode.apiCallsUsed}/${DEMO_LIMITS.MAX_API_CALLS}<br>
+                    💾 GPX Export: ${demoMode.gpxExports}/${DEMO_LIMITS.MAX_GPX_EXPORTS}<br>
+                    📏 Max: ${DEMO_LIMITS.MAX_DISTANCE_KM}km Distanz
                 </div>
                 ${urgency}
                 <button onclick="showLoginModal()" style="
@@ -5346,7 +5359,8 @@
             const messages = {
                 waypoints: `Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_WAYPOINTS} Waypoints!\n\nRegistriere dich für unlimited Waypoints! 🚀`,
                 distance: `Demo Limit erreicht: Max ${DEMO_LIMITS.MAX_DISTANCE_KM}km Route!\n\nRegistriere dich für unlimited Distance! 🚀`,
-                api_calls: `Demo Limit erreicht: ${DEMO_LIMITS.MAX_API_CALLS} API Calls verbraucht!\n\nRegistriere dich für unlimited Routing! 🚀`
+                api_calls: `Demo Limit erreicht: ${DEMO_LIMITS.MAX_API_CALLS} Routen berechnet!\n\nRegistriere dich für unlimited Routing! 🚀`,
+                gpx_exports: `Demo Limit erreicht: ${DEMO_LIMITS.MAX_GPX_EXPORTS} GPX Exports verbraucht!\n\nRegistriere dich für unlimited Exports! 🚀`
             };
             
             alert(messages[limitType] || 'Demo Limit erreicht!');
@@ -12044,6 +12058,7 @@
         }
         
         function exportGPX() {
+            if (!checkDemoLimit("gpx_export")) return;
             if (!routes[0]) return;
             let gpx = `<?xml version="1.0"?>\n<gpx version="1.1">\n  <trk>\n    <trkseg>\n`;
             routes[0].coordinates.forEach(c => gpx += `      <trkpt lat="${c[0]}" lon="${c[1]}"/>\n`);
