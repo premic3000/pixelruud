@@ -1,14 +1,134 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixelruud - Pro Gravel Route Planner</title>
-    
-   <!-- Privacy-friendly analytics by GoatCounter -->
-   <script data-goatcounter="https://pixelruud.goatcounter.com/count"
-           async src="//gc.zgo.at/count.js"></script>
-    
+
+    <!-- ═══ SEO: TITLE & META ═══ -->
+    <title>Pixelruud – KI Gravel Routenplaner | GPX Import & Höhenprofil</title>
+    <meta name="description" content="Pixelruud ist der KI-gestützte Gravel Routenplaner für ambitionierte Radfahrer. GPX importieren, Höhenprofil analysieren, Outfit-KI und BRouter-Routing – kostenlos im Browser.">
+    <meta name="keywords" content="gravel routenplaner, gravel bike route planner, GPX import, gravel cycling, bikepacking route, höhenprofil, BRouter, KI routenplaner, AI route planner, gravel GPS, fahrrad routenplaner kostenlos">
+    <meta name="author" content="Pixelruud">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://pixelruud.com/">
+
+    <!-- ═══ SEO: OPEN GRAPH ═══ -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pixelruud.com/">
+    <meta property="og:title" content="Pixelruud – KI Gravel Routenplaner | GPX Import & Höhenprofil">
+    <meta property="og:description" content="Plane deine Gravel-Route mit KI-Unterstützung. GPX importieren, Höhenprofil, Oberflächenanalyse und Outfit-Empfehlung – alles im Browser, kostenlos.">
+    <meta property="og:image" content="https://pixelruud.com/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Pixelruud">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:locale:alternate" content="en_US">
+
+    <!-- ═══ SEO: TWITTER CARD ═══ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pixelruud – KI Gravel Routenplaner">
+    <meta name="twitter:description" content="Gravel-Routen planen mit KI, GPX-Import, Höhenprofil & Outfit-Empfehlung. Kostenlos im Browser.">
+    <meta name="twitter:image" content="https://pixelruud.com/og-image.jpg">
+
+    <!-- ═══ SEO: SCHEMA.ORG – WebApplication ═══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Pixelruud",
+      "url": "https://pixelruud.com",
+      "applicationCategory": "SportsApplication",
+      "operatingSystem": "Any (Web Browser)",
+      "browserRequirements": "Requires JavaScript",
+      "description": "KI-gestützter Gravel Routenplaner mit GPX-Import, Höhenprofil, Oberflächenanalyse und Outfit-Empfehlung für Gravel-Radfahrer.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "featureList": [
+        "GPX Import und Export",
+        "KI-Routenplanung mit BRouter",
+        "Höhenprofil und Oberflächenanalyse",
+        "KI Outfit-Empfehlung für Gravel-Cycling",
+        "X-Ray Magnifier für Kartendetails",
+        "Wetter-Integration",
+        "Cloud-Speicher für Routen"
+      ],
+      "author": {
+        "@type": "Organization",
+        "name": "Pixelruud"
+      },
+      "inLanguage": ["de", "en"],
+      "keywords": "gravel routenplaner, GPX, bikepacking, gravel bike, KI route planner"
+    }
+    </script>
+
+    <!-- ═══ SEO: SCHEMA.ORG – FAQPage ═══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Was ist ein Gravel Routenplaner und was macht Pixelruud besonders?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ein Gravel Routenplaner hilft Radfahrern dabei, Routen speziell für Schotterstraßen, Feldwege und unbefestigte Wege zu planen. Pixelruud kombiniert BRouter-Routing mit KI-Unterstützung, Höhenprofil, Oberflächenanalyse und GPX-Import – kostenlos im Browser, ohne App-Installation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kann ich eine GPX-Datei in Pixelruud importieren und bearbeiten?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ja. Pixelruud unterstützt den vollständigen GPX-Import. Nach dem Import werden Trackpoints als editierbare Wegpunkte geladen. Einzelne Punkte verschieben, Start/Ziel ändern – nur bearbeitete Segmente werden neu berechnet, der Rest der Originalroute bleibt erhalten."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Wie funktioniert die KI-Routenplanung in Pixelruud?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pixelruud nutzt Claude AI (Anthropic) für intelligente Routenvorschläge und Rundtouren. Die Outfit-KI analysiert Route, Wetter und Kleiderschrank und empfiehlt die passende Ausrüstung für die Tour."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Welche Routing-Engines unterstützt Pixelruud?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pixelruud unterstützt BRouter (ideal für Gravel und Offroad), GraphHopper, Valhalla und OSRM als Fallback. BRouter priorisiert Schotterstraßen und Feldwege und liefert präzise Höhendaten."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Ist Pixelruud kostenlos nutzbar?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ja. Die Demo erlaubt bis zu 300 km und 10 Routenberechnungen. Mit einem kostenlosen Account: unbegrenzte Routen, Cloud-Speicher für GPX-Dateien und alle KI-Features ohne Einschränkung."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Funktioniert Pixelruud auch für mehrtägige Bikepacking-Touren?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolut. Mehrtägige Touren mit vielen Wegpunkten, GPX-Append für Streckenerweiterungen, Höhenprofil der Gesamttour und Oberflächenanalyse (Asphalt, Schotter, Dirt) direkt auf der Karte."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="REPLACE_WITH_YOUR_GSC_CODE">
+
+    <!-- Privacy-friendly analytics by GoatCounter -->
+    <script data-goatcounter="https://pixelruud.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
+
     <style>
         :root {
             --bg-deep: #050a14;
@@ -271,168 +391,44 @@
             body { cursor: auto; } /* Mobile Reset */
             #xray-cursor { display: none; }
         }
-        /* ==============================
-           KI SECTION
-        ============================== */
-        .ai-section {
-            padding: 120px 0;
-            background: var(--bg-deep);
-            position: relative;
-            overflow: hidden;
-        }
 
-        /* Animated background grid */
-        .ai-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,240,255,0.04) 1px, transparent 1px);
-            background-size: 60px 60px;
-            animation: gridDrift 20s linear infinite;
+        /* ═══ FAQ SECTION ═══ */
+        .faq-section {
+            padding: 80px 0;
         }
-        @keyframes gridDrift {
-            from { transform: translate(0,0); }
-            to   { transform: translate(60px, 60px); }
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
         }
-
-        /* Pulsing glow orb behind headline */
-        .ai-section::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(204,255,0,0.05) 0%, transparent 70%);
-            animation: pulse 4s ease-in-out infinite alternate;
-            pointer-events: none;
+        .faq-item {
+            background: rgba(0, 240, 255, 0.04);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 10px;
+            padding: 24px;
+            transition: border-color 0.2s;
         }
-        @keyframes pulse {
-            from { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
-            to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.1); }
+        .faq-item:hover {
+            border-color: rgba(0, 240, 255, 0.4);
         }
-
-        .ai-inner {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .ai-eyebrow {
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            margin-bottom: 12px;
             font-family: var(--font-tech);
-            font-size: 0.75rem;
-            letter-spacing: 4px;
-            color: var(--accent-lime);
-            text-transform: uppercase;
-            margin-bottom: 28px;
-            opacity: 0.9;
+            line-height: 1.4;
         }
-        .ai-eyebrow::before { content: '>> '; }
-        .ai-eyebrow::after  { content: ' <<'; }
-
-        .ai-headline {
-            font-size: clamp(2.4rem, 5vw, 4rem);
-            font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -1.5px;
-            margin-bottom: 28px;
-            color: var(--text-main);
-        }
-        .ai-headline .hl-cyan  { color: var(--primary-cyan); }
-        .ai-headline .hl-lime  { color: var(--accent-lime); }
-
-        .ai-subline {
-            font-size: 1.2rem;
+        .faq-answer {
+            font-size: 0.9rem;
             color: var(--text-muted);
-            max-width: 680px;
-            margin: 0 auto 60px;
             line-height: 1.7;
         }
-        .ai-subline strong { color: var(--text-main); }
 
-        /* Three AI pillars */
-        .ai-pillars {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            margin-bottom: 60px;
-        }
-        .ai-pillar {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(0,240,255,0.1);
-            padding: 36px 28px;
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.3s, background 0.3s;
-        }
-        .ai-pillar:hover {
-            border-color: rgba(204,255,0,0.4);
-            background: rgba(204,255,0,0.03);
-        }
-        .ai-pillar::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 3px; height: 100%;
-            background: linear-gradient(180deg, var(--primary-cyan), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .ai-pillar:hover::before { opacity: 1; }
-
-        .pillar-number {
-            font-family: var(--font-tech);
-            font-size: 0.7rem;
-            color: var(--primary-cyan);
-            opacity: 0.5;
-            margin-bottom: 16px;
-            letter-spacing: 2px;
-        }
-        .pillar-title {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .pillar-desc {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        /* Big quote / tagline */
-        .ai-tagline {
-            font-family: var(--font-tech);
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            color: var(--primary-cyan);
-            border: 1px solid rgba(0,240,255,0.2);
-            display: inline-block;
-            padding: 18px 40px;
-            position: relative;
-            letter-spacing: 1px;
-        }
-        .ai-tagline::before {
-            content: '[ ';
-            color: var(--accent-lime);
-        }
-        .ai-tagline::after {
-            content: ' ]';
-            color: var(--accent-lime);
-        }
-
-        @media (max-width: 768px) {
-            .ai-pillars { grid-template-columns: 1fr; }
-            .ai-headline { font-size: 2.2rem; }
-        }
     </style>
 </head>
+
 <body>
 
     <!-- CUSTOM MASSIVE CURSOR -->
@@ -487,7 +483,7 @@
     <!-- HERO SECTION -->
     <section class="hero container">
         <div class="hero-text">
-            <div class="badge tech-font">:: KI-GESTÜTZTE GRAVEL INTELLIGENCE ::</div>
+            <div class="badge tech-font">:: FOR GRAVEL ENTHUSIASTS ::</div>
             <h1>X-Ray Your <br><span class="text-cyan">Gravel Route.</span></h1>
             <p>Schluss mit bösen Überraschungen. Das erste webbasierte Tool mit <strong>professioneller Oberflächenanalyse</strong> und <strong>präzisen Höhendaten</strong>.</p>
             <a href="app.html" class="cta-button">Try Demo (Free)</a>
@@ -528,58 +524,6 @@
                 <text x="300" y="340" fill="#00f0ff" font-family="monospace" font-size="10" text-anchor="end">MEASURE</text>
             </svg>
             <div class="scan-line"></div>
-        </div>
-    </section>
-
-    <!-- KI / AI SECTION -->
-    <section class="ai-section">
-        <div class="ai-inner">
-
-            <div class="ai-eyebrow">Künstliche Intelligenz trifft Gravel</div>
-
-            <h2 class="ai-headline">
-                Dein persönlicher<br>
-                <span class="hl-cyan">KI-Ride-Advisor.</span><br>
-                <span class="hl-lime">Immer dabei.</span>
-            </h2>
-
-            <p class="ai-subline">
-                Pixelruud ist mehr als ein Routenplaner. <strong>Claude AI</strong> analysiert deine Route,
-                kennt das Wetter, kennt deinen Kleiderschrank — und sagt dir
-                <strong>was du anziehst, bevor du überhaupt fragst.</strong>
-            </p>
-
-            <div class="ai-pillars">
-                <div class="ai-pillar">
-                    <div class="pillar-number">01 // ROUTE_AI</div>
-                    <div class="pillar-title">Routen per Sprache</div>
-                    <div class="pillar-desc">
-                        Beschreibe dein Abenteuer in Worten — "60km Schotter, nicht zu steil,
-                        mit Aussicht" — und die KI berechnet daraus eine echte Route auf der Karte.
-                    </div>
-                </div>
-                <div class="ai-pillar">
-                    <div class="pillar-number">02 // OUTFIT_AI</div>
-                    <div class="pillar-title">Intelligenter Kleiderschrank</div>
-                    <div class="pillar-desc">
-                        Deine Ausrüstung kennt die Route. Die KI kombiniert Wetter, Höhenmeter
-                        und Untergrund zu einem Outfit-Vorschlag — direkt aus deinem digitalen Schrank.
-                    </div>
-                </div>
-                <div class="ai-pillar">
-                    <div class="pillar-number">03 // SURFACE_AI</div>
-                    <div class="pillar-title">Oberflächen-Diagnose</div>
-                    <div class="pillar-desc">
-                        X-Ray Magnifier + KI-Analyse: Erkenne Schotter, Trail und Asphalt
-                        vor der Fahrt. Kein Schieben, keine Überraschungen — nur präzise Planung.
-                    </div>
-                </div>
-            </div>
-
-            <div class="ai-tagline">
-                Nicht nur planen. Verstehen. Entscheiden. Fahren.
-            </div>
-
         </div>
     </section>
 
@@ -628,15 +572,60 @@
         <div class="usp-box">
             <div class="corner tl"></div><div class="corner tr"></div>
             <div class="corner bl"></div><div class="corner br"></div>
-            <h2 style="margin-bottom: 20px;">Deine Route. Dein KI-Copilot.</h2>
-            <p style="margin-bottom: 30px; color: var(--text-muted);">Gravel-Planung neu definiert — mit KI die mitdenkt, <br>Oberflächen die sprechen und einem Kleiderschrank der antwortet.</p>
+            <h2 style="margin-bottom: 20px;">Deine Route. Dein Abenteuer.</h2>
+            <p style="margin-bottom: 30px; color: var(--text-muted);">Erlebe Gravel-Planung auf einem neuen Level. <br>Web-basiert, schnell und extrem präzise.</p>
             <a href="app.html" class="cta-button">Start PIXEL yr RUUD</a>
+        </div>
+    </section>
+
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         FAQ – Für Google, KI-Suche & Nutzer
+    ═══════════════════════════════════════════════════════ -->
+    <section class="faq-section container" id="faq" aria-label="Häufige Fragen zu Pixelruud">
+        <h2 class="section-title"><span class="text-cyan">FAQ</span> // HÄUFIGE FRAGEN</h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:40px; font-size:0.95rem;">
+            Alles was du über Pixelruud und Gravel-Routenplanung wissen musst.
+        </p>
+        <div class="faq-grid">
+
+            <div class="faq-item">
+                <h3 class="faq-question">Was ist ein Gravel Routenplaner?</h3>
+                <p class="faq-answer">Ein Gravel Routenplaner wie Pixelruud plant Routen speziell für Schotterstraßen und Feldwege – mit BRouter-Routing, Höhenprofil und Oberflächenanalyse. Alles kostenlos im Browser, ohne App-Installation.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question">Kann ich GPX-Dateien importieren?</h3>
+                <p class="faq-answer">Ja. GPX-Import mit voller Bearbeitbarkeit: Wegpunkte verschieben, Start/Ziel ändern. Nur bearbeitete Segmente werden neu berechnet – der Rest der Originalroute bleibt exakt erhalten.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question">Wie funktioniert die KI-Routenplanung?</h3>
+                <p class="faq-answer">Pixelruud nutzt Claude AI für smarte Routenvorschläge und Rundtouren. Die Outfit-KI analysiert deine Route, das aktuelle Wetter und deinen Kleiderschrank – und empfiehlt die optimale Ausrüstung für die Tour.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question">Welche Routing-Engines werden genutzt?</h3>
+                <p class="faq-answer">BRouter (Gravel-optimiert), GraphHopper, Valhalla und OSRM als Fallback. BRouter priorisiert Schotterstraßen und liefert präzise Höhendaten – ideal für Gravel-Cycling und Bikepacking.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question">Ist Pixelruud kostenlos?</h3>
+                <p class="faq-answer">Ja. Die Demo erlaubt 300 km und 10 Routenberechnungen. Mit kostenlosem Account: unbegrenzte Routen, Cloud-Speicher für GPX-Dateien und alle KI-Features ohne Einschränkung.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question">Eignet sich Pixelruud für Bikepacking?</h3>
+                <p class="faq-answer">Absolut. Mehrtägige Touren mit vielen Wegpunkten, GPX-Append für Streckenerweiterungen, Höhenprofil der Gesamttour und Oberflächenanalyse (Asphalt, Schotter, Dirt) direkt auf der Karte.</p>
+            </div>
+
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p class="tech-font">PIXELRUUD SYSTEM v2.0 // GRAVEL AI EDITION</p>
+            <p class="tech-font">PIXELRUUD SYSTEM v1.3 // GRAVEL EDITION</p>
             <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.5;">
                 © 2025 Pixelruud Development. 
                 <a href="guide.html" style="color: var(--accent-lime); text-decoration: none; margin: 0 10px;">How To</a>
