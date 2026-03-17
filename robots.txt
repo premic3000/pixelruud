@@ -1,0 +1,25 @@
+# robots.txt – pixelruud.com
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pixelruud.com/sitemap.xml
+
+# Allow all major crawlers explicitly
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
