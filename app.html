@@ -2123,19 +2123,27 @@
             left: 12px;
             width: calc(100vw - 24px);
             max-width: calc(100vw - 24px);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px;
-            border-radius: 12px 12px 12px 12px;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            min-width: 320px;
+            min-height: 160px;
+            background: rgba(0, 8, 20, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 0;
+            border-radius: 12px;
+            border: 1px solid rgba(0,240,255,0.2);
             z-index: 1001;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-            height: 140px;
+            box-shadow: 0 0 30px rgba(0,240,255,0.08), 0 8px 32px rgba(0,0,0,0.5);
+            height: 200px;
             display: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            flex-direction: column;
+            transition: opacity 0.3s ease;
+            resize: both;
+            overflow: hidden;
         }
-        
-        /* .elevation-profile.show handled in main rule */
+        .elevation-profile.show {
+            display: flex;
+        }
+
         
         .elevation-profile.faded {
             opacity: 0.25;
