@@ -5007,27 +5007,76 @@
         <!-- Weather icons now integrated directly into elevation profile chart -->
         
         <canvas id="elevationChart"></canvas>
-        
-        <!-- 3D Elevation Profile -->
-        <div id="elevation3DContainer" style="display:none; position:relative;">
-            <canvas id="elevation3DCanvas" style="width:100%; height:220px; display:block;"></canvas>
-            <button id="download3DBtn" style="
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                background: rgba(0,8,20,0.85);
-                border: 1px solid var(--primary);
-                color: var(--primary);
-                font-family: 'Courier New', monospace;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 6px 12px;
-                cursor: pointer;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                border-radius: 3px;
-                transition: all 0.2s;
-            " title="Als PNG downloaden">⬇ PNG EXPORT</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         3D ELEVATION OVERLAY — Draggable + Resizable
+    ═══════════════════════════════════════════════════════ -->
+    <div id="elevation3DOverlay" style="
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 720px;
+        min-width: 340px;
+        min-height: 260px;
+        background: rgba(0, 8, 20, 0.96);
+        border: 1px solid rgba(0,240,255,0.35);
+        border-radius: 12px;
+        box-shadow: 0 0 40px rgba(0,240,255,0.12), 0 8px 40px rgba(0,0,0,0.7);
+        z-index: 20000;
+        overflow: hidden;
+        resize: both;
+        font-family: Courier New, monospace;
+    ">
+        <!-- Title bar / drag handle -->
+        <div id="elevation3DDragHandle" style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: rgba(0,240,255,0.07);
+            border-bottom: 1px solid rgba(0,240,255,0.15);
+            cursor: grab;
+            user-select: none;
+        ">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:var(--primary,#00f0ff); font-size:11px; font-weight:700; letter-spacing:2px;">
+                    ▲ 3D HÖHENPROFIL
+                </span>
+                <span id="elevation3DStats" style="color:rgba(148,163,184,0.7); font-size:10px;"></span>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <button id="download3DBtn" style="
+                    background: rgba(0,240,255,0.1);
+                    border: 1px solid rgba(0,240,255,0.4);
+                    color: #00f0ff;
+                    font-family: Courier New, monospace;
+                    font-size: 9px;
+                    font-weight: 700;
+                    padding: 4px 10px;
+                    cursor: pointer;
+                    letter-spacing: 1px;
+                    border-radius: 4px;
+                    transition: all 0.2s;
+                ">⬇ PNG</button>
+                <button id="elevation3DClose" style="
+                    background: none;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    color: rgba(255,255,255,0.5);
+                    width: 22px; height: 22px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    display: flex; align-items:center; justify-content:center;
+                    transition: all 0.2s;
+                ">×</button>
+            </div>
+        </div>
+        <!-- Canvas -->
+        <div id="elevation3DCanvasWrapper" style="padding: 0; position:relative; height: calc(100% - 42px);">
+            <canvas id="elevation3DCanvas" style="width:100%; height:100%; display:block;"></canvas>
         </div>
     </div>
     
@@ -17525,321 +17574,343 @@
 
     <script>
         // ═══════════════════════════════════════════════════
-        // 3D ELEVATION PROFILE
+        // 3D ELEVATION PROFILE — Floating Overlay
         // ═══════════════════════════════════════════════════
 
         let is3DActive = false;
 
-        // Named function so it can be called from setupChartToggles after clone
+        // ── Toggle overlay ───────────────────────────────
         function toggle3DProfile() {
             is3DActive = !is3DActive;
-
-            const btn3D = document.getElementById('toggle3DChart');
-            const container3D = document.getElementById('elevation3DContainer');
-            const chartCanvas = document.getElementById('elevationChart');
-
+            const btn3D   = document.getElementById('toggle3DChart');
+            const overlay = document.getElementById('elevation3DOverlay');
             if (btn3D) btn3D.classList.toggle('active', is3DActive);
 
             if (is3DActive) {
-                // Hide 2D canvas, show 3D container
-                if (chartCanvas) chartCanvas.style.display = 'none';
-                if (container3D) container3D.style.display = 'block';
-
-                // Deactivate other chart buttons visually
-                const elevBtn = document.getElementById('toggleElevationChart');
-                const surfBtn = document.getElementById('toggleSurfaceChart');
-                if (elevBtn) elevBtn.classList.remove('active');
-                if (surfBtn) surfBtn.classList.remove('active');
-
-                render3DElevation();
+                overlay.style.display = 'block';
+                // Deactivate other chart buttons visually only
+                const e = document.getElementById('toggleElevationChart');
+                const s = document.getElementById('toggleSurfaceChart');
+                if (e) e.classList.remove('active');
+                if (s) s.classList.remove('active');
+                // Update stats label
+                updateOverlayStats();
+                // Render after overlay is visible (needs layout)
+                requestAnimationFrame(() => render3DElevation());
             } else {
-                if (chartCanvas) chartCanvas.style.display = 'block';
-                if (container3D) container3D.style.display = 'none';
-                const elevBtn = document.getElementById('toggleElevationChart');
-                if (elevBtn) elevBtn.classList.add('active');
+                overlay.style.display = 'none';
+                const e = document.getElementById('toggleElevationChart');
+                if (e) e.classList.add('active');
             }
         }
 
-        // Initial binding (will be re-bound by setupChartToggles after clone)
+        function updateOverlayStats() {
+            const el = document.getElementById('elevation3DStats');
+            if (!el) return;
+            const dist = window.routeStats ? (window.routeStats.totalDistance/1000).toFixed(1)+' km' : '';
+            const asc  = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
+            const desc = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
+            el.textContent = [dist, asc, desc].filter(Boolean).join('  ');
+        }
+
+        // Initial binding
         const init3DBtn = document.getElementById('toggle3DChart');
         if (init3DBtn) init3DBtn.addEventListener('click', () => toggle3DProfile());
 
+        // Close button
+        document.getElementById('elevation3DClose').addEventListener('click', () => {
+            is3DActive = false;
+            document.getElementById('elevation3DOverlay').style.display = 'none';
+            const btn3D = document.getElementById('toggle3DChart');
+            if (btn3D) btn3D.classList.remove('active');
+            const e = document.getElementById('toggleElevationChart');
+            if (e) e.classList.add('active');
+        });
+
+        // ── Drag ─────────────────────────────────────────
+        (function() {
+            const overlay = document.getElementById('elevation3DOverlay');
+            const handle  = document.getElementById('elevation3DDragHandle');
+            let dragging = false, ox = 0, oy = 0;
+
+            handle.addEventListener('mousedown', e => {
+                if (e.target.tagName === 'BUTTON') return;
+                dragging = true;
+                handle.style.cursor = 'grabbing';
+                // Switch from transform-based centering to absolute pos
+                if (overlay.style.transform) {
+                    const r = overlay.getBoundingClientRect();
+                    overlay.style.left = r.left + 'px';
+                    overlay.style.top  = r.top  + 'px';
+                    overlay.style.transform = 'none';
+                }
+                ox = e.clientX - overlay.getBoundingClientRect().left;
+                oy = e.clientY - overlay.getBoundingClientRect().top;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', e => {
+                if (!dragging) return;
+                overlay.style.left = (e.clientX - ox) + 'px';
+                overlay.style.top  = (e.clientY - oy) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                dragging = false;
+                handle.style.cursor = 'grab';
+            });
+        })();
+
+        // Re-render when resized (ResizeObserver)
+        (function() {
+            const wrapper = document.getElementById('elevation3DCanvasWrapper');
+            if (!wrapper) return;
+            const ro = new ResizeObserver(() => {
+                if (is3DActive) render3DElevation();
+            });
+            ro.observe(wrapper);
+        })();
+
+        // ── Render ───────────────────────────────────────
         function render3DElevation() {
             if (!routes[0] || !routes[0].elevations) return;
 
-            const canvas = document.getElementById('elevation3DCanvas');
-            const container = document.getElementById('elevation3DContainer');
+            const wrapper = document.getElementById('elevation3DCanvasWrapper');
+            const canvas  = document.getElementById('elevation3DCanvas');
+            if (!canvas || !wrapper) return;
 
-            // Set actual pixel dimensions
-            const W = container.offsetWidth || 800;
-            const H = 220;
-            canvas.width = W;
+            const W = wrapper.offsetWidth  || 700;
+            const H = wrapper.offsetHeight || 260;
+            canvas.width  = W;
             canvas.height = H;
-            canvas.style.width = W + 'px';
-            canvas.style.height = H + 'px';
 
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, W, H);
+            draw3D(ctx, W, H, false);
+        }
 
-            // ── Data prep ──────────────────────────────────────
-            const elevations = routes[0].elevations;
+        // ── Core draw (used for screen + export) ─────────
+        function draw3D(ctx, W, H, forExport) {
+            const elevations  = routes[0].elevations;
             const coordinates = routes[0].coordinates;
 
-            // Calculate distances
+            // Distances
             const distances = [0];
             let totalDist = 0;
             for (let i = 1; i < coordinates.length; i++) {
                 const p = coordinates[i-1], c = coordinates[i];
                 const R = 6371;
-                const dLat = (c[0]-p[0]) * Math.PI/180;
-                const dLon = (c[1]-p[1]) * Math.PI/180;
+                const dLat = (c[0]-p[0])*Math.PI/180;
+                const dLon = (c[1]-p[1])*Math.PI/180;
                 const a = Math.sin(dLat/2)**2 + Math.cos(p[0]*Math.PI/180)*Math.cos(c[0]*Math.PI/180)*Math.sin(dLon/2)**2;
                 totalDist += R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 distances.push(totalDist);
             }
 
-            // Sample to ~300 points
-            const N = Math.min(300, elevations.length);
+            // Sample
+            const N    = Math.min(350, elevations.length);
             const step = Math.max(1, Math.floor(elevations.length / N));
-            const sampledElev = [], sampledDist = [];
-            for (let i = 0; i < elevations.length; i += step) {
-                sampledElev.push(elevations[i]);
-                sampledDist.push(distances[i]);
-            }
-            // always include last
-            sampledElev.push(elevations[elevations.length-1]);
-            sampledDist.push(distances[distances.length-1]);
+            const sE = [], sD = [];
+            for (let i = 0; i < elevations.length; i += step) { sE.push(elevations[i]); sD.push(distances[i]); }
+            sE.push(elevations[elevations.length-1]);
+            sD.push(distances[distances.length-1]);
 
-            const minE = Math.min(...sampledElev);
-            const maxE = Math.max(...sampledElev);
-            const elevRange = maxE - minE || 1;
-            const maxD = sampledDist[sampledDist.length-1];
+            const minE = Math.min(...sE), maxE = Math.max(...sE);
+            const eRange = maxE - minE || 1;
+            const maxD = sD[sD.length-1];
 
-            // ── 3D projection config ───────────────────────────
-            const PAD_L = 54, PAD_R = 20, PAD_T = 24, PAD_B = 40;
+            // Layout
+            const PAD_L = 52, PAD_R = 20, PAD_T = 28, PAD_B = forExport ? 54 : 38;
             const plotW = W - PAD_L - PAD_R;
             const plotH = H - PAD_T - PAD_B;
+            const depth  = Math.round(plotH * 0.26);
+            const depthX = Math.round(plotW * 0.035);
+            const baseY  = PAD_T + plotH + 2;
 
-            // Perspective depth (how much the back shifts)
-            const depth = Math.round(plotH * 0.28);
-            const depthX = Math.round(plotW * 0.04); // slight rightward shift for back
-
-            // Map data to front-face coordinates
-            const toFront = (di, ei) => ({
-                x: PAD_L + (sampledDist[di] / maxD) * plotW,
-                y: PAD_T + plotH - ((sampledElev[ei] - minE) / elevRange) * plotH * 0.82
+            const toFront = i => ({
+                x: PAD_L + (sD[i] / maxD) * plotW,
+                y: PAD_T + plotH - ((sE[i] - minE) / eRange) * plotH * 0.82
             });
+            const pts = sE.map((_, i) => toFront(i));
 
-            // ── Background ─────────────────────────────────────
+            // ── Background
             ctx.fillStyle = '#050a14';
             ctx.fillRect(0, 0, W, H);
 
-            // Subtle grid lines (back face)
-            const gridSteps = 5;
-            ctx.strokeStyle = 'rgba(0,240,255,0.07)';
-            ctx.lineWidth = 1;
-            for (let g = 0; g <= gridSteps; g++) {
-                const gy = PAD_T + (g / gridSteps) * plotH;
+            // Grid
+            for (let g = 0; g <= 5; g++) {
+                const gy = PAD_T + (g/5) * plotH;
                 ctx.beginPath();
                 ctx.moveTo(PAD_L + depthX - depth*0.5, gy - depth*0.5);
                 ctx.lineTo(PAD_L + plotW + depthX - depth*0.5, gy - depth*0.5);
+                ctx.strokeStyle = 'rgba(0,240,255,0.06)';
+                ctx.lineWidth = 1;
                 ctx.stroke();
             }
 
-            // ── Build front-face polygon ────────────────────────
-            const frontTop = sampledElev.map((_, i) => toFront(i, i));
-            const baseY = PAD_T + plotH + 2;
-
-            // ── Side faces (3D depth walls) ─────────────────────
+            // ── Side walls
+            const last = pts[pts.length-1], first = pts[0];
             // Right wall
-            const lastPt = frontTop[frontTop.length-1];
             ctx.beginPath();
-            ctx.moveTo(lastPt.x, lastPt.y);
-            ctx.lineTo(lastPt.x + depthX, lastPt.y - depth);
-            ctx.lineTo(lastPt.x + depthX, baseY - depth);
-            ctx.lineTo(lastPt.x, baseY);
+            ctx.moveTo(last.x, last.y);
+            ctx.lineTo(last.x+depthX, last.y-depth);
+            ctx.lineTo(last.x+depthX, baseY-depth);
+            ctx.lineTo(last.x, baseY);
             ctx.closePath();
             ctx.fillStyle = 'rgba(0,180,200,0.12)';
             ctx.fill();
-            ctx.strokeStyle = 'rgba(0,240,255,0.3)';
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+            ctx.strokeStyle = 'rgba(0,240,255,0.25)'; ctx.lineWidth = 0.5; ctx.stroke();
 
             // Left wall
-            const firstPt = frontTop[0];
             ctx.beginPath();
-            ctx.moveTo(firstPt.x, firstPt.y);
-            ctx.lineTo(firstPt.x + depthX, firstPt.y - depth);
-            ctx.lineTo(firstPt.x + depthX, baseY - depth);
-            ctx.lineTo(firstPt.x, baseY);
+            ctx.moveTo(first.x, first.y);
+            ctx.lineTo(first.x+depthX, first.y-depth);
+            ctx.lineTo(first.x+depthX, baseY-depth);
+            ctx.lineTo(first.x, baseY);
             ctx.closePath();
-            ctx.fillStyle = 'rgba(0,120,140,0.15)';
+            ctx.fillStyle = 'rgba(0,120,140,0.14)';
             ctx.fill();
-            ctx.strokeStyle = 'rgba(0,240,255,0.2)';
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+            ctx.strokeStyle = 'rgba(0,240,255,0.18)'; ctx.lineWidth = 0.5; ctx.stroke();
 
-            // Top face (back ridge connecting top of 3D)
+            // Top face (back ridge)
             ctx.beginPath();
-            ctx.moveTo(frontTop[0].x, frontTop[0].y);
-            ctx.lineTo(frontTop[0].x + depthX, frontTop[0].y - depth);
-            for (let i = 1; i < frontTop.length; i++) {
-                ctx.lineTo(frontTop[i].x + depthX, frontTop[i].y - depth);
-            }
-            ctx.lineTo(frontTop[frontTop.length-1].x, frontTop[frontTop.length-1].y);
-            for (let i = frontTop.length-2; i >= 0; i--) {
-                ctx.lineTo(frontTop[i].x, frontTop[i].y);
-            }
+            ctx.moveTo(pts[0].x, pts[0].y);
+            ctx.lineTo(pts[0].x+depthX, pts[0].y-depth);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x+depthX, pts[i].y-depth);
+            ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
+            for (let i = pts.length-2; i >= 0; i--) ctx.lineTo(pts[i].x, pts[i].y);
             ctx.closePath();
-            ctx.fillStyle = 'rgba(0,200,220,0.08)';
+            ctx.fillStyle = 'rgba(0,200,220,0.07)';
             ctx.fill();
 
-            // ── Front fill gradient (slope-colored) ────────────
-            for (let i = 0; i < frontTop.length - 1; i++) {
-                const p0 = frontTop[i], p1 = frontTop[i+1];
-                const gradient = i > 0
-                    ? ((sampledElev[i+1] - sampledElev[i-1]) / ((sampledDist[i+1] - sampledDist[Math.max(0,i-1)]) * 10 + 0.001))
+            // ── Front fill (slope colors)
+            for (let i = 0; i < pts.length-1; i++) {
+                const g = i > 0
+                    ? ((sE[i+1]-sE[i-1]) / ((sD[i+1]-sD[Math.max(0,i-1)])*10 + 0.001))
                     : 0;
-
-                let r, g, b;
-                if (gradient > 8)      { r=239; g=68;  b=68;  } // steep up - red
-                else if (gradient > 4) { r=251; g=146; b=60;  } // mod up - orange
-                else if (gradient > 0) { r=34;  g=197; b=94;  } // gentle up - green
-                else if (gradient > -4){ r=0;   g=240; b=255; } // gentle down - cyan
-                else if (gradient > -8){ r=147; g=51;  b=234; } // mod down - purple
-                else                   { r=220; g=38;  b=38;  } // steep down - dark red
-
+                let r,g2,b;
+                if      (g >  8) { r=239;g2=68; b=68;  }
+                else if (g >  4) { r=251;g2=146;b=60;  }
+                else if (g >  0) { r=34; g2=197;b=94;  }
+                else if (g > -4) { r=0;  g2=240;b=255; }
+                else if (g > -8) { r=147;g2=51; b=234; }
+                else             { r=220;g2=38; b=38;  }
                 ctx.beginPath();
-                ctx.moveTo(p0.x, baseY);
-                ctx.lineTo(p0.x, p0.y);
-                ctx.lineTo(p1.x, p1.y);
-                ctx.lineTo(p1.x, baseY);
+                ctx.moveTo(pts[i].x, baseY);
+                ctx.lineTo(pts[i].x, pts[i].y);
+                ctx.lineTo(pts[i+1].x, pts[i+1].y);
+                ctx.lineTo(pts[i+1].x, baseY);
                 ctx.closePath();
-                ctx.fillStyle = `rgba(${r},${g},${b},0.55)`;
+                ctx.fillStyle = `rgba(${r},${g2},${b},0.55)`;
                 ctx.fill();
             }
 
-            // Front outline (top ridge)
+            // Front ridge
             ctx.beginPath();
-            ctx.moveTo(frontTop[0].x, frontTop[0].y);
-            for (let i = 1; i < frontTop.length; i++) {
-                ctx.lineTo(frontTop[i].x, frontTop[i].y);
-            }
+            ctx.moveTo(pts[0].x, pts[0].y);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
             ctx.strokeStyle = '#00f0ff';
             ctx.lineWidth = 1.8;
             ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 6;
+            ctx.shadowBlur = 5;
             ctx.stroke();
             ctx.shadowBlur = 0;
 
             // Base line
             ctx.beginPath();
             ctx.moveTo(PAD_L, baseY);
-            ctx.lineTo(PAD_L + plotW, baseY);
-            ctx.strokeStyle = 'rgba(0,240,255,0.4)';
+            ctx.lineTo(PAD_L+plotW, baseY);
+            ctx.strokeStyle = 'rgba(0,240,255,0.35)';
             ctx.lineWidth = 1;
             ctx.stroke();
 
-            // ── Y-Axis labels ───────────────────────────────────
-            ctx.fillStyle = 'rgba(148,163,184,0.8)';
+            // ── Y labels
+            ctx.fillStyle = 'rgba(148,163,184,0.75)';
             ctx.font = '9px Courier New';
             ctx.textAlign = 'right';
             for (let g = 0; g <= 4; g++) {
-                const elev = minE + (g / 4) * elevRange;
-                const y = PAD_T + plotH - (g / 4) * plotH * 0.82;
-                ctx.fillText(Math.round(elev) + 'm', PAD_L - 4, y + 3);
-                ctx.beginPath();
-                ctx.moveTo(PAD_L, y);
-                ctx.lineTo(PAD_L + plotW, y);
-                ctx.strokeStyle = 'rgba(0,240,255,0.06)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                const elev = minE + (g/4)*eRange;
+                const y = PAD_T + plotH - (g/4)*plotH*0.82;
+                ctx.fillText(Math.round(elev)+'m', PAD_L-5, y+3);
+                ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L+plotW, y);
+                ctx.strokeStyle = 'rgba(0,240,255,0.05)'; ctx.lineWidth=1; ctx.stroke();
             }
 
-            // ── X-Axis labels ───────────────────────────────────
-            ctx.fillStyle = 'rgba(148,163,184,0.8)';
+            // ── X labels
+            ctx.fillStyle = 'rgba(148,163,184,0.75)';
             ctx.font = '9px Courier New';
             ctx.textAlign = 'center';
-            const xSteps = Math.min(6, Math.floor(totalDist));
+            const xSteps = Math.min(8, Math.floor(totalDist));
             for (let g = 0; g <= xSteps; g++) {
-                const d = (g / xSteps) * maxD;
-                const x = PAD_L + (d / maxD) * plotW;
-                ctx.fillText(d.toFixed(0) + 'km', x, H - PAD_B + 14);
+                const d = (g/xSteps)*maxD;
+                const x = PAD_L + (d/maxD)*plotW;
+                ctx.fillText(d.toFixed(0)+'km', x, H - PAD_B + 13);
             }
 
-            // ── Stats overlay ───────────────────────────────────
-            const ascent = window.routeStats ? Math.round(window.routeStats.totalAscent) : '?';
-            const descent = window.routeStats ? Math.round(window.routeStats.totalDescent) : '?';
-            const distLabel = totalDist.toFixed(1) + ' km';
+            // ── Export footer (only for PNG)
+            if (forExport) {
+                const dist  = totalDist.toFixed(1) + ' km';
+                const asc   = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
+                const desc  = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
+                const today = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
 
-            ctx.font = 'bold 10px Courier New';
-            ctx.textAlign = 'left';
-            ctx.fillStyle = 'rgba(0,240,255,0.9)';
-            ctx.fillText(`↑${ascent}m  ↓${descent}m  ${distLabel}`, PAD_L + 4, PAD_T - 6);
+                // Stats bar
+                ctx.fillStyle = 'rgba(0,240,255,0.08)';
+                ctx.fillRect(0, H-36, W, 36);
+                ctx.strokeStyle = 'rgba(0,240,255,0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(0, H-36); ctx.lineTo(W, H-36); ctx.stroke();
 
-            // ── PIXELRUUD Watermark ─────────────────────────────
-            ctx.save();
-            ctx.globalAlpha = 0.22;
-            ctx.font = 'bold 11px Courier New';
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#00f0ff';
-            ctx.fillText('PIXELRUUD.COM', W - PAD_R, H - PAD_B + 14);
-            ctx.restore();
+                ctx.font = 'bold 11px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#00f0ff';
+                ctx.fillText(`${dist}  ${asc}  ${desc}`, 14, H-16);
 
-            // Cyan corner brackets (brand signature)
-            const bSize = 10;
-            ctx.strokeStyle = 'rgba(0,240,255,0.5)';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(148,163,184,0.6)';
+                ctx.font = '10px Courier New';
+                ctx.fillText(today, W/2, H-16);
+
+                // Watermark
+                ctx.textAlign = 'right';
+                ctx.fillStyle = 'rgba(0,240,255,0.45)';
+                ctx.font = 'bold 10px Courier New';
+                ctx.fillText('PIXELRUUD.COM', W-14, H-16);
+            }
+
+            // ── Corner brackets (always)
+            const b = 10;
+            ctx.strokeStyle = 'rgba(0,240,255,0.45)';
             ctx.lineWidth = 1.5;
-            // TL
-            ctx.beginPath(); ctx.moveTo(4, 4+bSize); ctx.lineTo(4, 4); ctx.lineTo(4+bSize, 4); ctx.stroke();
-            // TR
-            ctx.beginPath(); ctx.moveTo(W-4-bSize, 4); ctx.lineTo(W-4, 4); ctx.lineTo(W-4, 4+bSize); ctx.stroke();
-            // BL
-            ctx.beginPath(); ctx.moveTo(4, H-4-bSize); ctx.lineTo(4, H-4); ctx.lineTo(4+bSize, H-4); ctx.stroke();
-            // BR
-            ctx.beginPath(); ctx.moveTo(W-4-bSize, H-4); ctx.lineTo(W-4, H-4); ctx.lineTo(W-4, H-4-bSize); ctx.stroke();
+            [[4,4,1,1],[W-4,4,-1,1],[4,H-4,1,-1],[W-4,H-4,-1,-1]].forEach(([x,y,sx,sy]) => {
+                ctx.beginPath(); ctx.moveTo(x, y+sy*b); ctx.lineTo(x, y); ctx.lineTo(x+sx*b, y); ctx.stroke();
+            });
         }
 
-        // ── PNG Download ────────────────────────────────────
+        // ── PNG Export ───────────────────────────────────
         document.getElementById('download3DBtn').addEventListener('click', function() {
-            const canvas = document.getElementById('elevation3DCanvas');
-            if (!canvas || canvas.width === 0) return;
+            if (!routes[0] || !routes[0].elevations) return;
 
-            // Re-render at high resolution for export
-            const origW = canvas.width;
-            const origH = canvas.height;
-            const scale = 3; // 3× resolution for crisp PNG
+            const SCALE = 3;
+            const W = 900, H = 320;
 
-            canvas.width = origW * scale;
-            canvas.height = origH * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.scale(scale, scale);
-            render3DElevationToCtx(ctx, origW, origH);
+            const offscreen = document.createElement('canvas');
+            offscreen.width  = W * SCALE;
+            offscreen.height = H * SCALE;
+            const ctx = offscreen.getContext('2d');
+            ctx.scale(SCALE, SCALE);
 
-            // Download
-            const routeName = routes[0]?.name || 'route';
-            const distKm = window.routeStats ? (window.routeStats.totalDistance / 1000).toFixed(0) : '?';
-            canvas.toBlob(blob => {
+            draw3D(ctx, W, H, true);
+
+            const dist = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) : 'route';
+            offscreen.toBlob(blob => {
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = `pixelruud_3d_${distKm}km.png`;
+                a.download = `pixelruud_3d_${dist}km.png`;
                 a.click();
-
-                // Restore display resolution
-                canvas.width = origW;
-                canvas.height = origH;
-                render3DElevation();
             }, 'image/png');
         });
 
-        // Refactored render to accept ctx + dimensions (for export)
-        function render3DElevationToCtx(ctx, W, H) {
-            // Just call the main render but using passed ctx
-            // We temporarily swap the canvas context — simpler: re-render at current canvas size
-            render3DElevation();
-        }
-
-        // Re-render on window resize
+        // Re-render on resize
         window.addEventListener('resize', () => {
             if (is3DActive) render3DElevation();
         });
