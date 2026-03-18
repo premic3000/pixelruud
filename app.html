@@ -7838,6 +7838,9 @@
         
         function setupChartToggles() {
             try {
+                // Guard against multiple inits
+                if (document.getElementById('toggleElevationChart')?._chartToggleInit) return;
+                if (document.getElementById('toggleElevationChart')) document.getElementById('toggleElevationChart')._chartToggleInit = true;
                 const toggleElevationBtn = document.getElementById('toggleElevationChart');
                 const toggleSurfaceBtn = document.getElementById('toggleSurfaceChart');
                 const elevationChartCanvas = document.getElementById('elevationChart');
@@ -13324,6 +13327,8 @@
     // ==========================================
     
     (function initFloatingToolbar() {
+        if (window._toolbarInitialized) return;
+        window._toolbarInitialized = true;
         const toolbar = document.getElementById('floatingToolbar');
         const dragHandle = document.getElementById('toolbarDragHandle');
         const panelsContainer = document.getElementById('floatingPanels');
@@ -17558,11 +17563,12 @@
                 handle.style.cursor = 'grab';
             });
 
-            // ResizeObserver → redraw chart on resize
+            // ResizeObserver → update chart size on resize (without re-adding .show)
             if (window.ResizeObserver) {
                 const ro = new ResizeObserver(() => {
-                    if (window.elevationChart && typeof showElevationProfile === 'function') {
-                        try { showElevationProfile(); } catch(e) {}
+                    if (window.elevationChart) {
+                        try { window.elevationChart.resize(); } catch(e) {}
+                        setTimeout(() => window.drawProfileHighlights && window.drawProfileHighlights(), 80);
                     }
                 });
                 ro.observe(profile);
