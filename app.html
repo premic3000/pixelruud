@@ -17693,7 +17693,7 @@
             const elevations  = routes[0].elevations;
             const coordinates = routes[0].coordinates;
 
-            // Distances
+            // ── Distances ────────────────────────────────
             const distances = [0];
             let totalDist = 0;
             for (let i = 1; i < coordinates.length; i++) {
@@ -17706,185 +17706,272 @@
                 distances.push(totalDist);
             }
 
-            // Sample
-            const N    = Math.min(350, elevations.length);
+            // ── Sample to ~400 pts ───────────────────────
+            const N    = Math.min(400, elevations.length);
             const step = Math.max(1, Math.floor(elevations.length / N));
             const sE = [], sD = [];
             for (let i = 0; i < elevations.length; i += step) { sE.push(elevations[i]); sD.push(distances[i]); }
-            sE.push(elevations[elevations.length-1]);
-            sD.push(distances[distances.length-1]);
-
+            if (sD[sD.length-1] < distances[distances.length-1] - 0.05) {
+                sE.push(elevations[elevations.length-1]);
+                sD.push(distances[distances.length-1]);
+            }
+            const n = sE.length;
             const minE = Math.min(...sE), maxE = Math.max(...sE);
             const eRange = maxE - minE || 1;
-            const maxD = sD[sD.length-1];
+            const maxD = sD[n-1];
 
-            // Layout
-            const PAD_L = 52, PAD_R = 20, PAD_T = 28, PAD_B = forExport ? 54 : 38;
+            // ── Layout ───────────────────────────────────
+            const FOOTER_H = forExport ? 44 : 0;
+            const PAD_L = 54, PAD_R = 24, PAD_T = 32, PAD_B = 36;
             const plotW = W - PAD_L - PAD_R;
-            const plotH = H - PAD_T - PAD_B;
-            const depth  = Math.round(plotH * 0.26);
-            const depthX = Math.round(plotW * 0.035);
-            const baseY  = PAD_T + plotH + 2;
+            const plotH = H - PAD_T - PAD_B - FOOTER_H;
+            const baseY = PAD_T + plotH;
 
-            const toFront = i => ({
-                x: PAD_L + (sD[i] / maxD) * plotW,
-                y: PAD_T + plotH - ((sE[i] - minE) / eRange) * plotH * 0.82
+            const toX = d => PAD_L + (d / maxD) * plotW;
+            const toY = e => PAD_T + plotH - ((e - minE) / eRange) * plotH * 0.88;
+
+            // ── Gradient per segment ─────────────────────
+            // Smooth gradients (5-point window)
+            const gradients = sE.map((_, i) => {
+                const i0 = Math.max(0, i-2), i1 = Math.min(n-1, i+2);
+                const dElev = sE[i1] - sE[i0];
+                const dDist = (sD[i1] - sD[i0]) * 1000; // meters
+                return dDist > 0 ? (dElev / dDist) * 100 : 0;
             });
-            const pts = sE.map((_, i) => toFront(i));
 
-            // ── Background
+            // ── Color per gradient (PixelRuud palette) ───
+            function gradColor(g, alpha) {
+                // flat: cyan | easy up: lime | mod: orange | steep: red | down: purple shades
+                let r,g2,b;
+                if      (g >  12) { r=255; g2=40;  b=40;  }  // brutal - red
+                else if (g >   8) { r=255; g2=120; b=0;   }  // steep - orange-red
+                else if (g >   5) { r=204; g2=255; b=0;   }  // hard - lime (accent)
+                else if (g >   2) { r=0;   g2=240; b=180; }  // easy up - cyan-green
+                else if (g >  -2) { r=0;   g2=240; b=255; }  // flat - cyan (primary)
+                else if (g >  -5) { r=100; g2=180; b=255; }  // easy down - light blue
+                else if (g >  -8) { r=147; g2=100; b=255; }  // steep down - purple
+                else              { r=200; g2=60;  b=255; }  // brutal down - magenta
+                return `rgba(${r},${g2},${b},${alpha})`;
+            }
+
+            // ── Background ───────────────────────────────
             ctx.fillStyle = '#050a14';
             ctx.fillRect(0, 0, W, H);
 
-            // Grid
+            // Subtle scanline grid
+            ctx.strokeStyle = 'rgba(0,240,255,0.04)';
+            ctx.lineWidth = 1;
             for (let g = 0; g <= 5; g++) {
                 const gy = PAD_T + (g/5) * plotH;
-                ctx.beginPath();
-                ctx.moveTo(PAD_L + depthX - depth*0.5, gy - depth*0.5);
-                ctx.lineTo(PAD_L + plotW + depthX - depth*0.5, gy - depth*0.5);
-                ctx.strokeStyle = 'rgba(0,240,255,0.06)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(PAD_L, gy); ctx.lineTo(PAD_L+plotW, gy); ctx.stroke();
+            }
+            // Vertical grid lines
+            ctx.strokeStyle = 'rgba(0,240,255,0.03)';
+            const vSteps = Math.min(10, Math.floor(totalDist));
+            for (let g = 0; g <= vSteps; g++) {
+                const gx = PAD_L + (g/vSteps)*plotW;
+                ctx.beginPath(); ctx.moveTo(gx, PAD_T); ctx.lineTo(gx, baseY); ctx.stroke();
             }
 
-            // ── Side walls
-            const last = pts[pts.length-1], first = pts[0];
-            // Right wall
-            ctx.beginPath();
-            ctx.moveTo(last.x, last.y);
-            ctx.lineTo(last.x+depthX, last.y-depth);
-            ctx.lineTo(last.x+depthX, baseY-depth);
-            ctx.lineTo(last.x, baseY);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0,180,200,0.12)';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0,240,255,0.25)'; ctx.lineWidth = 0.5; ctx.stroke();
+            // ── Filled segments (gradient colored) ───────
+            for (let i = 0; i < n-1; i++) {
+                const x0 = toX(sD[i]),   y0 = toY(sE[i]);
+                const x1 = toX(sD[i+1]), y1 = toY(sE[i+1]);
+                const g  = (gradients[i] + gradients[i+1]) / 2;
 
-            // Left wall
-            ctx.beginPath();
-            ctx.moveTo(first.x, first.y);
-            ctx.lineTo(first.x+depthX, first.y-depth);
-            ctx.lineTo(first.x+depthX, baseY-depth);
-            ctx.lineTo(first.x, baseY);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0,120,140,0.14)';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0,240,255,0.18)'; ctx.lineWidth = 0.5; ctx.stroke();
-
-            // Top face (back ridge)
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            ctx.lineTo(pts[0].x+depthX, pts[0].y-depth);
-            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x+depthX, pts[i].y-depth);
-            ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
-            for (let i = pts.length-2; i >= 0; i--) ctx.lineTo(pts[i].x, pts[i].y);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0,200,220,0.07)';
-            ctx.fill();
-
-            // ── Front fill (slope colors)
-            for (let i = 0; i < pts.length-1; i++) {
-                const g = i > 0
-                    ? ((sE[i+1]-sE[i-1]) / ((sD[i+1]-sD[Math.max(0,i-1)])*10 + 0.001))
-                    : 0;
-                let r,g2,b;
-                if      (g >  8) { r=239;g2=68; b=68;  }
-                else if (g >  4) { r=251;g2=146;b=60;  }
-                else if (g >  0) { r=34; g2=197;b=94;  }
-                else if (g > -4) { r=0;  g2=240;b=255; }
-                else if (g > -8) { r=147;g2=51; b=234; }
-                else             { r=220;g2=38; b=38;  }
                 ctx.beginPath();
-                ctx.moveTo(pts[i].x, baseY);
-                ctx.lineTo(pts[i].x, pts[i].y);
-                ctx.lineTo(pts[i+1].x, pts[i+1].y);
-                ctx.lineTo(pts[i+1].x, baseY);
+                ctx.moveTo(x0, baseY);
+                ctx.lineTo(x0, y0);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x1, baseY);
                 ctx.closePath();
-                ctx.fillStyle = `rgba(${r},${g2},${b},0.55)`;
+                ctx.fillStyle = gradColor(g, 0.72);
                 ctx.fill();
             }
 
-            // Front ridge
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
-            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-            ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 1.8;
+            // ── Glowing top ridge ────────────────────────
+            // Shadow/glow pass
+            ctx.save();
             ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 5;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            // Base line
+            ctx.shadowBlur = 8;
             ctx.beginPath();
-            ctx.moveTo(PAD_L, baseY);
-            ctx.lineTo(PAD_L+plotW, baseY);
-            ctx.strokeStyle = 'rgba(0,240,255,0.35)';
+            ctx.moveTo(toX(sD[0]), toY(sE[0]));
+            for (let i = 1; i < n; i++) ctx.lineTo(toX(sD[i]), toY(sE[i]));
+            ctx.strokeStyle = 'rgba(0,240,255,0.5)';
             ctx.lineWidth = 1;
             ctx.stroke();
+            ctx.restore();
+            // Crisp top line
+            ctx.beginPath();
+            ctx.moveTo(toX(sD[0]), toY(sE[0]));
+            for (let i = 1; i < n; i++) ctx.lineTo(toX(sD[i]), toY(sE[i]));
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
 
-            // ── Y labels
-            ctx.fillStyle = 'rgba(148,163,184,0.75)';
+            // ── Base line ────────────────────────────────
+            ctx.beginPath();
+            ctx.moveTo(PAD_L, baseY); ctx.lineTo(PAD_L+plotW, baseY);
+            ctx.strokeStyle = 'rgba(0,240,255,0.3)';
+            ctx.lineWidth = 1; ctx.stroke();
+
+            // ── Y-axis labels ────────────────────────────
             ctx.font = '9px Courier New';
             ctx.textAlign = 'right';
             for (let g = 0; g <= 4; g++) {
                 const elev = minE + (g/4)*eRange;
-                const y = PAD_T + plotH - (g/4)*plotH*0.82;
-                ctx.fillText(Math.round(elev)+'m', PAD_L-5, y+3);
-                ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L+plotW, y);
-                ctx.strokeStyle = 'rgba(0,240,255,0.05)'; ctx.lineWidth=1; ctx.stroke();
+                const y = toY(elev);
+                ctx.fillStyle = 'rgba(148,163,184,0.6)';
+                ctx.fillText(Math.round(elev)+'m', PAD_L-6, y+3);
             }
 
-            // ── X labels
-            ctx.fillStyle = 'rgba(148,163,184,0.75)';
-            ctx.font = '9px Courier New';
+            // ── X-axis labels ────────────────────────────
             ctx.textAlign = 'center';
-            const xSteps = Math.min(8, Math.floor(totalDist));
+            ctx.fillStyle = 'rgba(148,163,184,0.6)';
+            ctx.font = '9px Courier New';
+            const xSteps = Math.min(10, Math.floor(totalDist));
             for (let g = 0; g <= xSteps; g++) {
                 const d = (g/xSteps)*maxD;
-                const x = PAD_L + (d/maxD)*plotW;
-                ctx.fillText(d.toFixed(0)+'km', x, H - PAD_B + 13);
+                ctx.fillText(d.toFixed(0)+'km', toX(d), baseY+14);
             }
 
-            // ── Export footer (only for PNG)
-            if (forExport) {
-                const dist  = totalDist.toFixed(1) + ' km';
-                const asc   = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
-                const desc  = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
-                const today = new Date().toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
+            // ── Steep segment % labels ────────────────────
+            // Find segments where |gradient| > 5%, label them once per run
+            ctx.font = 'bold 9px Courier New';
+            let lastLabelX = -999;
+            for (let i = 2; i < n-2; i++) {
+                const g = gradients[i];
+                if (Math.abs(g) < 5) continue;
+                const x = toX(sD[i]);
+                if (x - lastLabelX < 28) continue; // min spacing
+                lastLabelX = x;
+                const y = toY(sE[i]) - 7;
+                const label = (g > 0 ? '+' : '') + g.toFixed(1) + '%';
+                ctx.fillStyle = gradColor(g, 1.0);
+                ctx.textAlign = 'center';
+                ctx.fillText(label, x, y);
+            }
 
-                // Stats bar
-                ctx.fillStyle = 'rgba(0,240,255,0.08)';
-                ctx.fillRect(0, H-36, W, 36);
+            // ── Waypoint pins ────────────────────────────
+            if (waypoints && waypoints.length > 0) {
+                waypoints.forEach((wp, idx) => {
+                    // Find closest distance point
+                    let bestI = 0, bestDist = Infinity;
+                    for (let i = 0; i < coordinates.length; i++) {
+                        const R = 6371;
+                        const dLat = (coordinates[i][0]-wp.lat)*Math.PI/180;
+                        const dLon = (coordinates[i][1]-wp.lng)*Math.PI/180;
+                        const a = Math.sin(dLat/2)**2 + Math.cos(wp.lat*Math.PI/180)*Math.cos(coordinates[i][0]*Math.PI/180)*Math.sin(dLon/2)**2;
+                        const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        if (d < bestDist) { bestDist = d; bestI = i; }
+                    }
+                    // Map to sampled index
+                    const sIdx = Math.min(n-1, Math.round(bestI / step));
+                    const px = toX(sD[sIdx]);
+                    const py = toY(sE[sIdx]);
+                    const isStart = idx === 0;
+                    const isEnd   = idx === waypoints.length-1;
+                    const pinColor = isStart ? '#10b981' : isEnd ? '#ef4444' : 'rgba(0,240,255,0.7)';
+
+                    // Vertical dashed line
+                    ctx.setLineDash([3,3]);
+                    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, baseY);
+                    ctx.strokeStyle = pinColor.replace(')', ',0.4)').replace('rgb','rgba');
+                    ctx.lineWidth = 1; ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // Dot
+                    ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2);
+                    ctx.fillStyle = pinColor; ctx.fill();
+                    ctx.strokeStyle = '#050a14'; ctx.lineWidth = 1.5; ctx.stroke();
+
+                    // Elevation label (start/end only, or every 3rd)
+                    if (isStart || isEnd || idx % 3 === 0) {
+                        const label = Math.round(sE[sIdx])+'m';
+                        const lx = px, ly = py - 10;
+                        ctx.font = 'bold 9px Courier New';
+                        ctx.textAlign = 'center';
+                        ctx.fillStyle = pinColor;
+                        ctx.fillText(label, lx, ly);
+                    }
+                });
+            }
+
+            // ── Summit + Valley markers ───────────────────
+            const maxIdx = sE.indexOf(maxE);
+            const minIdx = sE.indexOf(minE);
+            [[maxIdx, '▲', maxE, '#ccff00'], [minIdx, '▼', minE, 'rgba(0,240,255,0.8)']].forEach(([idx, sym, elev, col]) => {
+                const px = toX(sD[idx]);
+                const py = toY(elev);
+                // Marker
+                ctx.font = 'bold 11px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = col;
+                ctx.fillText(sym, px, py - 14);
+                ctx.font = '9px Courier New';
+                ctx.fillStyle = col;
+                ctx.fillText(Math.round(elev)+'m', px, py - 4);
+            });
+
+            // ── Gradient legend (right side) ─────────────
+            const legendX = W - PAD_R - 8;
+            const legendSteps = [
+                [12, '>12%'],
+                [8,  '8-12%'],
+                [5,  '5-8%'],
+                [2,  '2-5%'],
+                [0,  '0-2%'],
+            ];
+            let ly = PAD_T + 4;
+            ctx.font = '8px Courier New';
+            ctx.textAlign = 'right';
+            legendSteps.forEach(([g, label]) => {
+                ctx.fillStyle = gradColor(g + 0.5, 0.9);
+                ctx.fillRect(legendX - 22, ly, 8, 8);
+                ctx.fillStyle = 'rgba(148,163,184,0.6)';
+                ctx.fillText(label, legendX - 4, ly + 7);
+                ly += 12;
+            });
+
+            // ── Export footer ─────────────────────────────
+            if (forExport) {
+                const footerY = H - FOOTER_H;
+                ctx.fillStyle = 'rgba(0,240,255,0.06)';
+                ctx.fillRect(0, footerY, W, FOOTER_H);
                 ctx.strokeStyle = 'rgba(0,240,255,0.2)';
                 ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(0, H-36); ctx.lineTo(W, H-36); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, footerY); ctx.lineTo(W, footerY); ctx.stroke();
 
-                ctx.font = 'bold 11px Courier New';
+                const dist  = totalDist.toFixed(1)+' km';
+                const asc   = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
+                const desc  = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
+                const today = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+                ctx.font = 'bold 12px Courier New';
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#00f0ff';
-                ctx.fillText(`${dist}  ${asc}  ${desc}`, 14, H-16);
+                ctx.fillText(`${dist}  ${asc}  ${desc}`, 16, footerY + 26);
 
                 ctx.textAlign = 'center';
-                ctx.fillStyle = 'rgba(148,163,184,0.6)';
+                ctx.fillStyle = 'rgba(148,163,184,0.55)';
                 ctx.font = '10px Courier New';
-                ctx.fillText(today, W/2, H-16);
+                ctx.fillText(today, W/2, footerY + 26);
 
-                // Watermark
                 ctx.textAlign = 'right';
-                ctx.fillStyle = 'rgba(0,240,255,0.45)';
-                ctx.font = 'bold 10px Courier New';
-                ctx.fillText('PIXELRUUD.COM', W-14, H-16);
+                ctx.fillStyle = 'rgba(0,240,255,0.5)';
+                ctx.font = 'bold 11px Courier New';
+                ctx.fillText('PIXELRUUD.COM', W-16, footerY + 26);
             }
 
-            // ── Corner brackets (always)
+            // ── Corner brackets (HUD signature) ──────────
             const b = 10;
-            ctx.strokeStyle = 'rgba(0,240,255,0.45)';
+            ctx.strokeStyle = 'rgba(0,240,255,0.4)';
             ctx.lineWidth = 1.5;
-            [[4,4,1,1],[W-4,4,-1,1],[4,H-4,1,-1],[W-4,H-4,-1,-1]].forEach(([x,y,sx,sy]) => {
+            [[4,4,1,1],[W-4,4,-1,1],[4,H-FOOTER_H-4,1,-1],[W-4,H-FOOTER_H-4,-1,-1]].forEach(([x,y,sx,sy]) => {
                 ctx.beginPath(); ctx.moveTo(x, y+sy*b); ctx.lineTo(x, y); ctx.lineTo(x+sx*b, y); ctx.stroke();
             });
         }
+
 
         // ── PNG Export ───────────────────────────────────
         document.getElementById('download3DBtn').addEventListener('click', function() {
