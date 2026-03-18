@@ -2135,9 +2135,7 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
-        .elevation-profile.show {
-            display: block;
-        }
+        /* .elevation-profile.show handled in main rule */
         
         .elevation-profile.faded {
             opacity: 0.25;
@@ -4943,11 +4941,11 @@
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <!-- Highlight checkboxes -->
-                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.7);cursor:pointer;user-select:none;">
+                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
                     <input type="checkbox" id="highlightClimbs" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Anstiege
                 </label>
-                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.7);cursor:pointer;user-select:none;">
+                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
                     <input type="checkbox" id="highlightPlaces" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Orte
                 </label>
@@ -4962,7 +4960,7 @@
         </div>
 
         <!-- Chart Toggle Buttons -->
-        <div class="chart-toggles" style="padding: 4px 10px 0;">
+        <div class="chart-toggles" style="padding: 3px 10px 0; flex-shrink: 0;">
             <button class="chart-toggle-btn active" id="toggleElevationChart" title="Höhenprofil anzeigen/ausblenden">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -5008,7 +5006,7 @@
         
         <!-- Weather icons now integrated directly into elevation profile chart -->
         
-        <canvas id="elevationChart" style="flex:1; min-height:0;"></canvas>
+        <canvas id="elevationChart" style="flex:1; min-height:0; display:block; width:100%;"></canvas>
     </div>
 
     <div class="control-panel" id="controlPanel">
@@ -7869,21 +7867,17 @@
                     if (isActive) {
                         newSurfaceBtn.classList.remove('active');
                         if (legend) legend.style.display = 'none';
-                        
-                        // Redraw map route in blue
-                        if (typeof window.redrawMapRoute === 'function') {
-                            window.redrawMapRoute(false);
-                        }
+                        if (typeof window.redrawMapRoute === 'function') window.redrawMapRoute(false);
                     } else {
                         newSurfaceBtn.classList.add('active');
                         if (legend) legend.style.display = 'flex';
-                        
-                        // Redraw map route in surface colors
-                        if (typeof window.redrawMapRoute === 'function') {
-                            window.redrawMapRoute(true);
-                        }
+                        if (typeof window.redrawMapRoute === 'function') window.redrawMapRoute(true);
                     }
-                    
+                    // Re-render chart so segment backgroundColor/borderColor updates
+                    if (window.elevationChart) {
+                        window.elevationChart.update();
+                        setTimeout(() => window.drawProfileHighlights && window.drawProfileHighlights(), 80);
+                    }
                     console.log(`🎨 Surface colors ${isActive ? 'hidden' : 'shown'}`);
                 });
                 
@@ -12870,7 +12864,7 @@
                 }
             };
             
-            elevationChart = new Chart(ctx, {
+            window.elevationChart = elevationChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [{
@@ -12929,6 +12923,24 @@
                             },
                             backgroundColor: ctx => {
                                 const idx = ctx.p0DataIndex;
+                                // When surface toggle is active, use surface colors for fill
+                                const surfaceToggle = document.getElementById('toggleSurfaceChart');
+                                if (surfaceToggle && surfaceToggle.classList.contains('active') &&
+                                    window.surfaceData && window.surfaceData.length > 0) {
+                                    const dist = sampledDistances[idx] || 0;
+                                    const totalDist = sampledDistances[sampledDistances.length-1] || 1;
+                                    const sIdx = Math.min(
+                                        Math.floor((dist/totalDist)*window.surfaceData.length),
+                                        window.surfaceData.length-1
+                                    );
+                                    const surfaceColorMap = {
+                                        'paved':'rgba(16,185,129,0.55)', 'asphalt':'rgba(16,185,129,0.55)',
+                                        'compacted':'rgba(234,179,8,0.55)', 'gravel':'rgba(249,115,22,0.6)',
+                                        'unpaved':'rgba(239,68,68,0.6)', 'dirt':'rgba(220,38,38,0.65)',
+                                        'ground':'rgba(185,28,28,0.65)', 'sand':'rgba(245,158,11,0.6)'
+                                    };
+                                    return surfaceColorMap[window.surfaceData[sIdx]] || 'rgba(148,163,184,0.35)';
+                                }
                                 return backgroundColors[idx];
                             }
                         }
