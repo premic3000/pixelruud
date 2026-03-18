@@ -2140,7 +2140,7 @@
         }
         
         .elevation-profile.faded {
-            opacity: 0.3;
+            opacity: 0.25;
         }
         
         .elevation-tab {
@@ -4921,38 +4921,48 @@
     <!-- Elevation Tab Button -->
     <!-- Elevation Profile -->
     <div class="elevation-profile" id="elevationProfile">
-        <!-- Header: Überschrift + Legende in einer Zeile -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-            <h4 style="margin: 0;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
-                Höhenprofil
-            </h4>
-            
-            <!-- Surface Legend (rechts neben Überschrift) -->
-            <div id="surfaceLegend" style="display: none; font-size: 8px; color: var(--text-dim); gap: 6px; align-items: center;">
-                <span style="display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
-                    <span style="width: 10px; height: 10px; background: #10b981; border-radius: 2px; display: inline-block;"></span>
-                    Asphalt
+        <!-- ── Drag Handle + Controls Bar ── -->
+        <div id="elevationDragHandle" style="
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 5px 10px;
+            background: rgba(0,240,255,0.06);
+            border-bottom: 1px solid rgba(0,240,255,0.12);
+            cursor: grab; user-select: none; flex-shrink: 0;
+        ">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#00f0ff; font-family:'Courier New',monospace; font-size:10px; font-weight:700; letter-spacing:1.5px;">
+                    ∿ HÖHENPROFIL
                 </span>
-                <span style="display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
-                    <span style="width: 10px; height: 10px; background: #eab308; border-radius: 2px; display: inline-block;"></span>
-                    Compacted
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
-                    <span style="width: 10px; height: 10px; background: #f97316; border-radius: 2px; display: inline-block;"></span>
-                    Gravel
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
-                    <span style="width: 10px; height: 10px; background: #ef4444; border-radius: 2px; display: inline-block;"></span>
-                    Unpaved
-                </span>
+                <!-- Surface Legend -->
+                <div id="surfaceLegend" style="display:none; font-size:8px; color:var(--text-muted,#94a3b8); gap:5px; align-items:center; flex-wrap:wrap;">
+                    <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#10b981;border-radius:1px;display:inline-block;"></span>Asphalt</span>
+                    <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#eab308;border-radius:1px;display:inline-block;"></span>Compacted</span>
+                    <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#f97316;border-radius:1px;display:inline-block;"></span>Gravel</span>
+                    <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#ef4444;border-radius:1px;display:inline-block;"></span>Unpaved</span>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <!-- Highlight checkboxes -->
+                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.7);cursor:pointer;user-select:none;">
+                    <input type="checkbox" id="highlightClimbs" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
+                    Anstiege
+                </label>
+                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:rgba(0,240,255,0.7);cursor:pointer;user-select:none;">
+                    <input type="checkbox" id="highlightPlaces" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
+                    Orte
+                </label>
+                <!-- Export button -->
+                <button id="exportProfileBtn" title="Als PNG exportieren" style="
+                    background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.35);
+                    color:#00f0ff; font-family:'Courier New',monospace; font-size:9px; font-weight:700;
+                    padding:3px 9px; cursor:pointer; letter-spacing:1px; border-radius:3px;
+                    transition:all 0.2s;
+                ">⬇ PNG</button>
             </div>
         </div>
-        
+
         <!-- Chart Toggle Buttons -->
-        <div class="chart-toggles">
+        <div class="chart-toggles" style="padding: 4px 10px 0;">
             <button class="chart-toggle-btn active" id="toggleElevationChart" title="Höhenprofil anzeigen/ausblenden">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -4972,14 +4982,6 @@
                     <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
                 </svg>
                 Wetter
-            </button>
-            <button class="chart-toggle-btn" id="toggle3DChart" title="3D Höhenprofil & PNG Download">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                    <path d="M2 17l10 5 10-5"></path>
-                    <path d="M2 12l10 5 10-5"></path>
-                </svg>
-                3D
             </button>
             <button class="chart-toggle-btn" id="weatherTimeBtn" title="Abfahrtszeit wählen" style="display: none; position: relative;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
@@ -5006,80 +5008,9 @@
         
         <!-- Weather icons now integrated directly into elevation profile chart -->
         
-        <canvas id="elevationChart"></canvas>
+        <canvas id="elevationChart" style="flex:1; min-height:0;"></canvas>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         3D ELEVATION OVERLAY — Draggable + Resizable
-    ═══════════════════════════════════════════════════════ -->
-    <div id="elevation3DOverlay" style="
-        display: none;
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 720px;
-        min-width: 340px;
-        min-height: 260px;
-        background: rgba(0, 8, 20, 0.96);
-        border: 1px solid rgba(0,240,255,0.35);
-        border-radius: 12px;
-        box-shadow: 0 0 40px rgba(0,240,255,0.12), 0 8px 40px rgba(0,0,0,0.7);
-        z-index: 20000;
-        overflow: hidden;
-        resize: both;
-        font-family: Courier New, monospace;
-    ">
-        <!-- Title bar / drag handle -->
-        <div id="elevation3DDragHandle" style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 14px;
-            background: rgba(0,240,255,0.07);
-            border-bottom: 1px solid rgba(0,240,255,0.15);
-            cursor: grab;
-            user-select: none;
-        ">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span style="color:var(--primary,#00f0ff); font-size:11px; font-weight:700; letter-spacing:2px;">
-                    ▲ 3D HÖHENPROFIL
-                </span>
-                <span id="elevation3DStats" style="color:rgba(148,163,184,0.7); font-size:10px;"></span>
-            </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <button id="download3DBtn" style="
-                    background: rgba(0,240,255,0.1);
-                    border: 1px solid rgba(0,240,255,0.4);
-                    color: #00f0ff;
-                    font-family: Courier New, monospace;
-                    font-size: 9px;
-                    font-weight: 700;
-                    padding: 4px 10px;
-                    cursor: pointer;
-                    letter-spacing: 1px;
-                    border-radius: 4px;
-                    transition: all 0.2s;
-                ">⬇ PNG</button>
-                <button id="elevation3DClose" style="
-                    background: none;
-                    border: 1px solid rgba(255,255,255,0.15);
-                    color: rgba(255,255,255,0.5);
-                    width: 22px; height: 22px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 13px;
-                    display: flex; align-items:center; justify-content:center;
-                    transition: all 0.2s;
-                ">×</button>
-            </div>
-        </div>
-        <!-- Canvas -->
-        <div id="elevation3DCanvasWrapper" style="padding: 0; position:relative; height: calc(100% - 42px);">
-            <canvas id="elevation3DCanvas" style="width:100%; height:100%; display:block;"></canvas>
-        </div>
-    </div>
-    
     <div class="control-panel" id="controlPanel">
         <!-- Drag Handle -->
         <div id="controlPanelDragHandle" style="
@@ -7916,19 +7847,9 @@
                 toggleElevationBtn.parentNode.replaceChild(newElevationBtn, toggleElevationBtn);
                 toggleSurfaceBtn.parentNode.replaceChild(newSurfaceBtn, toggleSurfaceBtn);
 
-                // Also re-attach 3D button listener after clone
-                const old3DBtn = document.getElementById('toggle3DChart');
-                if (old3DBtn) {
-                    const new3DBtn = old3DBtn.cloneNode(true);
-                    old3DBtn.parentNode.replaceChild(new3DBtn, old3DBtn);
-                    new3DBtn.addEventListener('click', () => toggle3DProfile());
-                }
-                
                 // Toggle Elevation Chart
                 newElevationBtn.addEventListener('click', () => {
                     // If 3D is active, turn it off first
-                    if (is3DActive) toggle3DProfile();
-                    
                     const isActive = newElevationBtn.classList.contains('active');
                     if (isActive) {
                         newElevationBtn.classList.remove('active');
@@ -17572,437 +17493,361 @@
     </div>
 
 
+
+
     <script>
         // ═══════════════════════════════════════════════════
-        // 3D ELEVATION PROFILE — Floating Overlay
+        // ELEVATION PROFILE — Drag, Resize, Highlights, Export
         // ═══════════════════════════════════════════════════
-
-        let is3DActive = false;
-
-        // ── Toggle overlay ───────────────────────────────
-        function toggle3DProfile() {
-            is3DActive = !is3DActive;
-            const btn3D   = document.getElementById('toggle3DChart');
-            const overlay = document.getElementById('elevation3DOverlay');
-            if (btn3D) btn3D.classList.toggle('active', is3DActive);
-
-            if (is3DActive) {
-                overlay.style.display = 'block';
-                // Deactivate other chart buttons visually only
-                const e = document.getElementById('toggleElevationChart');
-                const s = document.getElementById('toggleSurfaceChart');
-                if (e) e.classList.remove('active');
-                if (s) s.classList.remove('active');
-                // Update stats label
-                updateOverlayStats();
-                // Render after overlay is visible (needs layout)
-                requestAnimationFrame(() => render3DElevation());
-            } else {
-                overlay.style.display = 'none';
-                const e = document.getElementById('toggleElevationChart');
-                if (e) e.classList.add('active');
-            }
-        }
-
-        function updateOverlayStats() {
-            const el = document.getElementById('elevation3DStats');
-            if (!el) return;
-            const dist = window.routeStats ? (window.routeStats.totalDistance/1000).toFixed(1)+' km' : '';
-            const asc  = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
-            const desc = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
-            el.textContent = [dist, asc, desc].filter(Boolean).join('  ');
-        }
-
-        // Initial binding
-        const init3DBtn = document.getElementById('toggle3DChart');
-        if (init3DBtn) init3DBtn.addEventListener('click', () => toggle3DProfile());
-
-        // Close button
-        document.getElementById('elevation3DClose').addEventListener('click', () => {
-            is3DActive = false;
-            document.getElementById('elevation3DOverlay').style.display = 'none';
-            const btn3D = document.getElementById('toggle3DChart');
-            if (btn3D) btn3D.classList.remove('active');
-            const e = document.getElementById('toggleElevationChart');
-            if (e) e.classList.add('active');
-        });
 
         // ── Drag ─────────────────────────────────────────
         (function() {
-            const overlay = document.getElementById('elevation3DOverlay');
-            const handle  = document.getElementById('elevation3DDragHandle');
+            const profile = document.getElementById('elevationProfile');
+            const handle  = document.getElementById('elevationDragHandle');
+            if (!profile || !handle) return;
+
             let dragging = false, ox = 0, oy = 0;
 
             handle.addEventListener('mousedown', e => {
-                if (e.target.tagName === 'BUTTON') return;
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'LABEL') return;
                 dragging = true;
                 handle.style.cursor = 'grabbing';
-                // Switch from transform-based centering to absolute pos
-                if (overlay.style.transform) {
-                    const r = overlay.getBoundingClientRect();
-                    overlay.style.left = r.left + 'px';
-                    overlay.style.top  = r.top  + 'px';
-                    overlay.style.transform = 'none';
-                }
-                ox = e.clientX - overlay.getBoundingClientRect().left;
-                oy = e.clientY - overlay.getBoundingClientRect().top;
+
+                // Switch from bottom/left anchor to absolute top/left
+                const r = profile.getBoundingClientRect();
+                profile.style.bottom = 'auto';
+                profile.style.left   = r.left + 'px';
+                profile.style.top    = r.top  + 'px';
+                profile.style.width  = r.width  + 'px';
+                profile.style.height = r.height + 'px';
+
+                ox = e.clientX - r.left;
+                oy = e.clientY - r.top;
                 e.preventDefault();
             });
 
             document.addEventListener('mousemove', e => {
                 if (!dragging) return;
-                overlay.style.left = (e.clientX - ox) + 'px';
-                overlay.style.top  = (e.clientY - oy) + 'px';
+                profile.style.left = Math.max(0, e.clientX - ox) + 'px';
+                profile.style.top  = Math.max(0, e.clientY - oy) + 'px';
             });
 
             document.addEventListener('mouseup', () => {
+                if (!dragging) return;
                 dragging = false;
                 handle.style.cursor = 'grab';
             });
+
+            // ResizeObserver → redraw chart on resize
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(() => {
+                    if (window.elevationChart && typeof showElevationProfile === 'function') {
+                        try { showElevationProfile(); } catch(e) {}
+                    }
+                });
+                ro.observe(profile);
+            }
         })();
 
-        // Re-render when resized (ResizeObserver)
-        (function() {
-            const wrapper = document.getElementById('elevation3DCanvasWrapper');
-            if (!wrapper) return;
-            const ro = new ResizeObserver(() => {
-                if (is3DActive) render3DElevation();
-            });
-            ro.observe(wrapper);
-        })();
-
-        // ── Render ───────────────────────────────────────
-        function render3DElevation() {
+        // ── Highlights overlay on chart ───────────────────
+        // Called after Chart.js renders; draws annotations on top
+        window.drawProfileHighlights = function() {
+            const profile = document.getElementById('elevationProfile');
+            if (!profile || !profile.classList.contains('show')) return;
             if (!routes[0] || !routes[0].elevations) return;
 
-            const wrapper = document.getElementById('elevation3DCanvasWrapper');
-            const canvas  = document.getElementById('elevation3DCanvas');
-            if (!canvas || !wrapper) return;
+            const showClimbs = document.getElementById('highlightClimbs')?.checked;
+            const showPlaces = document.getElementById('highlightPlaces')?.checked;
+            if (!showClimbs && !showPlaces) return;
 
-            const W = wrapper.offsetWidth  || 700;
-            const H = wrapper.offsetHeight || 260;
-            canvas.width  = W;
-            canvas.height = H;
+            // Get Chart.js chart area
+            const chart = window.elevationChart;
+            if (!chart) return;
+            const ca = chart.chartArea;
+            if (!ca) return;
 
-            const ctx = canvas.getContext('2d');
-            draw3D(ctx, W, H, false);
-        }
+            const canvas = document.getElementById('elevationChart');
+            const ctx    = canvas.getContext('2d');
 
-        // ── Core draw (used for screen + export) ─────────
-        function draw3D(ctx, W, H, forExport) {
             const elevations  = routes[0].elevations;
             const coordinates = routes[0].coordinates;
 
-            // ── Distances ────────────────────────────────
+            // Build distance array
             const distances = [0];
             let totalDist = 0;
             for (let i = 1; i < coordinates.length; i++) {
                 const p = coordinates[i-1], c = coordinates[i];
                 const R = 6371;
-                const dLat = (c[0]-p[0])*Math.PI/180;
-                const dLon = (c[1]-p[1])*Math.PI/180;
-                const a = Math.sin(dLat/2)**2 + Math.cos(p[0]*Math.PI/180)*Math.cos(c[0]*Math.PI/180)*Math.sin(dLon/2)**2;
-                totalDist += R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const dLat=(c[0]-p[0])*Math.PI/180, dLon=(c[1]-p[1])*Math.PI/180;
+                const a=Math.sin(dLat/2)**2+Math.cos(p[0]*Math.PI/180)*Math.cos(c[0]*Math.PI/180)*Math.sin(dLon/2)**2;
+                totalDist += R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
                 distances.push(totalDist);
             }
+            const maxD = totalDist;
 
-            // ── Sample to ~400 pts ───────────────────────
-            const N    = Math.min(400, elevations.length);
-            const step = Math.max(1, Math.floor(elevations.length / N));
-            const sE = [], sD = [];
-            for (let i = 0; i < elevations.length; i += step) { sE.push(elevations[i]); sD.push(distances[i]); }
-            if (sD[sD.length-1] < distances[distances.length-1] - 0.05) {
-                sE.push(elevations[elevations.length-1]);
-                sD.push(distances[distances.length-1]);
-            }
-            const n = sE.length;
-            const minE = Math.min(...sE), maxE = Math.max(...sE);
+            const toCanvasX = d => ca.left + (d/maxD)*(ca.right-ca.left);
+            const minE = Math.min(...elevations), maxE = Math.max(...elevations);
             const eRange = maxE - minE || 1;
-            const maxD = sD[n-1];
+            const toCanvasY = e => ca.bottom - ((e-minE)/eRange)*(ca.bottom-ca.top)*0.9;
 
-            // ── Layout ───────────────────────────────────
-            const FOOTER_H = forExport ? 44 : 0;
-            const PAD_L = 54, PAD_R = 24, PAD_T = 32, PAD_B = 36;
-            const plotW = W - PAD_L - PAD_R;
-            const plotH = H - PAD_T - PAD_B - FOOTER_H;
-            const baseY = PAD_T + plotH;
-
-            const toX = d => PAD_L + (d / maxD) * plotW;
-            const toY = e => PAD_T + plotH - ((e - minE) / eRange) * plotH * 0.88;
-
-            // ── Gradient per segment ─────────────────────
-            // Smooth gradients (5-point window)
-            const gradients = sE.map((_, i) => {
-                const i0 = Math.max(0, i-2), i1 = Math.min(n-1, i+2);
-                const dElev = sE[i1] - sE[i0];
-                const dDist = (sD[i1] - sD[i0]) * 1000; // meters
-                return dDist > 0 ? (dElev / dDist) * 100 : 0;
-            });
-
-            // ── Color per gradient (PixelRuud palette) ───
-            function gradColor(g, alpha) {
-                // flat: cyan | easy up: lime | mod: orange | steep: red | down: purple shades
-                let r,g2,b;
-                if      (g >  12) { r=255; g2=40;  b=40;  }  // brutal - red
-                else if (g >   8) { r=255; g2=120; b=0;   }  // steep - orange-red
-                else if (g >   5) { r=204; g2=255; b=0;   }  // hard - lime (accent)
-                else if (g >   2) { r=0;   g2=240; b=180; }  // easy up - cyan-green
-                else if (g >  -2) { r=0;   g2=240; b=255; }  // flat - cyan (primary)
-                else if (g >  -5) { r=100; g2=180; b=255; }  // easy down - light blue
-                else if (g >  -8) { r=147; g2=100; b=255; }  // steep down - purple
-                else              { r=200; g2=60;  b=255; }  // brutal down - magenta
-                return `rgba(${r},${g2},${b},${alpha})`;
-            }
-
-            // ── Background ───────────────────────────────
-            ctx.fillStyle = '#050a14';
-            ctx.fillRect(0, 0, W, H);
-
-            // Subtle scanline grid
-            ctx.strokeStyle = 'rgba(0,240,255,0.04)';
-            ctx.lineWidth = 1;
-            for (let g = 0; g <= 5; g++) {
-                const gy = PAD_T + (g/5) * plotH;
-                ctx.beginPath(); ctx.moveTo(PAD_L, gy); ctx.lineTo(PAD_L+plotW, gy); ctx.stroke();
-            }
-            // Vertical grid lines
-            ctx.strokeStyle = 'rgba(0,240,255,0.03)';
-            const vSteps = Math.min(10, Math.floor(totalDist));
-            for (let g = 0; g <= vSteps; g++) {
-                const gx = PAD_L + (g/vSteps)*plotW;
-                ctx.beginPath(); ctx.moveTo(gx, PAD_T); ctx.lineTo(gx, baseY); ctx.stroke();
-            }
-
-            // ── Filled segments (gradient colored) ───────
-            for (let i = 0; i < n-1; i++) {
-                const x0 = toX(sD[i]),   y0 = toY(sE[i]);
-                const x1 = toX(sD[i+1]), y1 = toY(sE[i+1]);
-                const g  = (gradients[i] + gradients[i+1]) / 2;
-
-                ctx.beginPath();
-                ctx.moveTo(x0, baseY);
-                ctx.lineTo(x0, y0);
-                ctx.lineTo(x1, y1);
-                ctx.lineTo(x1, baseY);
-                ctx.closePath();
-                ctx.fillStyle = gradColor(g, 0.72);
-                ctx.fill();
-            }
-
-            // ── Glowing top ridge ────────────────────────
-            // Shadow/glow pass
             ctx.save();
-            ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.moveTo(toX(sD[0]), toY(sE[0]));
-            for (let i = 1; i < n; i++) ctx.lineTo(toX(sD[i]), toY(sE[i]));
-            ctx.strokeStyle = 'rgba(0,240,255,0.5)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            ctx.restore();
-            // Crisp top line
-            ctx.beginPath();
-            ctx.moveTo(toX(sD[0]), toY(sE[0]));
-            for (let i = 1; i < n; i++) ctx.lineTo(toX(sD[i]), toY(sE[i]));
-            ctx.strokeStyle = '#00f0ff';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // ── Base line ────────────────────────────────
-            ctx.beginPath();
-            ctx.moveTo(PAD_L, baseY); ctx.lineTo(PAD_L+plotW, baseY);
-            ctx.strokeStyle = 'rgba(0,240,255,0.3)';
-            ctx.lineWidth = 1; ctx.stroke();
-
-            // ── Y-axis labels ────────────────────────────
-            ctx.font = '9px Courier New';
-            ctx.textAlign = 'right';
-            for (let g = 0; g <= 4; g++) {
-                const elev = minE + (g/4)*eRange;
-                const y = toY(elev);
-                ctx.fillStyle = 'rgba(148,163,184,0.6)';
-                ctx.fillText(Math.round(elev)+'m', PAD_L-6, y+3);
-            }
-
-            // ── X-axis labels ────────────────────────────
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'rgba(148,163,184,0.6)';
-            ctx.font = '9px Courier New';
-            const xSteps = Math.min(10, Math.floor(totalDist));
-            for (let g = 0; g <= xSteps; g++) {
-                const d = (g/xSteps)*maxD;
-                ctx.fillText(d.toFixed(0)+'km', toX(d), baseY+14);
-            }
-
-            // ── Steep segment % labels ────────────────────
-            // Find segments where |gradient| > 5%, label them once per run
             ctx.font = 'bold 9px Courier New';
-            let lastLabelX = -999;
-            for (let i = 2; i < n-2; i++) {
-                const g = gradients[i];
-                if (Math.abs(g) < 5) continue;
-                const x = toX(sD[i]);
-                if (x - lastLabelX < 28) continue; // min spacing
-                lastLabelX = x;
-                const y = toY(sE[i]) - 7;
-                const label = (g > 0 ? '+' : '') + g.toFixed(1) + '%';
-                ctx.fillStyle = gradColor(g, 1.0);
+
+            // ── CLIMB / DESCENT ANALYSIS ──────────────────
+            if (showClimbs) {
+                // Smooth gradients
+                const N = elevations.length;
+                const grads = elevations.map((_, i) => {
+                    const i0=Math.max(0,i-3), i1=Math.min(N-1,i+3);
+                    const dE=elevations[i1]-elevations[i0];
+                    const dD=(distances[i1]-distances[i0])*1000;
+                    return dD>0 ? (dE/dD)*100 : 0;
+                });
+
+                // Find climb/descent segments (>150m gain/loss, avg grad >3%)
+                let segments = [], inClimb=false, inDesc=false;
+                let segStart=0, segGain=0;
+                for (let i=1; i<N; i++) {
+                    const dE = elevations[i]-elevations[i-1];
+                    if (!inClimb && !inDesc) {
+                        if (grads[i] > 3)  { inClimb=true; segStart=i; segGain=0; }
+                        if (grads[i] < -3) { inDesc =true; segStart=i; segGain=0; }
+                    } else if (inClimb) {
+                        segGain += Math.max(0, dE);
+                        if (grads[i] < 1 || i===N-1) {
+                            if (segGain > 80) {
+                                const segDist = distances[i]-distances[segStart];
+                                const avgG = segDist>0 ? (segGain/(segDist*10)).toFixed(1) : '?';
+                                segments.push({type:'climb', from:segStart, to:i, gain:Math.round(segGain), avgGrad:avgG, dist:segDist});
+                            }
+                            inClimb=false; segGain=0;
+                        }
+                    } else if (inDesc) {
+                        segGain += Math.max(0, -dE);
+                        if (grads[i] > -1 || i===N-1) {
+                            if (segGain > 80) {
+                                const segDist = distances[i]-distances[segStart];
+                                const avgG = segDist>0 ? (segGain/(segDist*10)).toFixed(1) : '?';
+                                segments.push({type:'descent', from:segStart, to:i, gain:Math.round(segGain), avgGrad:avgG, dist:segDist});
+                            }
+                            inDesc=false; segGain=0;
+                        }
+                    }
+                }
+
+                // Keep only top 5 by gain, avoid overlap
+                segments.sort((a,b) => b.gain-a.gain);
+                const shown = segments.slice(0, 5);
+
+                // Longest single climb highlight
+                const longestClimb = segments.filter(s=>s.type==='climb').sort((a,b)=>b.dist-a.dist)[0];
+
+                shown.forEach(seg => {
+                    const midI  = Math.round((seg.from+seg.to)/2);
+                    const px    = toCanvasX(distances[midI]);
+                    const py    = toCanvasY(elevations[midI]) - 14;
+                    const isLongest = longestClimb && seg === longestClimb;
+
+                    const color = seg.type==='climb'
+                        ? (parseFloat(seg.avgGrad)>7 ? '#ff4444' : parseFloat(seg.avgGrad)>4 ? '#ffaa00' : '#ccff00')
+                        : '#818cf8';
+
+                    // Bracket under the segment
+                    const x0 = toCanvasX(distances[seg.from]);
+                    const x1 = toCanvasX(distances[seg.to]);
+                    ctx.beginPath();
+                    ctx.moveTo(x0, ca.bottom+4); ctx.lineTo(x0, ca.bottom+8);
+                    ctx.lineTo(x1, ca.bottom+8); ctx.lineTo(x1, ca.bottom+4);
+                    ctx.strokeStyle = color+'99';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    // Label
+                    const sym   = seg.type==='climb' ? '↑' : '↓';
+                    const label = `${sym}${seg.gain}m ${seg.avgGrad}%`;
+                    const extra = isLongest ? ' ★' : '';
+
+                    ctx.fillStyle = color;
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = '#000'; ctx.shadowBlur = 3;
+                    ctx.fillText(label+extra, px, py);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Highest point marker
+                const maxIdx = elevations.indexOf(maxE);
+                const hx = toCanvasX(distances[maxIdx]);
+                const hy = toCanvasY(maxE) - 8;
+                ctx.fillStyle = '#ccff00';
                 ctx.textAlign = 'center';
-                ctx.fillText(label, x, y);
+                ctx.font = '10px Courier New';
+                ctx.fillText('▲', hx, hy);
+                ctx.font = 'bold 9px Courier New';
+                ctx.fillText(Math.round(maxE)+'m', hx, hy+10);
             }
 
-            // ── Waypoint pins ────────────────────────────
-            if (waypoints && waypoints.length > 0) {
-                waypoints.forEach((wp, idx) => {
-                    // Find closest distance point
-                    let bestI = 0, bestDist = Infinity;
-                    for (let i = 0; i < coordinates.length; i++) {
-                        const R = 6371;
-                        const dLat = (coordinates[i][0]-wp.lat)*Math.PI/180;
-                        const dLon = (coordinates[i][1]-wp.lng)*Math.PI/180;
-                        const a = Math.sin(dLat/2)**2 + Math.cos(wp.lat*Math.PI/180)*Math.cos(coordinates[i][0]*Math.PI/180)*Math.sin(dLon/2)**2;
-                        const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                        if (d < bestDist) { bestDist = d; bestI = i; }
-                    }
-                    // Map to sampled index
-                    const sIdx = Math.min(n-1, Math.round(bestI / step));
-                    const px = toX(sD[sIdx]);
-                    const py = toY(sE[sIdx]);
-                    const isStart = idx === 0;
-                    const isEnd   = idx === waypoints.length-1;
-                    const pinColor = isStart ? '#10b981' : isEnd ? '#ef4444' : 'rgba(0,240,255,0.7)';
-
-                    // Vertical dashed line
+            // ── WAYPOINT PLACE NAMES ──────────────────────
+            if (showPlaces && waypoints && waypoints.length > 0) {
+                // 10km markers
+                const kmStep = 10;
+                for (let km=kmStep; km<totalDist; km+=kmStep) {
+                    const idx = distances.findIndex(d=>d>=km);
+                    if (idx<0) continue;
+                    const px = toCanvasX(distances[idx]);
+                    ctx.strokeStyle = 'rgba(0,240,255,0.25)';
+                    ctx.lineWidth = 1;
                     ctx.setLineDash([3,3]);
-                    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, baseY);
-                    ctx.strokeStyle = pinColor.replace(')', ',0.4)').replace('rgb','rgba');
-                    ctx.lineWidth = 1; ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(px,ca.top); ctx.lineTo(px,ca.bottom+2); ctx.stroke();
                     ctx.setLineDash([]);
+                    ctx.fillStyle = 'rgba(0,240,255,0.5)';
+                    ctx.textAlign = 'center';
+                    ctx.font = '8px Courier New';
+                    ctx.fillText(km+'km', px, ca.bottom+14);
+                }
+
+                // Waypoint names from Nominatim cache or labels
+                waypoints.forEach((wp, i) => {
+                    // Find closest route point
+                    let bestI=0, bestD=Infinity;
+                    for (let j=0; j<coordinates.length; j++) {
+                        const R=6371, dLat=(coordinates[j][0]-wp.lat)*Math.PI/180, dLon=(coordinates[j][1]-wp.lng)*Math.PI/180;
+                        const a=Math.sin(dLat/2)**2+Math.cos(wp.lat*Math.PI/180)*Math.cos(coordinates[j][0]*Math.PI/180)*Math.sin(dLon/2)**2;
+                        const d=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+                        if(d<bestD){bestD=d;bestI=j;}
+                    }
+                    const px = toCanvasX(distances[bestI]);
+                    const py = toCanvasY(elevations[bestI]);
+                    const isStart=i===0, isEnd=i===waypoints.length-1;
+                    const col = isStart?'#10b981':isEnd?'#ef4444':'rgba(0,240,255,0.8)';
 
                     // Dot
-                    ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2);
-                    ctx.fillStyle = pinColor; ctx.fill();
-                    ctx.strokeStyle = '#050a14'; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(px,py,3.5,0,Math.PI*2);
+                    ctx.fillStyle=col; ctx.fill();
 
-                    // Elevation label (start/end only, or every 3rd)
-                    if (isStart || isEnd || idx % 3 === 0) {
-                        const label = Math.round(sE[sIdx])+'m';
-                        const lx = px, ly = py - 10;
+                    // Name label (use cached geocode or label)
+                    const name = wp.label || wp.name || (isStart?'Start':isEnd?'Ziel':null);
+                    if (name) {
                         ctx.font = 'bold 9px Courier New';
                         ctx.textAlign = 'center';
-                        ctx.fillStyle = pinColor;
-                        ctx.fillText(label, lx, ly);
+                        ctx.fillStyle = col;
+                        ctx.shadowColor='#000'; ctx.shadowBlur=3;
+                        // Alternate above/below to avoid overlap
+                        const yOff = (i%2===0) ? -10 : 10;
+                        ctx.fillText(name.length>14 ? name.slice(0,13)+'…' : name, px, py+yOff);
+                        ctx.shadowBlur=0;
                     }
+                });
+
+                // Async: fetch place names for waypoints that don't have labels yet
+                waypoints.forEach((wp, i) => {
+                    if (wp.label || wp._geocoding) return;
+                    wp._geocoding = true;
+                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${wp.lat}&lon=${wp.lng}&format=json&zoom=10`)
+                        .then(r=>r.json())
+                        .then(data=>{
+                            const addr = data.address || {};
+                            wp.label = addr.village || addr.town || addr.city || addr.municipality || addr.county || '';
+                            wp._geocoding = false;
+                            // Redraw after geocode arrives
+                            setTimeout(()=>window.drawProfileHighlights(), 100);
+                        })
+                        .catch(()=>{ wp._geocoding=false; });
                 });
             }
 
-            // ── Summit + Valley markers ───────────────────
-            const maxIdx = sE.indexOf(maxE);
-            const minIdx = sE.indexOf(minE);
-            [[maxIdx, '▲', maxE, '#ccff00'], [minIdx, '▼', minE, 'rgba(0,240,255,0.8)']].forEach(([idx, sym, elev, col]) => {
-                const px = toX(sD[idx]);
-                const py = toY(elev);
-                // Marker
-                ctx.font = 'bold 11px Courier New';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = col;
-                ctx.fillText(sym, px, py - 14);
-                ctx.font = '9px Courier New';
-                ctx.fillStyle = col;
-                ctx.fillText(Math.round(elev)+'m', px, py - 4);
-            });
+            ctx.restore();
+        };
 
-            // ── Gradient legend (right side) ─────────────
-            const legendX = W - PAD_R - 8;
-            const legendSteps = [
-                [12, '>12%'],
-                [8,  '8-12%'],
-                [5,  '5-8%'],
-                [2,  '2-5%'],
-                [0,  '0-2%'],
-            ];
-            let ly = PAD_T + 4;
-            ctx.font = '8px Courier New';
-            ctx.textAlign = 'right';
-            legendSteps.forEach(([g, label]) => {
-                ctx.fillStyle = gradColor(g + 0.5, 0.9);
-                ctx.fillRect(legendX - 22, ly, 8, 8);
-                ctx.fillStyle = 'rgba(148,163,184,0.6)';
-                ctx.fillText(label, legendX - 4, ly + 7);
-                ly += 12;
-            });
-
-            // ── Export footer ─────────────────────────────
-            if (forExport) {
-                const footerY = H - FOOTER_H;
-                ctx.fillStyle = 'rgba(0,240,255,0.06)';
-                ctx.fillRect(0, footerY, W, FOOTER_H);
-                ctx.strokeStyle = 'rgba(0,240,255,0.2)';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(0, footerY); ctx.lineTo(W, footerY); ctx.stroke();
-
-                const dist  = totalDist.toFixed(1)+' km';
-                const asc   = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
-                const desc  = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
-                const today = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
-
-                ctx.font = 'bold 12px Courier New';
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#00f0ff';
-                ctx.fillText(`${dist}  ${asc}  ${desc}`, 16, footerY + 26);
-
-                ctx.textAlign = 'center';
-                ctx.fillStyle = 'rgba(148,163,184,0.55)';
-                ctx.font = '10px Courier New';
-                ctx.fillText(today, W/2, footerY + 26);
-
-                ctx.textAlign = 'right';
-                ctx.fillStyle = 'rgba(0,240,255,0.5)';
-                ctx.font = 'bold 11px Courier New';
-                ctx.fillText('PIXELRUUD.COM', W-16, footerY + 26);
-            }
-
-            // ── Corner brackets (HUD signature) ──────────
-            const b = 10;
-            ctx.strokeStyle = 'rgba(0,240,255,0.4)';
-            ctx.lineWidth = 1.5;
-            [[4,4,1,1],[W-4,4,-1,1],[4,H-FOOTER_H-4,1,-1],[W-4,H-FOOTER_H-4,-1,-1]].forEach(([x,y,sx,sy]) => {
-                ctx.beginPath(); ctx.moveTo(x, y+sy*b); ctx.lineTo(x, y); ctx.lineTo(x+sx*b, y); ctx.stroke();
-            });
+        // Hook highlights into chart render
+        // Patch showElevationProfile to call highlights after render
+        const _origShowElevation = window.showElevationProfile;
+        if (typeof showElevationProfile === 'function') {
+            const origRef = showElevationProfile;
+            window.showElevationProfile = function() {
+                origRef.apply(this, arguments);
+                setTimeout(() => window.drawProfileHighlights(), 150);
+            };
         }
 
-
-        // ── PNG Export ───────────────────────────────────
-        document.getElementById('download3DBtn').addEventListener('click', function() {
-            if (!routes[0] || !routes[0].elevations) return;
-
-            const SCALE = 3;
-            const W = 900, H = 320;
-
-            const offscreen = document.createElement('canvas');
-            offscreen.width  = W * SCALE;
-            offscreen.height = H * SCALE;
-            const ctx = offscreen.getContext('2d');
-            ctx.scale(SCALE, SCALE);
-
-            draw3D(ctx, W, H, true);
-
-            const dist = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) : 'route';
-            offscreen.toBlob(blob => {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `pixelruud_3d_${dist}km.png`;
-                a.click();
-            }, 'image/png');
+        // Checkbox change → redraw
+        ['highlightClimbs','highlightPlaces'].forEach(id => {
+            const cb = document.getElementById(id);
+            if (cb) cb.addEventListener('change', () => window.drawProfileHighlights());
         });
 
-        // Re-render on resize
-        window.addEventListener('resize', () => {
-            if (is3DActive) render3DElevation();
+        // ── PNG Export ────────────────────────────────────
+        document.getElementById('exportProfileBtn').addEventListener('click', function() {
+            const canvas = document.getElementById('elevationChart');
+            if (!canvas) return;
+
+            // First render highlights
+            window.drawProfileHighlights();
+
+            // Create export canvas with footer
+            const SCALE  = 2;
+            const SW     = canvas.width, SH = canvas.height;
+            const FH     = 40; // footer height
+            const exp    = document.createElement('canvas');
+            exp.width    = SW * SCALE;
+            exp.height   = (SH + FH) * SCALE;
+            const ctx    = exp.getContext('2d');
+            ctx.scale(SCALE, SCALE);
+
+            // Dark background
+            ctx.fillStyle = '#050a14';
+            ctx.fillRect(0, 0, SW, SH + FH);
+
+            // Copy chart
+            ctx.drawImage(canvas, 0, 0, SW, SH);
+
+            // Footer bar
+            ctx.fillStyle = 'rgba(0,240,255,0.07)';
+            ctx.fillRect(0, SH, SW, FH);
+            ctx.strokeStyle = 'rgba(0,240,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0,SH); ctx.lineTo(SW,SH); ctx.stroke();
+
+            // Stats
+            const dist  = window.routeStats ? (window.routeStats.totalDistance/1000).toFixed(1)+' km' : '';
+            const asc   = window.routeStats ? '↑'+Math.round(window.routeStats.totalAscent)+'m' : '';
+            const desc  = window.routeStats ? '↓'+Math.round(window.routeStats.totalDescent)+'m' : '';
+            const today = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+            ctx.font = 'bold 11px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#00f0ff';
+            ctx.fillText([dist,asc,desc].filter(Boolean).join('  '), 14, SH+26);
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(148,163,184,0.55)';
+            ctx.font = '10px Courier New';
+            ctx.fillText(today, SW/2, SH+26);
+
+            // Watermark
+            ctx.textAlign = 'right';
+            ctx.fillStyle = 'rgba(0,240,255,0.5)';
+            ctx.font = 'bold 10px Courier New';
+            ctx.fillText('PIXELRUUD.COM', SW-14, SH+26);
+
+            // Corner brackets
+            const b=10;
+            ctx.strokeStyle='rgba(0,240,255,0.4)'; ctx.lineWidth=1.5;
+            [[4,4,1,1],[SW-4,4,-1,1],[4,SH+FH-4,1,-1],[SW-4,SH+FH-4,-1,-1]].forEach(([x,y,sx,sy])=>{
+                ctx.beginPath(); ctx.moveTo(x,y+sy*b); ctx.lineTo(x,y); ctx.lineTo(x+sx*b,y); ctx.stroke();
+            });
+
+            // Download
+            const km = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) : 'route';
+            exp.toBlob(blob=>{
+                const a=document.createElement('a');
+                a.href=URL.createObjectURL(blob);
+                a.download=`pixelruud_profil_${km}km.png`;
+                a.click();
+            },'image/png');
         });
 
     </script>
+
 
 </body>
 </html>
