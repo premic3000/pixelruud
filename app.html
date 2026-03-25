@@ -7123,26 +7123,31 @@
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 24px;">
+                <div style="margin-bottom: 16px;">
                     <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: #fff; font-size: 14px; font-weight: 500;">
                         <input 
                             type="checkbox" 
                             id="gpxAppendMode"
-                            style="
-                                width: 20px;
-                                height: 20px;
-                                cursor: pointer;
-                                accent-color: #3b82f6;
-                            "
+                            style="width: 20px; height: 20px; cursor: pointer; accent-color: #3b82f6;"
                         >
                         <span>An bestehende Route anhängen</span>
                     </label>
-                    <p style="
-                        margin: 8px 0 0 32px;
-                        font-size: 12px;
-                        color: rgba(255, 255, 255, 0.5);
-                    ">
+                    <p style="margin: 6px 0 0 32px; font-size: 12px; color: rgba(255,255,255,0.5);">
                         Bestehende Wegpunkte werden nicht gelöscht
+                    </p>
+                </div>
+
+                <div id="gpxReorderBox" style="margin-bottom: 24px; display: ${waypoints && waypoints.length > 0 ? 'block' : 'none'};">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: #ccff00; font-size: 14px; font-weight: 500;">
+                        <input 
+                            type="checkbox" 
+                            id="gpxReorderMode"
+                            style="width: 20px; height: 20px; cursor: pointer; accent-color: #ccff00;"
+                        >
+                        <span>🔄 Route ab meinem Startpunkt neu ordnen</span>
+                    </label>
+                    <p style="margin: 6px 0 0 32px; font-size: 12px; color: rgba(204,255,0,0.5);">
+                        Rundroute wird ab deinem Wegpunkt 1 aufgeschnitten und neu nummeriert
                     </p>
                 </div>
                 
@@ -7196,6 +7201,7 @@
             document.getElementById('gpxImportConfirm').addEventListener('click', async () => {
                 const spacing = parseFloat(slider.value);
                 const appendMode = document.getElementById('gpxAppendMode').checked;
+                const reorderMode = document.getElementById('gpxReorderMode')?.checked || false;
                 
                 // Save spacing preference
                 localStorage.setItem('gpxWaypointSpacing', spacing.toString());
@@ -7209,7 +7215,7 @@
                 }
                 
                 try {
-                    await parseAndLoadGPX(gpxText, filename, spacing, appendMode);
+                    await parseAndLoadGPX(gpxText, filename, spacing, appendMode, reorderMode);
                     
                     if (statusElement) {
                         statusElement.textContent = `✅ GPX importiert (${spacing}km Abstand)`;
@@ -7257,7 +7263,7 @@
             });
         }
         
-        async function parseAndLoadGPX(gpxText, filename, waypointSpacingKm = 1, appendMode = false) {
+        async function parseAndLoadGPX(gpxText, filename, waypointSpacingKm = 1, appendMode = false, reorderMode = false) {
             // Parse GPX XML
             const parser = new DOMParser();
             const gpxDoc = parser.parseFromString(gpxText, 'text/xml');
@@ -7501,6 +7507,89 @@
             }
             
             console.log(`📍 Created ${waypointIndices.length} waypoints (~${waypointSpacingKm}km spacing) for ${totalDistance.toFixed(2)} km route`);
+
+            // ── REORDER MODE: Rotate ring route to start at user's WP1 ──────
+            if (reorderMode && waypoints.length > 0) {
+                const startWP = waypoints[0]; // User's existing WP1
+                
+                // Find the closest point on the GPX route to the user's WP1
+                let closestIdx = 0;
+                let closestDist = Infinity;
+                for (let i = 0; i < coordinates.length; i++) {
+                    const R = 6371;
+                    const dLat = (coordinates[i][0] - startWP.lat) * Math.PI / 180;
+                    const dLon = (coordinates[i][1] - startWP.lng) * Math.PI / 180;
+                    const a = Math.sin(dLat/2)**2 +
+                              Math.cos(startWP.lat * Math.PI/180) *
+                              Math.cos(coordinates[i][0] * Math.PI/180) *
+                              Math.sin(dLon/2)**2;
+                    const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    if (d < closestDist) { closestDist = d; closestIdx = i; }
+                }
+
+                console.log(`🔄 Reorder: closest GPX point to WP1 is idx ${closestIdx} (${closestDist.toFixed(2)}km away)`);
+
+                // Find the closest waypointIndex to closestIdx
+                let closestWpIdx = 0;
+                let closestWpDiff = Infinity;
+                for (let i = 0; i < waypointIndices.length; i++) {
+                    const diff = Math.abs(waypointIndices[i] - closestIdx);
+                    if (diff < closestWpDiff) { closestWpDiff = diff; closestWpIdx = i; }
+                }
+
+                // Rotate waypointIndices so it starts at closestWpIdx
+                // Also rotate coordinates/elevations/geometry arrays accordingly
+                const rotatedWpIndices = [
+                    ...waypointIndices.slice(closestWpIdx),
+                    ...waypointIndices.slice(0, closestWpIdx)
+                ];
+
+                // Rebuild coordinate/elevation arrays rotated from closestIdx
+                const pivotCoordIdx = waypointIndices[closestWpIdx];
+                const rotCoords = [...coordinates.slice(pivotCoordIdx), ...coordinates.slice(0, pivotCoordIdx)];
+                const rotGeom   = [...geometry.slice(pivotCoordIdx),    ...geometry.slice(0, pivotCoordIdx)];
+                const rotElev   = [...elevations.slice(pivotCoordIdx),   ...elevations.slice(0, pivotCoordIdx)];
+
+                // Remap waypointIndices relative to new rotated arrays
+                const offset = pivotCoordIdx;
+                const newWpIndices = rotatedWpIndices.map(idx => {
+                    const rotated = idx - offset;
+                    return rotated >= 0 ? rotated : rotated + coordinates.length;
+                });
+                // Sort to ensure ascending order
+                newWpIndices.sort((a,b) => a - b);
+                // Always start at 0 and end at last
+                if (newWpIndices[0] !== 0) newWpIndices.unshift(0);
+                if (newWpIndices[newWpIndices.length-1] !== rotCoords.length-1) newWpIndices.push(rotCoords.length-1);
+
+                // Replace arrays
+                coordinates.length = 0; coordinates.push(...rotCoords);
+                geometry.length = 0;    geometry.push(...rotGeom);
+                elevations.length = 0;  elevations.push(...rotElev);
+                waypointIndices.length = 0; waypointIndices.push(...newWpIndices);
+
+                // Clear existing waypoints — we rebuild from scratch with the rotated route
+                markers.forEach(m => map.removeLayer(m));
+                waypoints = [];
+                markers = [];
+
+                // Recalculate total distance
+                totalDistance = 0;
+                for (let i = 1; i < coordinates.length; i++) {
+                    const p1 = coordinates[i-1], p2 = coordinates[i];
+                    const R = 6371;
+                    const dLat = (p2[0]-p1[0])*Math.PI/180;
+                    const dLon = (p2[1]-p1[1])*Math.PI/180;
+                    const a = Math.sin(dLat/2)**2 + Math.cos(p1[0]*Math.PI/180)*Math.cos(p2[0]*Math.PI/180)*Math.sin(dLon/2)**2;
+                    totalDistance += R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                }
+
+                console.log(`✅ Reorder complete: ${waypointIndices.length} waypoints, route now starts at GPX idx ${pivotCoordIdx}`);
+
+                // Override appendMode — we rebuild fresh
+                appendMode = false;
+            }
+            // ── END REORDER ──────────────────────────────────────────────────
             
             // Clear existing waypoints and their markers from map (unless appending)
             if (!appendMode) {
