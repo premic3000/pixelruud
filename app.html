@@ -7018,34 +7018,8 @@
         // ========================================
         
         function setupGPXImport() {
-            const importBtn = document.getElementById('gpxImportToggle');
-            const fileInput = document.getElementById('gpxImportInput');
-            
-            // Click button opens file dialog
-            importBtn.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            // Handle file selection
-            fileInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                try {
-                    const text = await file.text();
-                    
-                    // Show modal to select waypoint spacing
-                    showGPXImportModal(text, file.name);
-                    
-                    // Reset input so same file can be loaded again
-                    fileInput.value = '';
-                } catch (error) {
-                    console.error('GPX Import Error:', error);
-                    alert('Fehler beim Laden der GPX-Datei: ' + error.message);
-                }
-            });
-            
-            console.log('✓ GPX Import initialized');
+            // GPX Import is handled via the floating toolbar panel (panelGPXInput)
+            // This legacy function is kept as a no-op to avoid init errors
         }
         
         function showGPXImportModal(gpxText, filename, statusElement = null) {
