@@ -6946,11 +6946,9 @@
                 addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: var(--text-dim);">Suche...</div>';
                 addressResults.classList.add('show');
                 
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
+                const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                const response = await fetch(`${AI_URL}/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
                 
                 const results = await response.json();
                 
@@ -16502,26 +16500,12 @@
             const delay = 1000; // 1 second between retries
             
             try {
-                const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`;
-                
-                // Try direct Nominatim first, then fallback to proxy
+                // Route via backend proxy (avoids CORS)
+                const _geoBackend = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
                 let response;
-                let source = 'direct';
-                
-                try {
-                    // Attempt 1: Direct to Nominatim (fastest if it works)
-                    response = await fetch(nominatimUrl);
-                    
-                    if (!response.ok) {
-                        throw new Error('Direct fetch failed');
-                    }
-                } catch (directError) {
-                    // Attempt 2: Via CORS proxy as fallback
-                    console.log('⚠️ Direct fetch failed, trying proxy...');
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(nominatimUrl)}`;
-                    response = await fetch(proxyUrl);
-                    source = 'proxy';
-                }
+                let source = 'proxy';
+                response = await fetch(`${_geoBackend}/api/geocode?q=${encodeURIComponent(locationName)}&limit=1`);
                 
                 const data = await response.json();
                 
@@ -17831,7 +17815,7 @@
                 waypoints.forEach((wp, i) => {
                     if (wp.label || wp._geocoding) return;
                     wp._geocoding = true;
-                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${wp.lat}&lon=${wp.lng}&format=json&zoom=10`)
+                    fetch(`${(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://pixelruud-ai-backend-production.up.railway.app'}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`)
                         .then(r=>r.json())
                         .then(data=>{
                             const addr = data.address || {};
