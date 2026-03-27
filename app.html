@@ -2,7 +2,15 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PixelRuud">
+    <meta name="theme-color" content="#050a14">
+    <link rel="manifest" href="/manifest.json">
     <title>Pixelruud v3.58 - AI ROUTE PLANNER | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
@@ -342,7 +350,9 @@
         /* Consolas Font wird system-weit verwendet (keine Import nötig) */
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; -webkit-tap-highlight-color: transparent; }
+        /* Prevent iOS bounce scroll */
+        html { overflow: hidden; height: 100%; }
         #map { flex: 1; width: 100%; min-height: 100vh; height: 100%; }
         #loadingMessage { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 24px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); z-index: 10000; }
         /* ================================================ */
@@ -4289,6 +4299,185 @@
         .wardrobe-cost-info { font-size: 11px; color: var(--text-dimmer); text-align: center; margin-top: 10px; font-family: 'Consolas', monospace; }
         .wardrobe-status { font-size: 12px; color: var(--primary); font-family: 'Consolas', monospace; text-align: center; margin-top: 8px; min-height: 18px; }
         
+        /* ════════════════════════════════════════════════════
+           MOBILE RESPONSIVE — Phase 1
+           Breakpoint: 767px (phones, small tablets)
+           ════════════════════════════════════════════════════ */
+        @media (max-width: 767px) {
+
+            /* ── Hide desktop-only elements ────────────────── */
+            .magnifier,
+            .magnifier-container,
+            .magnifier-toggle,
+            #magnifier,
+            #magnifierToggle,
+            [data-panel="magnifier"] {
+                display: none !important;
+            }
+
+            /* ── Toolbar: move to bottom, horizontal ──────── */
+            .floating-toolbar {
+                top: auto !important;
+                bottom: 90px !important;
+                right: 50% !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                flex-direction: row !important;
+                width: auto !important;
+                max-width: calc(100vw - 16px) !important;
+                max-height: none !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                padding: 6px 8px !important;
+                gap: 4px !important;
+                border-radius: 20px !important;
+            }
+
+            .toolbar-btn {
+                width: 40px !important;
+                height: 40px !important;
+                flex-shrink: 0 !important;
+            }
+
+            .toolbar-btn svg {
+                width: 18px !important;
+                height: 18px !important;
+            }
+
+            /* ── Floating panels: full width bottom sheet ─── */
+            .floating-panel {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 16px 16px 0 0 !important;
+                max-height: 70vh !important;
+                overflow-y: auto !important;
+            }
+
+            /* ── Control panel: compact, scrollable ───────── */
+            .control-panel {
+                bottom: 8px !important;
+                left: 8px !important;
+                right: 8px !important;
+                width: auto !important;
+                transform: none !important;
+                padding: 6px 8px !important;
+                gap: 4px !important;
+                overflow-x: auto !important;
+                border-radius: 12px !important;
+            }
+
+            .btn {
+                padding: 6px 10px !important;
+                font-size: 11px !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+
+            .speed-control {
+                flex-shrink: 0 !important;
+            }
+
+            /* ── AI Generator: full screen on mobile ──────── */
+            .ai-generator-container {
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                transform: none !important;
+                width: 100% !important;
+                min-width: unset !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                border-radius: 0 !important;
+                padding: 16px !important;
+            }
+
+            /* ── Wardrobe: full screen on mobile ───────────── */
+            .wardrobe-container {
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                transform: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                border-radius: 0 !important;
+            }
+
+            /* ── Elevation profile: full width, taller ─────── */
+            .elevation-profile {
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: unset !important;
+                border-radius: 12px 12px 0 0 !important;
+                height: 200px !important;
+                resize: none !important;
+            }
+
+            /* ── Auth modal: full width ─────────────────────── */
+            .auth-modal {
+                width: 95vw !important;
+                padding: 20px !important;
+            }
+
+            /* ── Demo banner: compact ───────────────────────── */
+            #demo-banner {
+                top: 8px !important;
+                right: 8px !important;
+                left: 8px !important;
+                max-width: none !important;
+                font-size: 10px !important;
+            }
+
+            /* ── Chart toggles: larger touch targets ─────────── */
+            .chart-toggle-btn {
+                padding: 5px 10px !important;
+                font-size: 10px !important;
+                min-height: 32px !important;
+            }
+
+            /* ── Tutorial: full screen ───────────────────────── */
+            .tutorial-card {
+                width: 90vw !important;
+                max-width: 90vw !important;
+                left: 5vw !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+            }
+
+            /* ── Skin switcher: reposition ──────────────────── */
+            #skinSwitcher {
+                bottom: 155px !important;
+                right: 8px !important;
+            }
+        }
+
+        /* ── Touch: remove hover effects that don't work ─── */
+        @media (hover: none) and (pointer: coarse) {
+            .toolbar-btn:hover,
+            .btn:hover,
+            .chart-toggle-btn:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            /* Larger tap targets globally */
+            .toolbar-btn,
+            .chart-toggle-btn,
+            .btn {
+                min-height: 40px !important;
+            }
+        }
+
+
     </style>
 </head>
 <body>
@@ -6403,7 +6592,20 @@
             
             // L.control.layers(baseMaps).addTo(map); // Removed - now in floating toolbar
             
-            map.on('click', e => addWaypoint(e.latlng.lat, e.latlng.lng));
+            map.on('click', e => {
+                // Mobile: close open panels on map tap before adding waypoint
+                if (window.innerWidth <= 767) {
+                    const panels = document.getElementById('floatingPanels');
+                    if (panels && panels.children.length > 0) {
+                        Array.from(panels.children).forEach(p => p.remove());
+                        document.querySelectorAll('.toolbar-btn[data-panel].active').forEach(b => {
+                            if (b.getAttribute('data-panel') !== 'elevation') b.classList.remove('active');
+                        });
+                        return; // Don't add waypoint when closing panel
+                    }
+                }
+                addWaypoint(e.latlng.lat, e.latlng.lng);
+            });
             
             // Use addEventListener instead of onclick to prevent overwriting
             document.getElementById('calculateBtn').addEventListener('click', () => {
@@ -6442,7 +6644,12 @@
             setupAddressSearch();
             
             // Setup Magnifier
-            setupMagnifier();
+            // Skip magnifier on mobile (touch devices)
+            if (window.innerWidth > 767) {
+                setupMagnifier();
+            } else {
+                console.log('📱 Mobile: Magnifier disabled');
+            }
             
             // Setup Route Library
             setupRouteLibrary();
