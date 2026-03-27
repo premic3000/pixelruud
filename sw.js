@@ -1,5 +1,9 @@
-// PixelRuud Service Worker v1.1
-const CACHE_NAME = 'pixelruud-v1.1';
+// PixelRuud Service Worker
+// Version: 20260327-2147
+// ⚠️ WICHTIG: Bei jedem Deploy diese Datei ebenfalls pushen!
+// CACHE_NAME Timestamp aktualisieren → Browser löscht alten Cache automatisch
+// Format: YYYYMMDD-HHMM
+const CACHE_NAME = 'pixelruud-20260327-2147';
 const TILE_CACHE = 'pixelruud-tiles-v1';
 const TILE_CACHE_MAX = 500;
 
@@ -7,12 +11,11 @@ const TILE_CACHE_MAX = 500;
 const APP_SHELL = [
     '/app.html',
     '/index.html',
-    '/manifest.json',
 ];
 
 // ── Install ────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
-    console.log('[SW] Installing v1.1');
+    console.log('[SW] Installing 20260327-2147');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             // Jeden URL einzeln — Fehler bei einem blockiert nicht den Rest
@@ -32,7 +35,7 @@ self.addEventListener('install', event => {
 
 // ── Activate ───────────────────────────────────────────────────────
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating v1.1');
+    console.log('[SW] Activating 20260327-2147');
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
