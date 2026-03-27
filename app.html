@@ -2800,6 +2800,7 @@
         }
         
         .waypoint-drag-handle {
+            /* Larger touch target on mobile */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -4436,6 +4437,30 @@
                 left: 8px !important;
                 max-width: none !important;
                 font-size: 10px !important;
+            }
+
+            /* ── Waypoint drag handle: larger touch area ─────── */
+            .waypoint-drag-handle {
+                min-width: 36px !important;
+                min-height: 44px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            /* ── Waypoint items: larger touch area ────────────── */
+            .waypoint-item-modern {
+                min-height: 48px !important;
+                padding: 8px !important;
+            }
+
+            /* ── Remove button: larger touch area ─────────────── */
+            .waypoint-remove {
+                min-width: 36px !important;
+                min-height: 36px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
 
             /* ── Chart toggles: larger touch targets ─────────── */
@@ -6533,7 +6558,12 @@
                     }
                 }, 100);
                 
-                map = L.map('map').setView([48.1351, 11.5820], 12);
+                map = L.map('map', {
+                    tap: true,
+                    tapTolerance: 15,
+                    touchZoom: true,
+                    bounceAtZoomLimits: false
+                }).setView([48.1351, 11.5820], 12);
                 
                 // Force map to recalculate size
                 setTimeout(() => {
@@ -9954,7 +9984,8 @@
                          ondragstart="handleWaypointDragStart(event, ${i})"
                          ondragover="handleWaypointDragOver(event)"
                          ondrop="handleWaypointDrop(event, ${i})"
-                         ondragend="handleWaypointDragEnd(event)">
+                         ondragend="handleWaypointDragEnd(event)"
+                         data-waypoint-index="${i}">
                         
                         <!-- Drag Handle -->
                         <div class="waypoint-drag-handle" title="Drag to reorder">
@@ -10219,6 +10250,127 @@
                 item.style.borderTop = '';
             });
         };
+
+        // ── TOUCH DRAG & DROP for waypoint list (mobile) ─────────────────
+        (function initTouchDragDrop() {
+            let touchDragIndex = null;
+            let touchClone = null;
+            let touchStartY = 0;
+            let touchLastTarget = null;
+
+            function getWaypointIndex(el) {
+                const item = el.closest('[data-waypoint-index]');
+                return item ? parseInt(item.getAttribute('data-waypoint-index')) : null;
+            }
+
+            function onTouchStart(e) {
+                const handle = e.target.closest('.waypoint-drag-handle');
+                if (!handle) return;
+                const item = handle.closest('.waypoint-item-modern');
+                if (!item) return;
+
+                touchDragIndex = getWaypointIndex(item);
+                if (touchDragIndex === null) return;
+
+                touchStartY = e.touches[0].clientY;
+
+                // Create floating clone
+                const rect = item.getBoundingClientRect();
+                touchClone = item.cloneNode(true);
+                touchClone.style.cssText = `
+                    position: fixed;
+                    left: ${rect.left}px;
+                    top: ${rect.top}px;
+                    width: ${rect.width}px;
+                    z-index: 99999;
+                    opacity: 0.85;
+                    pointer-events: none;
+                    border: 1px solid var(--primary, #00f0ff);
+                    border-radius: 8px;
+                    background: rgba(0,8,20,0.95);
+                    box-shadow: 0 8px 24px rgba(0,240,255,0.3);
+                    transition: none;
+                `;
+                document.body.appendChild(touchClone);
+                item.style.opacity = '0.3';
+
+                e.preventDefault();
+            }
+
+            function onTouchMove(e) {
+                if (touchDragIndex === null || !touchClone) return;
+                e.preventDefault();
+
+                const touch = e.touches[0];
+                const deltaY = touch.clientY - touchStartY;
+
+                // Move clone
+                const origItem = document.querySelector(`[data-waypoint-index="${touchDragIndex}"]`);
+                if (origItem) {
+                    const rect = origItem.getBoundingClientRect();
+                    touchClone.style.top = (rect.top + deltaY) + 'px';
+                }
+
+                // Find target under touch
+                touchClone.style.display = 'none';
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                touchClone.style.display = '';
+
+                const targetItem = el ? el.closest('.waypoint-item-modern') : null;
+
+                // Clear previous highlight
+                document.querySelectorAll('.waypoint-item-modern').forEach(i => {
+                    i.style.borderTop = '';
+                    i.style.borderBottom = '';
+                });
+
+                if (targetItem) {
+                    const targetIdx = getWaypointIndex(targetItem);
+                    if (targetIdx !== null && targetIdx !== touchDragIndex) {
+                        touchLastTarget = targetIdx;
+                        targetItem.style.borderTop = '2px solid var(--primary, #00f0ff)';
+                    }
+                }
+            }
+
+            function onTouchEnd(e) {
+                if (touchDragIndex === null) return;
+
+                // Clean up clone
+                if (touchClone) {
+                    touchClone.remove();
+                    touchClone = null;
+                }
+
+                // Restore opacity
+                const origItem = document.querySelector(`[data-waypoint-index="${touchDragIndex}"]`);
+                if (origItem) origItem.style.opacity = '';
+
+                // Clear highlights
+                document.querySelectorAll('.waypoint-item-modern').forEach(i => {
+                    i.style.borderTop = '';
+                });
+
+                // Perform reorder if valid target
+                if (touchLastTarget !== null && touchLastTarget !== touchDragIndex) {
+                    // Reuse existing drop logic
+                    window.handleWaypointDrop({ 
+                        stopPropagation: () => {}, 
+                        target: document.querySelector(`[data-waypoint-index="${touchLastTarget}"] .waypoint-drag-handle`)
+                    }, touchLastTarget);
+                }
+
+                touchDragIndex = null;
+                touchLastTarget = null;
+            }
+
+            // Attach to waypoint list container (event delegation)
+            document.addEventListener('touchstart', onTouchStart, { passive: false });
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd, { passive: false });
+
+            console.log('📱 Touch Drag & Drop initialized');
+        })();
         
         function initWaypointDragAndDrop() {
             // Additional initialization if needed
