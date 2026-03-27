@@ -1,0 +1,26 @@
+{
+  "name": "PixelRuud – KI Gravel Routenplaner",
+  "short_name": "PixelRuud",
+  "description": "KI-gestützter Gravel Routenplaner mit GPX-Import, Höhenprofil und Outfit-Empfehlung",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#050a14",
+  "theme_color": "#050a14",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "navigation"],
+  "lang": "de"
+}
