@@ -4300,6 +4300,9 @@
         .wardrobe-cost-info { font-size: 11px; color: var(--text-dimmer); text-align: center; margin-top: 10px; font-family: 'Consolas', monospace; }
         .wardrobe-status { font-size: 12px; color: var(--primary); font-family: 'Consolas', monospace; text-align: center; margin-top: 8px; min-height: 18px; }
         
+        /* Toolbar labels hidden on desktop */
+        .toolbar-label { display: none; }
+
         /* ════════════════════════════════════════════════════
            MOBILE RESPONSIVE — Phase 1
            Breakpoint: 767px (phones, small tablets)
@@ -4314,6 +4317,18 @@
             #magnifierToggle,
             [data-panel="magnifier"] {
                 display: none !important;
+            }
+
+            /* ── Toolbar labels visible on mobile ────────── */
+            .toolbar-label {
+                display: block !important;
+                font-size: 8px !important;
+                font-family: 'Courier New', monospace !important;
+                color: rgba(255,255,255,0.55) !important;
+                text-align: center !important;
+                letter-spacing: 0.3px !important;
+                margin-top: 1px !important;
+                line-height: 1 !important;
             }
 
             /* ── Toolbar: move to bottom, horizontal ──────── */
@@ -4335,9 +4350,12 @@
             }
 
             .toolbar-btn {
-                width: 40px !important;
-                height: 40px !important;
+                width: 48px !important;
+                height: 52px !important;
                 flex-shrink: 0 !important;
+                flex-direction: column !important;
+                gap: 1px !important;
+                padding: 4px 2px !important;
             }
 
             .toolbar-btn svg {
@@ -4571,7 +4589,7 @@
                 <path d="M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24"></path>
                 <path d="M18.36 5.64l-4.24 4.24m-4.24 4.24l-4.24 4.24"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">Routing</span></button>
         
         <!-- 1. Waypoints -->
         <button class="toolbar-btn" data-panel="waypoints" title="Waypoints">
@@ -4579,7 +4597,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
             </svg>
-        </button>
+        <span class="toolbar-label">Punkte</span></button>
         
         <!-- 2. Magnifier (HIGHLIGHT - X-Ray Icon) -->
         <button class="toolbar-btn" data-panel="magnifier" title="X-Ray Magnifier">
@@ -4588,14 +4606,14 @@
                 <path d="m21 21-4.35-4.35"></path>
                 <circle cx="11" cy="11" r="3"></circle>
             </svg>
-        </button>
+        <span class="toolbar-label">X-Ray</span></button>
         
         <!-- 3. Elevation Profile -->
         <button class="toolbar-btn" data-panel="elevation" title="Elevation Profile">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
-        </button>
+        <span class="toolbar-label">Höhe</span></button>
         
         <!-- 4. Statistics -->
         <button class="toolbar-btn" data-panel="stats" title="Statistics">
@@ -4604,14 +4622,14 @@
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg>
-        </button>
+        <span class="toolbar-label">Stats</span></button>
         
         <!-- 5. POI & Layers (Stack/Layers Icon) -->
         <button class="toolbar-btn" data-panel="poi" title="POI">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-        </button>
+        <span class="toolbar-label">POI</span></button>
         
         <!-- 5b. Map Layers -->
         <button class="toolbar-btn" data-panel="layers" title="Karten-Layer">
@@ -4620,7 +4638,7 @@
                 <path d="M2 12l10 5 10-5"></path>
                 <path d="M2 17l10 5 10-5"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">Layer</span></button>
         
         <!-- 6. Adresse suchen (Search/Magnifying Glass) -->
         <button class="toolbar-btn" data-panel="search" title="Adresse suchen">
@@ -4628,7 +4646,7 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">Suche</span></button>
         
         <!-- 7. GPX Export -->
         <button class="toolbar-btn" data-panel="export" title="GPX Export">
@@ -4637,7 +4655,7 @@
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-        </button>
+        <span class="toolbar-label">Export</span></button>
         
         <!-- 8. Import GPX -->
         <button class="toolbar-btn" data-panel="import" title="Import GPX">
@@ -4646,7 +4664,7 @@
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-        </button>
+        <span class="toolbar-label">Import</span></button>
         
         <!-- 8b. AI Route Generator ⚡ NEW! -->
         <button class="toolbar-btn" data-panel="ai-generator" title="AI Route Generator">
@@ -4655,7 +4673,7 @@
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M12 14v7"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">KI Route</span></button>
         
         <!-- 9. Saved Routes (Heatmap) -->
         <button class="toolbar-btn" data-panel="routes" title="Saved Routes">
@@ -4664,7 +4682,7 @@
                 <polyline points="17 21 17 13 7 13 7 21"></polyline>
                 <polyline points="7 3 7 8 15 8"></polyline>
             </svg>
-        </button>
+        <span class="toolbar-label">Touren</span></button>
         
         <!-- 10. API Settings -->
         <button class="toolbar-btn" data-panel="api" title="API Settings">
@@ -4672,14 +4690,14 @@
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">API</span></button>
         
         <!-- 12. Weather Overlay -->
         <button class="toolbar-btn" data-panel="weather-overlay" title="Weather Overlay">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">Wetter</span></button>
         
         <!-- 13. Route Surgery (NEW!) -->
         <button class="toolbar-btn" data-panel="route-surgery" title="Route Surgery - Hindernisse & Baustellen">
@@ -4687,7 +4705,7 @@
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
             </svg>
             <span class="toolbar-badge" id="surgeryBadge" style="display: none;">0</span>
-        </button>
+        <span class="toolbar-label">Surgery</span></button>
         
         <!-- DIVIDER -->
         <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
@@ -4698,13 +4716,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
             </svg>
-        </button>
+        <span class="toolbar-label">Story</span></button>
 
         <button class="toolbar-btn" id="wardrobeBtn" title="Kleiderschrank – Outfit Empfehlung">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"></path>
             </svg>
-        </button>
+        <span class="toolbar-label">Outfit</span></button>
         
         <!-- 15. Skin Switcher -->
         <button class="toolbar-btn" id="skinBtn" title="Design / Skin wechseln">
@@ -4714,7 +4732,7 @@
                 <path d="M12 2c2.5 2.5 4 6 4 10s-1.5 7.5-4 10"></path>
                 <line x1="2" y1="12" x2="22" y2="12"></line>
             </svg>
-        </button>
+        <span class="toolbar-label">Design</span></button>
 
         <!-- DIVIDER -->
         <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
@@ -4804,6 +4822,29 @@
 
     <!-- Floating Panels Container -->
     <div class="floating-panels" id="floatingPanels"></div>
+
+    <!-- Mobile Elevation Badge -->
+    <div id="elevationBadge" style="
+        display: none;
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,8,20,0.92);
+        border: 1px solid rgba(0,240,255,0.4);
+        border-radius: 20px;
+        padding: 6px 16px;
+        font-family: Courier New, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: #00f0ff;
+        z-index: 2000;
+        cursor: pointer;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+    " onclick="toggleElevationFromBadge()">
+        ∿ Höhenprofil anzeigen
+    </div>
 
     <!-- Skin Switcher Panel -->
     <div id="skinSwitcher">
@@ -12886,6 +12927,18 @@
             if (routes.length === 0 || !routes[0].elevations) return;
             
             const profile = document.getElementById('elevationProfile');
+
+            // On mobile: don't auto-open — show badge instead
+            if (window.innerWidth <= 767) {
+                showElevationBadge();
+                // Still render chart data but keep profile hidden
+                // unless it was already open
+                if (!profile.classList.contains('show')) {
+                    setupChartTogglesData();
+                    return;
+                }
+            }
+
             profile.classList.add('show');
             
             // Setup chart toggles now that profile is visible
@@ -18280,6 +18333,54 @@
 
     </script>
 
+
+        // ── Mobile Elevation Badge ────────────────────────────────────
+        function showElevationBadge() {
+            if (window.innerWidth > 767) return;
+            const badge = document.getElementById('elevationBadge');
+            if (badge) {
+                badge.style.display = 'block';
+                // Update with route stats if available
+                if (window.routeStats) {
+                    const dist = (window.routeStats.totalDistance/1000).toFixed(1);
+                    const asc  = Math.round(window.routeStats.totalAscent);
+                    badge.textContent = `∿ ${dist}km  ↑${asc}m  — Höhenprofil`;
+                }
+            }
+        }
+
+        function toggleElevationFromBadge() {
+            const profile = document.getElementById('elevationProfile');
+            const badge   = document.getElementById('elevationBadge');
+            if (!profile) return;
+
+            if (profile.classList.contains('show')) {
+                profile.classList.remove('show');
+                if (badge) badge.style.display = 'block';
+            } else {
+                profile.classList.add('show');
+                if (typeof showElevationProfile === 'function') showElevationProfile();
+                if (badge) badge.style.display = 'none';
+            }
+        }
+
+        // Hide badge when elevation profile is manually closed via toolbar
+        const _elevBtn = document.querySelector('[data-panel="elevation"]');
+        if (_elevBtn) {
+            _elevBtn.addEventListener('click', () => {
+                const badge = document.getElementById('elevationBadge');
+                const profile = document.getElementById('elevationProfile');
+                if (badge && profile && !profile.classList.contains('show')) {
+                    badge.style.display = 'none';
+                }
+            });
+        }
+
+        // setupChartTogglesData — render chart without showing profile
+        function setupChartTogglesData() {
+            // Just setup chart toggles so data is ready when profile opens
+            if (typeof setupChartToggles === 'function') setupChartToggles();
+        }
 
     <!-- Service Worker Registration -->
     <script>
