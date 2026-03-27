@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-27 23:25 -->
+<!-- PixelRuud v3.62 | Build: 2026-03-27 23:30 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4340,23 +4340,28 @@
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 flex-direction: row !important;
+                align-items: stretch !important;
                 width: auto !important;
                 max-width: calc(100vw - 16px) !important;
                 max-height: none !important;
                 overflow-x: auto !important;
-                overflow-y: hidden !important;
+                overflow-y: visible !important;
                 padding: 6px 8px !important;
                 gap: 4px !important;
                 border-radius: 20px !important;
             }
 
             .toolbar-btn {
-                width: 48px !important;
-                height: 52px !important;
+                width: 52px !important;
+                height: auto !important;
+                min-height: 52px !important;
                 flex-shrink: 0 !important;
                 flex-direction: column !important;
-                gap: 1px !important;
-                padding: 4px 2px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 2px !important;
+                padding: 6px 4px !important;
+                overflow: visible !important;
             }
 
             .toolbar-btn svg {
