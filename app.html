@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-28 09:00 -->
+<!-- PixelRuud v3.62 | Build: 2026-03-28 09:31 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4336,31 +4336,32 @@
                 pointer-events: none;
             }
 
-            /* ── Floating toolbar: bottom center bar ─────── */
+            /* ── Floating toolbar: compact bottom bar ────── */
             .floating-toolbar {
-                /* Position: bottom center */
                 top: auto !important;
-                bottom: 80px !important;
-                left: 8px !important;
-                right: 8px !important;
+                bottom: 8px !important;
+                left: 4px !important;
+                right: 4px !important;
                 width: auto !important;
                 transform: none !important;
 
-                /* Layout: horizontal scrollable */
                 flex-direction: row !important;
                 align-items: center !important;
                 justify-content: flex-start !important;
                 flex-wrap: nowrap !important;
-                gap: 2px !important;
-                padding: 6px !important;
+                gap: 0px !important;
+                padding: 4px !important;
 
-                /* Scrollable if many buttons */
                 overflow-x: auto !important;
-                overflow-y: visible !important;
+                overflow-y: hidden !important;
                 max-height: none !important;
-                border-radius: 16px !important;
+                border-radius: 14px !important;
 
-                /* Hide scrollbar visually */
+                /* Subtle, not blocking */
+                background: rgba(0,8,20,0.75) !important;
+                backdrop-filter: blur(12px) !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+
                 scrollbar-width: none !important;
             }
             .floating-toolbar::-webkit-scrollbar {
@@ -4372,19 +4373,20 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                width: 52px !important;
+                width: 46px !important;
                 height: auto !important;
-                min-height: 54px !important;
+                min-height: 50px !important;
                 flex-shrink: 0 !important;
-                padding: 6px 2px !important;
+                padding: 5px 2px !important;
                 gap: 0 !important;
                 overflow: visible !important;
                 border-radius: 10px !important;
+                background: transparent !important;
             }
 
             .toolbar-btn svg {
-                width: 20px !important;
-                height: 20px !important;
+                width: 18px !important;
+                height: 18px !important;
                 flex-shrink: 0 !important;
             }
 
@@ -4397,17 +4399,30 @@
                 top: auto !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                border-radius: 16px 16px 0 0 !important;
-                max-height: 65vh !important;
+                border-radius: 20px 20px 0 0 !important;
+                max-height: 70vh !important;
                 overflow-y: auto !important;
+                padding-bottom: 16px !important;
+                /* Drag handle indicator */
+                padding-top: 20px !important;
             }
 
-            /* ── Control panel: full width bottom ─────────── */
+            /* Drag handle pill on bottom sheets */
+            .floating-panel::before {
+                content: '' !important;
+                display: block !important;
+                width: 36px !important;
+                height: 4px !important;
+                background: rgba(255,255,255,0.2) !important;
+                border-radius: 2px !important;
+                margin: -12px auto 12px !important;
+            }
+
+            /* ── Control panel: above toolbar ──────────────── */
             .control-panel {
-                bottom: 8px !important;
+                bottom: 68px !important;
                 left: 8px !important;
                 right: 8px !important;
-                left: 8px !important;
                 width: auto !important;
                 transform: none !important;
                 padding: 6px 8px !important;
@@ -4825,17 +4840,17 @@
     <!-- Floating Panels Container -->
     <div class="floating-panels" id="floatingPanels"></div>
 
-    <!-- Mobile Elevation Badge -->
+    <!-- Mobile Elevation Badge / Bottom Sheet Trigger -->
     <div id="elevationBadge" style="
         display: none;
         position: fixed;
-        bottom: 100px;
+        bottom: 148px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0,8,20,0.92);
-        border: 1px solid rgba(0,240,255,0.4);
+        background: rgba(0,8,20,0.88);
+        border: 1px solid rgba(0,240,255,0.35);
         border-radius: 20px;
-        padding: 6px 16px;
+        padding: 7px 18px;
         font-family: Courier New, monospace;
         font-size: 11px;
         font-weight: 700;
@@ -4843,9 +4858,12 @@
         z-index: 2000;
         cursor: pointer;
         white-space: nowrap;
-        letter-spacing: 0.5px;
-    " onclick="toggleElevationFromBadge()">
-        ∿ Höhenprofil anzeigen
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+    " onclick="window.toggleElevationFromBadge()">
+        <span class="badge-text">∿ Höhenprofil</span>
+        <span style="opacity:0.5; font-size:9px;">▲</span>
     </div>
 
     <!-- Skin Switcher Panel -->
@@ -12931,12 +12949,11 @@
             const profile = document.getElementById('elevationProfile');
 
             // On mobile: don't auto-open — show badge instead
-            if (window.innerWidth <= 767) {
-                showElevationBadge();
-                // Still render chart data but keep profile hidden
-                // unless it was already open
+            const _isMobile = window.matchMedia('(pointer: coarse)').matches;
+            if (_isMobile) {
+                if (typeof window.showElevationBadge === 'function') window.showElevationBadge();
                 if (!profile.classList.contains('show')) {
-                    setupChartTogglesData();
+                    if (typeof window.setupChartTogglesData === 'function') window.setupChartTogglesData();
                     return;
                 }
             }
@@ -18337,52 +18354,79 @@
 
 
         // ── Mobile Elevation Badge ────────────────────────────────────
-        function showElevationBadge() {
-            if (window.innerWidth > 767) return;
+        // ── Bottom Sheet: swipe down to dismiss ──────────────────────
+        (function initBottomSheetDismiss() {
+            let sheetTouchStartY = 0;
+            let sheetTouchTarget = null;
+
+            document.addEventListener('touchstart', e => {
+                const panel = e.target.closest('.floating-panel');
+                if (!panel) return;
+                sheetTouchStartY = e.touches[0].clientY;
+                sheetTouchTarget = panel;
+            }, { passive: true });
+
+            document.addEventListener('touchend', e => {
+                if (!sheetTouchTarget) return;
+                const deltaY = e.changedTouches[0].clientY - sheetTouchStartY;
+                // Swipe down > 80px → close panel
+                if (deltaY > 80) {
+                    const type = sheetTouchTarget.dataset.type;
+                    if (type) {
+                        sheetTouchTarget.remove();
+                        const btn = document.querySelector(`[data-panel="${type}"]`);
+                        if (btn) btn.classList.remove('active');
+                    }
+                }
+                sheetTouchTarget = null;
+            }, { passive: true });
+        })();
+
+        window.showElevationBadge = function() {
+            const isMobile = window.matchMedia('(pointer: coarse)').matches;
+            if (!isMobile) return;
             const badge = document.getElementById('elevationBadge');
             if (badge) {
-                badge.style.display = 'block';
-                // Update with route stats if available
+                badge.style.display = 'flex';
                 if (window.routeStats) {
                     const dist = (window.routeStats.totalDistance/1000).toFixed(1);
                     const asc  = Math.round(window.routeStats.totalAscent);
-                    badge.textContent = `∿ ${dist}km  ↑${asc}m  — Höhenprofil`;
+                    badge.querySelector('.badge-text').textContent = `∿ ${dist} km  ↑${asc} m`;
                 }
             }
-        }
+        };
 
-        function toggleElevationFromBadge() {
+        window.toggleElevationFromBadge = function() {
             const profile = document.getElementById('elevationProfile');
             const badge   = document.getElementById('elevationBadge');
             if (!profile) return;
-
             if (profile.classList.contains('show')) {
                 profile.classList.remove('show');
-                if (badge) badge.style.display = 'block';
+                if (badge) badge.style.display = 'flex';
             } else {
                 profile.classList.add('show');
                 if (typeof showElevationProfile === 'function') showElevationProfile();
                 if (badge) badge.style.display = 'none';
             }
-        }
+        };
 
-        // Hide badge when elevation profile is manually closed via toolbar
-        const _elevBtn = document.querySelector('[data-panel="elevation"]');
-        if (_elevBtn) {
-            _elevBtn.addEventListener('click', () => {
-                const badge = document.getElementById('elevationBadge');
-                const profile = document.getElementById('elevationProfile');
-                if (badge && profile && !profile.classList.contains('show')) {
-                    badge.style.display = 'none';
-                }
-            });
-        }
-
-        // setupChartTogglesData — render chart without showing profile
-        function setupChartTogglesData() {
-            // Just setup chart toggles so data is ready when profile opens
+        window.setupChartTogglesData = function() {
             if (typeof setupChartToggles === 'function') setupChartToggles();
-        }
+        };
+
+        // Wire up elevation toolbar button to hide badge
+        document.addEventListener('DOMContentLoaded', () => {
+            const _elevBtn = document.querySelector('[data-panel="elevation"]');
+            if (_elevBtn) {
+                _elevBtn.addEventListener('click', () => {
+                    const badge = document.getElementById('elevationBadge');
+                    const profile = document.getElementById('elevationProfile');
+                    if (badge && profile && !profile.classList.contains('show')) {
+                        badge.style.display = 'none';
+                    }
+                });
+            }
+        });
 
     <!-- Service Worker Registration -->
     <script>
