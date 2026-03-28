@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-28 09:57 -->
+<!-- PixelRuud v3.62 | Build: 2026-03-28 11:14 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12950,14 +12950,15 @@
         // ELEVATION PROFILE FUNCTIONS
         // ========================================
         
-        function showElevationProfile() {
+        function showElevationProfile(forceRender) {
             if (routes.length === 0 || !routes[0].elevations) return;
             
             const profile = document.getElementById('elevationProfile');
 
             // On mobile: don't auto-open — show badge instead
+            // Unless forceRender=true (called from badge tap)
             const _isMobile = window.matchMedia('(pointer: coarse)').matches;
-            if (_isMobile) {
+            if (_isMobile && !forceRender) {
                 if (typeof window.showElevationBadge === 'function') window.showElevationBadge();
                 if (!profile.classList.contains('show')) {
                     if (typeof window.setupChartTogglesData === 'function') window.setupChartTogglesData();
@@ -18421,11 +18422,11 @@
             } else {
                 profile.classList.add('show');
                 if (badge) badge.style.display = 'none';
-                // Force chart to render now that container is visible
+                // Force full chart render (forceRender=true bypasses mobile check)
                 if (typeof showElevationProfile === 'function') {
-                    showElevationProfile();
+                    showElevationProfile(true);
                 }
-                // Also force resize after a tick so Chart.js measures correctly
+                // Resize after paint so Chart.js measures container correctly
                 setTimeout(() => {
                     if (window.elevationChart) {
                         window.elevationChart.resize();
@@ -18434,7 +18435,7 @@
                     if (typeof window.drawProfileHighlights === 'function') {
                         window.drawProfileHighlights();
                     }
-                }, 50);
+                }, 100);
             }
         };
 
