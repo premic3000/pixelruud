@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-27 23:30 -->
+<!-- PixelRuud v3.62 | Build: 2026-03-28 09:00 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4304,13 +4304,17 @@
         /* Toolbar labels hidden on desktop */
         .toolbar-label { display: none; }
 
-        /* ════════════════════════════════════════════════════
-           MOBILE RESPONSIVE — Phase 1
-           Breakpoint: 767px (phones, small tablets)
-           ════════════════════════════════════════════════════ */
-        @media (max-width: 767px) {
 
-            /* ── Hide desktop-only elements ────────────────── */
+        /* ════════════════════════════════════════════════════
+           MOBILE — Google Pixel / iPhone portrait + landscape
+           Detection: pointer:coarse = touch device
+           Desktop layout untouched (pointer:fine)
+           ════════════════════════════════════════════════════ */
+
+        /* Only applies to real touch devices (phones/tablets) */
+        @media (pointer: coarse) {
+
+            /* ── Hide desktop-only elements ──────────────── */
             .magnifier,
             .magnifier-container,
             .magnifier-toggle,
@@ -4320,56 +4324,71 @@
                 display: none !important;
             }
 
-            /* ── Toolbar labels visible on mobile ────────── */
+            /* ── Toolbar labels: show on touch devices ───── */
             .toolbar-label {
-                display: block !important;
-                font-size: 8px !important;
-                font-family: 'Courier New', monospace !important;
-                color: rgba(255,255,255,0.55) !important;
-                text-align: center !important;
-                letter-spacing: 0.3px !important;
-                margin-top: 1px !important;
-                line-height: 1 !important;
+                display: block;
+                font-size: 8px;
+                font-family: 'Courier New', monospace;
+                color: rgba(255,255,255,0.6);
+                text-align: center;
+                line-height: 1.2;
+                margin-top: 2px;
+                pointer-events: none;
             }
 
-            /* ── Toolbar: move to bottom, horizontal ──────── */
+            /* ── Floating toolbar: bottom center bar ─────── */
             .floating-toolbar {
+                /* Position: bottom center */
                 top: auto !important;
-                bottom: 90px !important;
-                right: 50% !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                flex-direction: row !important;
-                align-items: stretch !important;
+                bottom: 80px !important;
+                left: 8px !important;
+                right: 8px !important;
                 width: auto !important;
-                max-width: calc(100vw - 16px) !important;
-                max-height: none !important;
+                transform: none !important;
+
+                /* Layout: horizontal scrollable */
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                flex-wrap: nowrap !important;
+                gap: 2px !important;
+                padding: 6px !important;
+
+                /* Scrollable if many buttons */
                 overflow-x: auto !important;
                 overflow-y: visible !important;
-                padding: 6px 8px !important;
-                gap: 4px !important;
-                border-radius: 20px !important;
+                max-height: none !important;
+                border-radius: 16px !important;
+
+                /* Hide scrollbar visually */
+                scrollbar-width: none !important;
+            }
+            .floating-toolbar::-webkit-scrollbar {
+                display: none !important;
             }
 
+            /* ── Toolbar buttons: icon + label stacked ───── */
             .toolbar-btn {
-                width: 52px !important;
-                height: auto !important;
-                min-height: 52px !important;
-                flex-shrink: 0 !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 2px !important;
-                padding: 6px 4px !important;
+                width: 52px !important;
+                height: auto !important;
+                min-height: 54px !important;
+                flex-shrink: 0 !important;
+                padding: 6px 2px !important;
+                gap: 0 !important;
                 overflow: visible !important;
+                border-radius: 10px !important;
             }
 
             .toolbar-btn svg {
-                width: 18px !important;
-                height: 18px !important;
+                width: 20px !important;
+                height: 20px !important;
+                flex-shrink: 0 !important;
             }
 
-            /* ── Floating panels: full width bottom sheet ─── */
+            /* ── Floating panels: bottom sheet ───────────── */
             .floating-panel {
                 position: fixed !important;
                 bottom: 0 !important;
@@ -4379,35 +4398,35 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 border-radius: 16px 16px 0 0 !important;
-                max-height: 70vh !important;
+                max-height: 65vh !important;
                 overflow-y: auto !important;
             }
 
-            /* ── Control panel: compact, scrollable ───────── */
+            /* ── Control panel: full width bottom ─────────── */
             .control-panel {
                 bottom: 8px !important;
                 left: 8px !important;
                 right: 8px !important;
+                left: 8px !important;
                 width: auto !important;
                 transform: none !important;
                 padding: 6px 8px !important;
                 gap: 4px !important;
                 overflow-x: auto !important;
                 border-radius: 12px !important;
+                scrollbar-width: none !important;
             }
+            .control-panel::-webkit-scrollbar { display: none !important; }
 
             .btn {
                 padding: 6px 10px !important;
                 font-size: 11px !important;
                 white-space: nowrap !important;
                 flex-shrink: 0 !important;
+                min-height: 36px !important;
             }
 
-            .speed-control {
-                flex-shrink: 0 !important;
-            }
-
-            /* ── AI Generator: full screen on mobile ──────── */
+            /* ── AI Generator: fullscreen ─────────────────── */
             .ai-generator-container {
                 top: 0 !important;
                 left: 0 !important;
@@ -4422,7 +4441,7 @@
                 padding: 16px !important;
             }
 
-            /* ── Wardrobe: full screen on mobile ───────────── */
+            /* ── Wardrobe: fullscreen ─────────────────────── */
             .wardrobe-container {
                 top: 0 !important;
                 left: 0 !important;
@@ -4435,7 +4454,7 @@
                 border-radius: 0 !important;
             }
 
-            /* ── Elevation profile: full width, taller ─────── */
+            /* ── Elevation profile: bottom, no auto-open ──── */
             .elevation-profile {
                 bottom: 0 !important;
                 left: 0 !important;
@@ -4443,86 +4462,63 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 min-width: unset !important;
+                transform: none !important;
                 border-radius: 12px 12px 0 0 !important;
-                height: 200px !important;
+                height: 210px !important;
                 resize: none !important;
             }
 
-            /* ── Auth modal: full width ─────────────────────── */
+            /* ── Auth modal ───────────────────────────────── */
             .auth-modal {
                 width: 95vw !important;
                 padding: 20px !important;
             }
 
-            /* ── Demo banner: compact ───────────────────────── */
+            /* ── Demo banner: full width top ──────────────── */
             #demo-banner {
                 top: 8px !important;
                 right: 8px !important;
                 left: 8px !important;
                 max-width: none !important;
-                font-size: 10px !important;
             }
 
-            /* ── Waypoint drag handle: larger touch area ─────── */
+            /* ── Skin switcher ────────────────────────────── */
+            #skinSwitcher {
+                bottom: 148px !important;
+                right: 8px !important;
+            }
+
+            /* ── Waypoint items: larger touch targets ─────── */
+            .waypoint-item-modern {
+                min-height: 48px !important;
+            }
             .waypoint-drag-handle {
                 min-width: 36px !important;
                 min-height: 44px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
             }
-
-            /* ── Waypoint items: larger touch area ────────────── */
-            .waypoint-item-modern {
-                min-height: 48px !important;
-                padding: 8px !important;
-            }
-
-            /* ── Remove button: larger touch area ─────────────── */
             .waypoint-remove {
                 min-width: 36px !important;
                 min-height: 36px !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
             }
 
-            /* ── Chart toggles: larger touch targets ─────────── */
+            /* ── Chart toggles: larger ────────────────────── */
             .chart-toggle-btn {
-                padding: 5px 10px !important;
-                font-size: 10px !important;
                 min-height: 32px !important;
             }
 
-            /* ── Tutorial: full screen ───────────────────────── */
-            .tutorial-card {
-                width: 90vw !important;
-                max-width: 90vw !important;
-                left: 5vw !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-            }
-
-            /* ── Skin switcher: reposition ──────────────────── */
-            #skinSwitcher {
-                bottom: 155px !important;
-                right: 8px !important;
-            }
-        }
-
-        /* ── Touch: remove hover effects that don't work ─── */
-        @media (hover: none) and (pointer: coarse) {
+            /* ── Remove hover effects on touch ────────────── */
             .toolbar-btn:hover,
             .btn:hover,
             .chart-toggle-btn:hover {
                 transform: none !important;
                 box-shadow: none !important;
             }
-            /* Larger tap targets globally */
-            .toolbar-btn,
-            .chart-toggle-btn,
-            .btn {
-                min-height: 40px !important;
+
+            /* ── Tutorial card ────────────────────────────── */
+            .tutorial-card {
+                width: 88vw !important;
+                max-width: 88vw !important;
+                left: 6vw !important;
             }
         }
 
