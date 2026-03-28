@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-28 09:31 -->
+<!-- PixelRuud v3.62 | Build: 2026-03-28 09:57 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4400,22 +4400,29 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 border-radius: 20px 20px 0 0 !important;
-                max-height: 70vh !important;
+                /* Leave room above for map visibility */
+                max-height: 72vh !important;
+                min-height: 200px !important;
+                /* Full internal scroll */
                 overflow-y: auto !important;
-                padding-bottom: 16px !important;
-                /* Drag handle indicator */
-                padding-top: 20px !important;
+                overflow-x: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                padding-top: 24px !important;
+                padding-bottom: 80px !important;
             }
 
-            /* Drag handle pill on bottom sheets */
+            /* Drag handle pill */
             .floating-panel::before {
                 content: '' !important;
                 display: block !important;
-                width: 36px !important;
+                position: sticky !important;
+                top: -24px !important;
+                width: 40px !important;
                 height: 4px !important;
-                background: rgba(255,255,255,0.2) !important;
+                background: rgba(255,255,255,0.25) !important;
                 border-radius: 2px !important;
-                margin: -12px auto 12px !important;
+                margin: -20px auto 16px !important;
+                flex-shrink: 0 !important;
             }
 
             /* ── Control panel: above toolbar ──────────────── */
@@ -18354,23 +18361,30 @@
 
 
         // ── Mobile Elevation Badge ────────────────────────────────────
-        // ── Bottom Sheet: swipe down to dismiss ──────────────────────
+        // ── Bottom Sheet: swipe down pill to dismiss ────────────────
         (function initBottomSheetDismiss() {
             let sheetTouchStartY = 0;
             let sheetTouchTarget = null;
+            let isDraggingHandle = false;
 
             document.addEventListener('touchstart', e => {
                 const panel = e.target.closest('.floating-panel');
                 if (!panel) return;
-                sheetTouchStartY = e.touches[0].clientY;
                 sheetTouchTarget = panel;
+                sheetTouchStartY = e.touches[0].clientY;
+                // Only allow swipe-dismiss when touching near top (drag handle area)
+                const rect = panel.getBoundingClientRect();
+                isDraggingHandle = (e.touches[0].clientY - rect.top) < 40;
             }, { passive: true });
 
             document.addEventListener('touchend', e => {
-                if (!sheetTouchTarget) return;
+                if (!sheetTouchTarget || !isDraggingHandle) {
+                    sheetTouchTarget = null;
+                    return;
+                }
                 const deltaY = e.changedTouches[0].clientY - sheetTouchStartY;
-                // Swipe down > 80px → close panel
-                if (deltaY > 80) {
+                // Swipe down > 60px from handle → close panel
+                if (deltaY > 60) {
                     const type = sheetTouchTarget.dataset.type;
                     if (type) {
                         sheetTouchTarget.remove();
@@ -18379,6 +18393,7 @@
                     }
                 }
                 sheetTouchTarget = null;
+                isDraggingHandle = false;
             }, { passive: true });
         })();
 
@@ -18405,8 +18420,21 @@
                 if (badge) badge.style.display = 'flex';
             } else {
                 profile.classList.add('show');
-                if (typeof showElevationProfile === 'function') showElevationProfile();
                 if (badge) badge.style.display = 'none';
+                // Force chart to render now that container is visible
+                if (typeof showElevationProfile === 'function') {
+                    showElevationProfile();
+                }
+                // Also force resize after a tick so Chart.js measures correctly
+                setTimeout(() => {
+                    if (window.elevationChart) {
+                        window.elevationChart.resize();
+                        window.elevationChart.update();
+                    }
+                    if (typeof window.drawProfileHighlights === 'function') {
+                        window.drawProfileHighlights();
+                    }
+                }, 50);
             }
         };
 
