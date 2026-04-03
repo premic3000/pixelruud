@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-03-28 11:14 -->
+<!-- PixelRuud v3.62 | Build: 2026-04-03 17:34 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4476,9 +4476,9 @@
                 border-radius: 0 !important;
             }
 
-            /* ── Elevation profile: bottom, no auto-open ──── */
+            /* ── Elevation profile: compact above toolbar ─── */
             .elevation-profile {
-                bottom: 0 !important;
+                bottom: 62px !important;
                 left: 0 !important;
                 right: 0 !important;
                 width: 100% !important;
@@ -4486,8 +4486,50 @@
                 min-width: unset !important;
                 transform: none !important;
                 border-radius: 12px 12px 0 0 !important;
-                height: 210px !important;
+                height: 175px !important;
                 resize: none !important;
+                padding: 0 !important;
+                flex-direction: column !important;
+            }
+
+            /* Hide complex controls on mobile */
+            .elevation-profile #elevationDragHandle .chart-label,
+            .elevation-profile #exportProfileBtn,
+            .elevation-profile label[for="highlightClimbs"],
+            .elevation-profile label[for="highlightPlaces"],
+            .elevation-profile #highlightClimbs,
+            .elevation-profile #highlightPlaces,
+            .elevation-profile .chart-toggles {
+                display: none !important;
+            }
+
+            /* Compact drag handle on mobile */
+            .elevation-profile #elevationDragHandle {
+                padding: 6px 10px !important;
+                min-height: unset !important;
+                cursor: default !important;
+            }
+
+            /* Close button visible on mobile */
+            .elevation-mobile-close {
+                display: flex !important;
+            }
+
+            /* Info line compact */
+            .elevation-mobile-info {
+                display: block !important;
+                font-size: 10px !important;
+                color: rgba(0,240,255,0.8) !important;
+                font-family: 'Courier New', monospace !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            /* Chart fills remaining space */
+            .elevation-profile #elevationChart {
+                flex: 1 !important;
+                min-height: 0 !important;
             }
 
             /* ── Auth modal ───────────────────────────────── */
@@ -5217,11 +5259,13 @@
             border-bottom: 1px solid rgba(0,240,255,0.12);
             cursor: grab; user-select: none; flex-shrink: 0;
         ">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span style="color:#00f0ff; font-family:'Courier New',monospace; font-size:10px; font-weight:700; letter-spacing:1.5px;">
+            <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+                <span class="chart-label" style="color:#00f0ff; font-family:'Courier New',monospace; font-size:10px; font-weight:700; letter-spacing:1.5px; white-space:nowrap;">
                     ∿ HÖHENPROFIL
                 </span>
-                <!-- Surface Legend -->
+                <!-- Mobile compact info line -->
+                <span class="elevation-mobile-info" id="elevationMobileInfo" style="display:none;"></span>
+                <!-- Surface Legend (desktop) -->
                 <div id="surfaceLegend" style="display:none; font-size:8px; color:var(--text-muted,#94a3b8); gap:5px; align-items:center; flex-wrap:wrap;">
                     <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#10b981;border-radius:1px;display:inline-block;"></span>Asphalt</span>
                     <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#eab308;border-radius:1px;display:inline-block;"></span>Compacted</span>
@@ -5229,8 +5273,8 @@
                     <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#ef4444;border-radius:1px;display:inline-block;"></span>Unpaved</span>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <!-- Highlight checkboxes -->
+            <div style="display:flex; align-items:center; gap:6px;">
+                <!-- Highlight checkboxes (desktop only) -->
                 <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
                     <input type="checkbox" id="highlightClimbs" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Anstiege
@@ -5239,13 +5283,21 @@
                     <input type="checkbox" id="highlightPlaces" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Orte
                 </label>
-                <!-- Export button -->
+                <!-- Export button (desktop only) -->
                 <button id="exportProfileBtn" title="Als PNG exportieren" style="
                     background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.35);
                     color:#00f0ff; font-family:'Courier New',monospace; font-size:9px; font-weight:700;
                     padding:3px 9px; cursor:pointer; letter-spacing:1px; border-radius:3px;
                     transition:all 0.2s;
                 ">⬇ PNG</button>
+                <!-- Mobile close button -->
+                <button class="elevation-mobile-close" onclick="window.toggleElevationFromBadge()" style="
+                    display:none;
+                    background:none; border:1px solid rgba(255,255,255,0.15);
+                    color:rgba(255,255,255,0.5); width:22px; height:22px;
+                    border-radius:4px; cursor:pointer; font-size:14px;
+                    align-items:center; justify-content:center;
+                ">×</button>
             </div>
         </div>
 
@@ -11777,6 +11829,15 @@
                     maxElevation: stats.maxElevation,
                     minElevation: stats.minElevation
                 };
+
+                // Update mobile info line
+                const _mobileInfo = document.getElementById('elevationMobileInfo');
+                if (_mobileInfo) {
+                    const _d = (totalDist/1000).toFixed(1);
+                    const _a = Math.round(stats.elevationGain);
+                    const _desc = Math.round(stats.elevationLoss);
+                    _mobileInfo.textContent = `${_d} km · ↑${_a}m · ↓${_desc}m`;
+                }
 
                 
                 // Refresh wardrobe route info
