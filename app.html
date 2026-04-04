@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-04-03 17:34 -->
+<!-- PixelRuud v3.62 | Build: 2026-04-04 07:44 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12623,24 +12623,128 @@
         function exportGPX() {
             if (!checkDemoLimit("gpx_export")) return;
             if (!routes[0]) return;
-            let gpx = `<?xml version="1.0"?>\n<gpx version="1.1">\n  <trk>\n    <trkseg>\n`;
+
+            // Ask for filename — mobile-friendly prompt
+            const isMobile = window.matchMedia('(pointer: coarse)').matches;
+            const dist = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) : '';
+            const defaultName = dist ? `pixelruud_${dist}km` : 'route';
+            
+            let filename;
+            if (isMobile) {
+                // On mobile: show a simple modal instead of browser prompt
+                showGPXNameModal(defaultName, (name) => {
+                    doExportGPX(name || defaultName);
+                });
+                return;
+            } else {
+                filename = prompt('Dateiname für GPX Export:', defaultName);
+                if (filename === null) return; // cancelled
+                filename = filename.trim() || defaultName;
+            }
+            doExportGPX(filename);
+        }
+
+        function doExportGPX(filename) {
+            if (!filename.endsWith('.gpx')) filename += '.gpx';
+            let gpx = `<?xml version="1.0"?>\n<gpx version="1.1" creator="PixelRuud">\n  <trk>\n    <name>${filename.replace('.gpx','')}</name>\n    <trkseg>\n`;
             routes[0].coordinates.forEach(c => gpx += `      <trkpt lat="${c[0]}" lon="${c[1]}"/>\n`);
             gpx += `    </trkseg>\n  </trk>\n</gpx>`;
             const blob = new Blob([gpx], { type: 'application/gpx+xml' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'route.gpx';
+            a.download = filename;
             a.click();
-            
-            // ✅ TRACK: GPX Export
+            URL.revokeObjectURL(a.href);
+
             if (window.trackPixelRuudEvent) {
-                window.trackPixelRuudEvent('GPX Export', {
-                    title: `GPX: ${waypoints.length} waypoints`
-                });
+                window.trackPixelRuudEvent('GPX Export', { title: `GPX: ${waypoints.length} waypoints` });
             }
-            
-            // Track GPX export (old tracking, keeping for compatibility)
             trackEvent('gpx-exported');
+        }
+
+        function showGPXNameModal(defaultName, callback) {
+            // Remove existing modal if any
+            const existing = document.getElementById('gpxNameModal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'gpxNameModal';
+            modal.style.cssText = `
+                position: fixed; inset: 0; z-index: 99999;
+                background: rgba(0,0,0,0.7);
+                display: flex; align-items: center; justify-content: center;
+                padding: 20px;
+            `;
+            modal.innerHTML = `
+                <div style="
+                    background: rgba(0,8,20,0.97);
+                    border: 1px solid rgba(0,240,255,0.3);
+                    border-radius: 16px;
+                    padding: 24px;
+                    width: 100%;
+                    max-width: 340px;
+                    font-family: 'Courier New', monospace;
+                ">
+                    <div style="color:#00f0ff; font-size:13px; font-weight:700; margin-bottom:16px; letter-spacing:1px;">
+                        ⬇ GPX EXPORTIEREN
+                    </div>
+                    <div style="color:rgba(148,163,184,0.8); font-size:11px; margin-bottom:8px;">Dateiname</div>
+                    <input id="gpxNameInput" type="text" value="${defaultName}" style="
+                        width: 100%;
+                        background: rgba(255,255,255,0.06);
+                        border: 1px solid rgba(0,240,255,0.25);
+                        border-radius: 8px;
+                        color: #e2e8f0;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        padding: 10px 12px;
+                        box-sizing: border-box;
+                        outline: none;
+                    " placeholder="Dateiname">
+                    <div style="color:rgba(148,163,184,0.4); font-size:10px; margin-top:4px;">.gpx wird automatisch ergänzt</div>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button onclick="document.getElementById('gpxNameModal').remove()" style="
+                            flex:1; padding:10px; background:rgba(255,255,255,0.06);
+                            border:1px solid rgba(255,255,255,0.1); border-radius:8px;
+                            color:rgba(255,255,255,0.5); font-family:'Courier New',monospace;
+                            font-size:12px; cursor:pointer;
+                        ">Abbrechen</button>
+                        <button id="gpxNameConfirm" style="
+                            flex:1; padding:10px;
+                            background:linear-gradient(135deg,#00b8cc,#0088aa);
+                            border:none; border-radius:8px;
+                            color:#fff; font-family:'Courier New',monospace;
+                            font-size:12px; font-weight:700; cursor:pointer;
+                        ">Exportieren</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Focus input, select all
+            const input = modal.querySelector('#gpxNameInput');
+            setTimeout(() => { input.focus(); input.select(); }, 100);
+
+            // Confirm
+            modal.querySelector('#gpxNameConfirm').addEventListener('click', () => {
+                const name = input.value.trim() || defaultName;
+                modal.remove();
+                callback(name);
+            });
+
+            // Enter key
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    const name = input.value.trim() || defaultName;
+                    modal.remove();
+                    callback(name);
+                }
+            });
+
+            // Click outside
+            modal.addEventListener('click', e => {
+                if (e.target === modal) modal.remove();
+            });
         }
         
         // Make exportGPX globally available
