@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-04-04 07:44 -->
+<!-- PixelRuud v3.62 | Build: 2026-04-08 11:53 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -7729,6 +7729,8 @@
                 maxElevation: stats.maxElevation,
                 minElevation: stats.minElevation
             };
+            // Expose waypoints globally for wardrobe AI
+            window.waypoints = waypoints;
 
             
             // Draw route on map
@@ -11829,6 +11831,8 @@
                     maxElevation: stats.maxElevation,
                     minElevation: stats.minElevation
                 };
+                // Expose waypoints globally for wardrobe AI
+                window.waypoints = waypoints;
 
                 // Update mobile info line
                 const _mobileInfo = document.getElementById('elevationMobileInfo');
@@ -17866,12 +17870,19 @@
                         let distance = '?', elevation = '?';
                         if (window.routeStats) {
                             distance  = (window.routeStats.totalDistance / 1000).toFixed(1) + ' km';
-                            elevation = '+' + Math.round(window.routeStats.totalAscent || 0) + ' m';
+                            elevation = '+' + Math.round(window.routeStats.totalAscent || 0) + ' m Aufstieg, -' + Math.round(window.routeStats.totalDescent || 0) + ' m Abstieg';
                         }
                         const timeEl = document.getElementById('weatherTimeDisplay');
                         const time   = timeEl ? timeEl.textContent.trim() : 'Jetzt';
                         const temp   = window.lastWeatherTemp ? window.lastWeatherTemp + '°C' : 'Unbekannt';
-                        return { startCoords: `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}`, distance, elevation, time, temp };
+                        const avgSpeed = parseInt(document.getElementById('speedSlider')?.value) || 20;
+                        const durationH = window.routeStats ? ((window.routeStats.totalDistance/1000) / avgSpeed).toFixed(1) + ' h' : '?';
+                        return {
+                            startCoords: `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}`,
+                            distance, elevation, time, temp,
+                            duration: durationH,
+                            avgSpeed: avgSpeed + ' km/h'
+                        };
                     } catch { return null; }
                 })();
 
