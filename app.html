@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-04-08 11:53 -->
+<!-- PixelRuud v3.62 | Build: 2026-04-08 12:01 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -7134,6 +7134,16 @@
                 }));
                 
                 weatherForecastData = forecastData;
+
+                // Store start temperature globally for wardrobe AI
+                if (forecastData[0]?.weather?.temp !== undefined) {
+                    window.lastWeatherTemp = Math.round(forecastData[0].weather.temp * 10) / 10;
+                    // Also store min/max along route for better outfit advice
+                    const temps = forecastData.map(f => f.weather?.temp).filter(t => t !== undefined);
+                    window.weatherRouteMin = Math.round(Math.min(...temps) * 10) / 10;
+                    window.weatherRouteMax = Math.round(Math.max(...temps) * 10) / 10;
+                    console.log(`🌡️ Temp: start=${window.lastWeatherTemp}°C, min=${window.weatherRouteMin}°C, max=${window.weatherRouteMax}°C`);
+                }
                 
                 console.log('✅ Weather forecast loaded:', forecastData.length, 'points');
                 console.log('   First point time:', forecastData[0].time.toLocaleString('de-DE'));
@@ -17874,7 +17884,14 @@
                         }
                         const timeEl = document.getElementById('weatherTimeDisplay');
                         const time   = timeEl ? timeEl.textContent.trim() : 'Jetzt';
-                        const temp   = window.lastWeatherTemp ? window.lastWeatherTemp + '°C' : 'Unbekannt';
+                        let temp = 'Unbekannt';
+                        if (window.lastWeatherTemp !== undefined) {
+                            temp = window.lastWeatherTemp + '°C';
+                            if (window.weatherRouteMin !== undefined && window.weatherRouteMax !== undefined
+                                && window.weatherRouteMin !== window.weatherRouteMax) {
+                                temp += ` (Route: ${window.weatherRouteMin}–${window.weatherRouteMax}°C)`;
+                            }
+                        }
                         const avgSpeed = parseInt(document.getElementById('speedSlider')?.value) || 20;
                         const durationH = window.routeStats ? ((window.routeStats.totalDistance/1000) / avgSpeed).toFixed(1) + ' h' : '?';
                         return {
