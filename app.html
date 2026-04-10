@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-04-08 12:01 -->
+<!-- PixelRuud v3.62 | Build: 2026-04-10 06:56 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12956,76 +12956,211 @@
             }
         }
         
-        function saveCurrentRoute(name) {
+        async function saveCurrentRoute(name) {
             if (routes.length === 0) return;
             
             const route = routes[0];
-            
+            const dist = route.distance || 0;
+
+            // Full waypoint data including segment locks
+            const fullWaypoints = waypoints.map(wp => ({
+                lat: wp.lat,
+                lng: wp.lng,
+                engine: wp.engine || 'auto',
+                label: wp.label || null,
+                segmentToNext: wp.segmentToNext ? {
+                    locked: wp.segmentToNext.locked,
+                    distance: wp.segmentToNext.distance,
+                    source: wp.segmentToNext.source || 'calculated',
+                    coordinates: wp.segmentToNext.coordinates,
+                    elevations: wp.segmentToNext.elevations,
+                    start: wp.segmentToNext.start,
+                    end: wp.segmentToNext.end
+                } : null
+            }));
+
             const savedRoute = {
                 id: Date.now(),
                 name: name,
                 date: new Date().toISOString(),
-                distance: route.distance,
-                waypoints: waypoints.map(wp => ({ lat: wp.lat, lng: wp.lng })),
+                distance: dist,
+                waypoints: fullWaypoints,
                 coordinates: route.coordinates,
                 elevations: route.elevations,
                 stats: route.stats,
                 count: 1,
                 profile: currentProfile
             };
-            
-            // Check if similar route exists
-            const existingIndex = savedRoutes.findIndex(r => 
+
+            // Save locally
+            const existingIndex = savedRoutes.findIndex(r =>
                 r.name === name && Math.abs(r.distance - savedRoute.distance) < 0.5
             );
-            
             if (existingIndex >= 0) {
-                // Increment count
                 savedRoutes[existingIndex].count++;
                 savedRoutes[existingIndex].date = new Date().toISOString();
+                savedRoutes[existingIndex].waypoints = fullWaypoints;
             } else {
                 savedRoutes.push(savedRoute);
             }
-            
             localStorage.setItem('gravel_routes', JSON.stringify(savedRoutes));
+
+            // Save to Supabase if logged in
+            if (currentUser && sb) {
+                try {
+                    const { error } = await sb.from('user_routes').upsert({
+                        user_id: currentUser.id,
+                        name: name,
+                        distance_km: dist / 1000,
+                        ascent_m: route.stats?.elevationGain || 0,
+                        descent_m: route.stats?.elevationLoss || 0,
+                        waypoints: fullWaypoints,
+                        coordinates: route.coordinates,
+                        elevations: route.elevations,
+                        stats: route.stats
+                    }, { onConflict: 'user_id,name' });
+
+                    if (error) throw error;
+                    console.log(`☁️ Route "${name}" in Cloud gespeichert`);
+                } catch (e) {
+                    console.warn('Cloud save failed, local only:', e.message);
+                }
+            }
+
             updateLibraryUI();
-            
-            console.log(`✓ Route "${name}" saved`);
-            alert(`✓ Route "${name}" gespeichert!`);
-            
-            // Track route save
             trackEvent('route-saved');
+
+            showToast(`✓ Route "${name}" gespeichert${currentUser ? ' (Cloud + lokal)' : ' (lokal)'}`, 'success');
         }
         
         function loadRoute(routeId) {
             const route = savedRoutes.find(r => r.id === routeId);
             if (!route) return;
-            
-            // Clear current
+
+            // Clear current state
             clearAll();
-            
-            // Load waypoints
-            route.waypoints.forEach(wp => {
-                addWaypoint(wp.lat, wp.lng);
+
+            // Restore waypoints with segment locks
+            route.waypoints.forEach((wp, i) => {
+                const newWp = {
+                    id: `wp_${Date.now()}_${i}`,
+                    lat: wp.lat,
+                    lng: wp.lng,
+                    engine: wp.engine || 'auto',
+                    label: wp.label || null,
+                    segmentToNext: wp.segmentToNext ? {
+                        ...wp.segmentToNext,
+                        locked: true  // Always lock restored segments
+                    } : null
+                };
+                waypoints.push(newWp);
+
+                // Add marker
+                const isStart = i === 0;
+                const isEnd   = i === route.waypoints.length - 1;
+                const color   = isStart ? '#10b981' : isEnd ? '#ef4444' : '#3b82f6';
+                const marker  = L.marker([wp.lat, wp.lng], {
+                    icon: L.divIcon({
+                        className: 'waypoint-marker',
+                        html: `<div style="background:${color};color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${i+1}</div>`,
+                        iconSize: [24,24], iconAnchor: [12,12]
+                    }),
+                    draggable: true
+                }).addTo(map);
+                markers.push(marker);
             });
-            
-            // Calculate route
-            setTimeout(() => {
-                calculateRoutes();
-            }, 500);
-            
+
+            updateList();
+            updateButtons();
+
+            // If route has saved coordinates, draw directly without recalculating
+            if (route.coordinates && route.coordinates.length > 0) {
+                routes[0] = {
+                    coordinates: route.coordinates,
+                    elevations: route.elevations || [],
+                    stats: route.stats || {},
+                    distance: route.distance
+                };
+                window.routeStats = {
+                    totalDistance: route.distance,
+                    totalAscent: route.stats?.elevationGain || 0,
+                    totalDescent: route.stats?.elevationLoss || 0,
+                    maxElevation: route.stats?.maxElevation || 0,
+                    minElevation: route.stats?.minElevation || 0
+                };
+                window.waypoints = waypoints;
+
+                // Draw route on map
+                const line = L.polyline(route.coordinates, {
+                    color: 'var(--primary, #00f0ff)',
+                    weight: 4, opacity: 0.85
+                }).addTo(map);
+                routeLines.push(line);
+                map.fitBounds(line.getBounds(), { padding: [50,50] });
+
+                showElevationProfile();
+                showToast(`✓ Route "${route.name}" geladen`, 'success');
+            } else {
+                // Fallback: recalculate
+                setTimeout(() => calculateRoutes(), 300);
+            }
+
             // Close library
-            document.getElementById('routeLibrary').classList.remove('show');
-            
-            // Increment count
-            const routeIndex = savedRoutes.findIndex(r => r.id === routeId);
-            if (routeIndex >= 0) {
-                savedRoutes[routeIndex].count++;
+            const lib = document.getElementById('routeLibrary');
+            if (lib) lib.classList.remove('show');
+
+            // Increment usage count
+            const idx = savedRoutes.findIndex(r => r.id === routeId);
+            if (idx >= 0) {
+                savedRoutes[idx].count = (savedRoutes[idx].count || 1) + 1;
                 localStorage.setItem('gravel_routes', JSON.stringify(savedRoutes));
                 updateLibraryUI();
             }
-            
-            console.log(`✓ Loaded route: ${route.name}`);
+
+            console.log(`✓ Route "${route.name}" geladen (${route.waypoints.length} Waypoints, Segmente gesperrt)`);
+        }
+
+        // Load route from Supabase cloud
+        async function loadCloudRoutes() {
+            if (!currentUser || !sb) return;
+            try {
+                const { data, error } = await sb
+                    .from('user_routes')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('updated_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Merge cloud routes into savedRoutes (avoid duplicates by name)
+                let added = 0;
+                data.forEach(cr => {
+                    const exists = savedRoutes.find(r => r.name === cr.name);
+                    if (!exists) {
+                        savedRoutes.push({
+                            id: cr.id,
+                            name: cr.name,
+                            date: cr.updated_at,
+                            distance: (cr.distance_km || 0) * 1000,
+                            waypoints: cr.waypoints || [],
+                            coordinates: cr.coordinates || [],
+                            elevations: cr.elevations || [],
+                            stats: cr.stats || {},
+                            count: 1,
+                            cloud: true
+                        });
+                        added++;
+                    }
+                });
+
+                if (added > 0) {
+                    localStorage.setItem('gravel_routes', JSON.stringify(savedRoutes));
+                    updateLibraryUI();
+                    console.log(`☁️ ${added} Cloud-Routen geladen`);
+                }
+            } catch(e) {
+                console.warn('Cloud routes load failed:', e.message);
+            }
         }
         
         function deleteRoute(routeId) {
@@ -13058,14 +13193,18 @@
             
             routeList.innerHTML = sorted.map(route => `
                 <div class="route-item">
-                    <div class="route-item-name">${route.name}</div>
+                    <div class="route-item-name">
+                        ${route.name}
+                        ${route.cloud ? '<span style="font-size:9px;color:rgba(0,240,255,0.6);margin-left:4px;">☁</span>' : ''}
+                    </div>
                     <div class="route-item-stats">
-                        <span>${route.distance.toFixed(1)} km</span>
+                        <span>${(route.distance/1000).toFixed(1)} km</span>
+                        ${route.stats?.elevationGain ? `<span>↑${Math.round(route.stats.elevationGain)}m</span>` : ''}
                         <span class="route-item-count">×${route.count || 1}</span>
                     </div>
                     <div class="route-item-actions">
-                        <button class="route-item-btn load" onclick="loadRoute(${route.id})">Laden</button>
-                        <button class="route-item-btn delete" onclick="deleteRoute(${route.id})">×</button>
+                        <button class="route-item-btn load" onclick="loadRoute(${typeof route.id === 'string' ? '"' + route.id + '"' : route.id})">Laden</button>
+                        <button class="route-item-btn delete" onclick="deleteRoute(${typeof route.id === 'string' ? '"' + route.id + '"' : route.id})">×</button>
                     </div>
                 </div>
             `).join('');
