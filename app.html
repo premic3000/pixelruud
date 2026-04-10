@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.63 | Build: 2026-04-10 11:23 -->
+<!-- PixelRuud v3.63 | Build: 2026-04-10 12:34 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -18753,18 +18753,26 @@
 
                 // Async: fetch place names for waypoints that don't have labels yet
                 waypoints.forEach((wp, i) => {
-                    if (wp.label || wp._geocoding) return;
+                    if (wp.label || wp._geocoding || wp._geocodingFailed) return;
                     wp._geocoding = true;
-                    fetch(`${(location.hostname==='localhost'||location.hostname==='127.0.0.1')?'http://localhost:3001':'https://pixelruud-ai-backend-production.up.railway.app'}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`)
-                        .then(r=>r.json())
-                        .then(data=>{
+                    const AI_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+                        ? 'http://localhost:3001'
+                        : 'https://pixelruud-ai-backend-production.up.railway.app';
+                    fetch(`${AI_URL}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`)
+                        .then(r => {
+                            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                            return r.json();
+                        })
+                        .then(data => {
                             const addr = data.address || {};
                             wp.label = addr.village || addr.town || addr.city || addr.municipality || addr.county || '';
                             wp._geocoding = false;
-                            // Redraw after geocode arrives
-                            setTimeout(()=>window.drawProfileHighlights(), 100);
+                            if (wp.label) setTimeout(() => window.drawProfileHighlights(), 100);
                         })
-                        .catch(()=>{ wp._geocoding=false; });
+                        .catch(() => {
+                            wp._geocoding = false;
+                            wp._geocodingFailed = true; // Don't retry on error
+                        });
                 });
             }
 
