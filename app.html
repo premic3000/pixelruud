@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.62 | Build: 2026-04-10 06:56 -->
+<!-- PixelRuud v3.63 | Build: 2026-04-10 07:46 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -13163,14 +13163,23 @@
             }
         }
         
-        function deleteRoute(routeId) {
+        async function deleteRoute(routeId) {
             if (!confirm('Route wirklich löschen?')) return;
-            
+
             savedRoutes = savedRoutes.filter(r => r.id !== routeId);
             localStorage.setItem('gravel_routes', JSON.stringify(savedRoutes));
             updateLibraryUI();
-            
-            console.log(`✓ Route deleted`);
+
+            // Also delete from Supabase if cloud route
+            if (currentUser && sb && typeof routeId === 'string') {
+                try {
+                    await sb.from('user_routes').delete()
+                        .eq('id', routeId).eq('user_id', currentUser.id);
+                    console.log('☁️ Route aus Cloud gelöscht');
+                } catch(e) {
+                    console.warn('Cloud delete failed:', e.message);
+                }
+            }
         }
         
         function updateLibraryUI() {
@@ -15304,17 +15313,112 @@
         }
         
         function initRoutesPanel(container) {
-            container.innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <p style="color: rgba(0, 240, 255, 0.8); margin-bottom: 20px;">
-                        Gespeicherte Routen & Heatmap
-                    </p>
-                    <p style="color: var(--primary-05); font-size: 12px;">
-                        Coming soon: Route History & Heatmap Visualization
-                    </p>
-                </div>
-            `;
-            
+            // Load cloud routes first if logged in
+            if (typeof loadCloudRoutes === 'function') loadCloudRoutes();
+
+            function renderRoutes() {
+                const sorted = [...savedRoutes].sort((a, b) =>
+                    new Date(b.date || 0) - new Date(a.date || 0)
+                );
+
+                const routeItems = sorted.length === 0 ? `
+                    <div style="text-align:center; padding:30px 0; color:rgba(148,163,184,0.5); font-size:12px;">
+                        Noch keine Routen gespeichert.<br>
+                        <span style="font-size:11px; margin-top:8px; display:block;">Route berechnen → 💾 Speichern</span>
+                    </div>
+                ` : sorted.map(r => {
+                    const dist = ((r.distance||0)/1000).toFixed(1);
+                    const asc  = r.stats?.elevationGain ? `↑${Math.round(r.stats.elevationGain)}m` : '';
+                    const date = r.date ? new Date(r.date).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit'}) : '';
+                    const cloud = r.cloud ? '<span style="color:rgba(0,240,255,0.5);font-size:9px;"> ☁</span>' : '';
+                    const id = typeof r.id === 'string' ? `"${r.id}"` : r.id;
+                    return `
+                    <div style="
+                        background: rgba(0,240,255,0.04);
+                        border: 1px solid rgba(0,240,255,0.12);
+                        border-radius: 8px;
+                        padding: 10px 12px;
+                        margin-bottom: 8px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    ">
+                        <div style="flex:1; min-width:0;">
+                            <div style="
+                                color:#e2e8f0; font-size:12px; font-weight:600;
+                                white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+                            ">${r.name}${cloud}</div>
+                            <div style="color:rgba(148,163,184,0.7); font-size:10px; margin-top:2px; font-family:'Courier New',monospace;">
+                                ${dist} km ${asc} ${date ? '· '+date : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-shrink:0;">
+                            <button onclick="loadRoute(${id}); document.querySelector('[data-panel=routes]')?.click();" style="
+                                background: rgba(0,240,255,0.12);
+                                border: 1px solid rgba(0,240,255,0.3);
+                                color: #00f0ff;
+                                border-radius: 6px;
+                                padding: 5px 10px;
+                                font-size: 11px;
+                                cursor: pointer;
+                                font-family: 'Courier New', monospace;
+                                font-weight: 700;
+                            ">▶ Laden</button>
+                            <button onclick="deleteRoute(${id}); initRoutesPanel(this.closest('.panel-content') || this.closest('[id]').querySelector('.panel-content') || document.querySelector('#routesContainer'))" style="
+                                background: rgba(239,68,68,0.1);
+                                border: 1px solid rgba(239,68,68,0.2);
+                                color: rgba(239,68,68,0.7);
+                                border-radius: 6px;
+                                padding: 5px 8px;
+                                font-size: 11px;
+                                cursor: pointer;
+                            ">×</button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                // Heatmap button
+                const heatBtn = `
+                    <button onclick="toggleHeatmap()" style="
+                        width: 100%;
+                        padding: 10px;
+                        background: rgba(204,255,0,0.1);
+                        border: 1px solid rgba(204,255,0,0.3);
+                        color: #ccff00;
+                        border-radius: 8px;
+                        font-family: 'Courier New', monospace;
+                        font-size: 11px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        margin-top: 12px;
+                        letter-spacing: 1px;
+                    ">∿ HEATMAP ${savedRoutes.length > 0 ? 'ANZEIGEN' : '(keine Routen)'}</button>
+                `;
+
+                container.innerHTML = `
+                    <div id="routesContainer" style="padding: 4px 0;">
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 12px;
+                        ">
+                            <span style="color:rgba(0,240,255,0.6); font-size:10px; font-family:'Courier New',monospace;">
+                                ${sorted.length} ROUTE${sorted.length !== 1 ? 'N' : ''}
+                                ${currentUser ? ' · ☁ CLOUD SYNC' : ''}
+                            </span>
+                            ${currentUser ? `<button onclick="loadCloudRoutes().then(()=>initRoutesPanel(document.getElementById('routesContainer')?.parentElement || container))" style="
+                                background:none; border:none; color:rgba(0,240,255,0.5);
+                                font-size:10px; cursor:pointer; font-family:'Courier New',monospace;
+                            ">↻ Sync</button>` : ''}
+                        </div>
+                        ${routeItems}
+                        ${heatBtn}
+                    </div>
+                `;
+            }
+
+            renderRoutes();
             console.log('✅ Routes panel initialized');
         }
         
