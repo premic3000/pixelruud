@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.63 | Build: 2026-04-10 07:46 -->
+<!-- PixelRuud v3.63 | Build: 2026-04-10 07:55 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -15397,6 +15397,50 @@
 
                 container.innerHTML = `
                     <div id="routesContainer" style="padding: 4px 0;">
+                        <!-- Save current route -->
+                        <button onclick="
+                            if (!window.routes || !window.routes[0]) {
+                                showToast('Bitte zuerst eine Route berechnen', 'info');
+                                return;
+                            }
+                            const modal = document.createElement('div');
+                            modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
+                            const dist = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) + 'km' : '';
+                            const today = new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+                            const defName = dist ? dist + ' · ' + today : 'Route ' + today;
+                            modal.innerHTML = \`<div style="background:rgba(0,8,20,0.97);border:1px solid rgba(0,240,255,0.3);border-radius:16px;padding:24px;width:100%;max-width:320px;font-family:'Courier New',monospace;">
+                                <div style="color:#00f0ff;font-size:13px;font-weight:700;margin-bottom:16px;letter-spacing:1px;">💾 ROUTE SPEICHERN</div>
+                                <input id="routeNameInput" type="text" value="\${defName}" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(0,240,255,0.25);border-radius:8px;color:#e2e8f0;font-family:'Courier New',monospace;font-size:14px;padding:10px 12px;box-sizing:border-box;outline:none;" placeholder="Routenname">
+                                <div style="display:flex;gap:10px;margin-top:16px;">
+                                    <button onclick="this.closest('div[style*=inset]').remove()" style="flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.5);font-family:'Courier New',monospace;font-size:12px;cursor:pointer;">Abbrechen</button>
+                                    <button id="routeNameConfirm" style="flex:1;padding:10px;background:linear-gradient(135deg,#00b8cc,#0088aa);border:none;border-radius:8px;color:#fff;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer;">Speichern</button>
+                                </div>
+                            </div>\`;
+                            document.body.appendChild(modal);
+                            const inp = modal.querySelector('#routeNameInput');
+                            setTimeout(()=>{inp.focus();inp.select();},100);
+                            modal.querySelector('#routeNameConfirm').addEventListener('click',()=>{
+                                const name = inp.value.trim() || defName;
+                                modal.remove();
+                                saveCurrentRoute(name).then(()=>initRoutesPanel(container));
+                            });
+                            inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const name=inp.value.trim()||defName;modal.remove();saveCurrentRoute(name).then(()=>initRoutesPanel(container));}});
+                            modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+                        " style="
+                            width: 100%;
+                            padding: 10px;
+                            background: rgba(0,240,255,0.1);
+                            border: 1px solid rgba(0,240,255,0.3);
+                            color: #00f0ff;
+                            border-radius: 8px;
+                            font-family: 'Courier New', monospace;
+                            font-size: 11px;
+                            font-weight: 700;
+                            cursor: pointer;
+                            margin-bottom: 14px;
+                            letter-spacing: 1px;
+                        ">💾 AKTUELLE ROUTE SPEICHERN</button>
+
                         <div style="
                             display: flex;
                             justify-content: space-between;
@@ -15407,7 +15451,7 @@
                                 ${sorted.length} ROUTE${sorted.length !== 1 ? 'N' : ''}
                                 ${currentUser ? ' · ☁ CLOUD SYNC' : ''}
                             </span>
-                            ${currentUser ? `<button onclick="loadCloudRoutes().then(()=>initRoutesPanel(document.getElementById('routesContainer')?.parentElement || container))" style="
+                            ${currentUser ? `<button onclick="loadCloudRoutes().then(()=>initRoutesPanel(container))" style="
                                 background:none; border:none; color:rgba(0,240,255,0.5);
                                 font-size:10px; cursor:pointer; font-family:'Courier New',monospace;
                             ">↻ Sync</button>` : ''}
