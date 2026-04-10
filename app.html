@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.63 | Build: 2026-04-10 09:37 -->
+<!-- PixelRuud v3.63 | Build: 2026-04-10 09:41 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -18910,7 +18910,7 @@
         });
 
         // ── Save Route Modal ─────────────────────────────────────────
-        function showSaveRouteModal(panelContainer) {
+        window.showSaveRouteModal = function(panelContainer) {
             if (!routes || !routes[0]) {
                 showToast('Bitte zuerst eine Route berechnen', 'info');
                 return;
@@ -18958,7 +18958,7 @@
             modal.querySelector('#saveRouteCancelBtn').addEventListener('click', () => modal.remove());
             inp.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
             modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        }
+        };
 
 
     <!-- Service Worker Registration -->
