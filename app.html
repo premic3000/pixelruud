@@ -17282,10 +17282,13 @@
             console.log('🚀 Generating route with prompt:', prompt);
             
             try {
+                const { data: { session: aiSession } } = await sb.auth.getSession();
+                if (!aiSession) throw new Error('Bitte einloggen um Routen zu generieren');
                 const response = await fetch(`${AI_BACKEND_URL}/api/ai-route`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${aiSession.access_token}`
                     },
                     body: JSON.stringify({ prompt })
                 });
@@ -18214,9 +18217,11 @@
                 const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
                     ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
 
+                const { data: { session: outfitSession } } = await sb.auth.getSession();
+                if (!outfitSession) throw new Error('Bitte einloggen um Outfit-Empfehlungen zu erhalten');
                 const response = await fetch(`${AI_URL}/api/outfit-recommendation`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${outfitSession.access_token}` },
                     body: JSON.stringify({ wardrobe: items, routeInfo, hints: hints || null })
                 });
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -18242,8 +18247,10 @@
             try {
                 const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
                     ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                const { data: { session: urlSession } } = await sb.auth.getSession();
+                if (!urlSession) { status.textContent = '⚠️ Bitte einloggen.'; return; }
                 const response = await fetch(`${AI_URL}/api/analyze-clothing`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${urlSession.access_token}` },
                     body: JSON.stringify({ type: 'url', url })
                 });
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -18282,8 +18289,10 @@
             try {
                 const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
                     ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                const { data: { session: photoSession } } = await sb.auth.getSession();
+                if (!photoSession) { status.textContent = '⚠️ Bitte einloggen.'; return; }
                 const response = await fetch(`${AI_URL}/api/analyze-clothing`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${photoSession.access_token}` },
                     body: JSON.stringify({ type: 'photo', image: base64, mimeType: mime })
                 });
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
