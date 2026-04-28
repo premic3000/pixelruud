@@ -17751,6 +17751,7 @@
             }
             
             // 2b. Add named waypoints from AI (e.g. Perlacher Forst, Grünwald)
+            // Filter out waypoints that are identical to the start location
             if (parsedRoute.waypoints && parsedRoute.waypoints.length > 0) {
                 console.log('📍 Geocoding AI waypoints:', parsedRoute.waypoints);
                 for (const wp of parsedRoute.waypoints) {
@@ -17758,6 +17759,15 @@
                         const wpName = typeof wp === 'string' ? wp : (wp.name || wp.location || JSON.stringify(wp));
                         console.log(`  🔍 Geocoding waypoint: "${wpName}"`);
                         const wpLocation = await geocodeLocation(wpName);
+                        
+                        // Skip if identical to start (KI sometimes repeats start as waypoint)
+                        const isSameAsStart = Math.abs(wpLocation.lat - startLocation.lat) < 0.001 &&
+                                              Math.abs(wpLocation.lon - startLocation.lon) < 0.001;
+                        if (isSameAsStart) {
+                            console.warn(`  ⚠️ Skipping waypoint "${wpName}" - same location as start`);
+                            continue;
+                        }
+                        
                         wpLocation.name = wpName;
                         waypoints.push(wpLocation);
                         console.log(`  ✅ ${wpName}:`, wpLocation);
