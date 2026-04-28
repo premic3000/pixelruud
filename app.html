@@ -17730,31 +17730,46 @@
             startLocation.name = parsedRoute.start;
             waypoints.push(startLocation);
             
-            // 2. Add POIs (if any)
+            // 2. Add named waypoints from AI (e.g. Perlacher Forst, Grünwald)
+            if (parsedRoute.waypoints && parsedRoute.waypoints.length > 0) {
+                console.log('📍 Geocoding AI waypoints:', parsedRoute.waypoints);
+                for (const wp of parsedRoute.waypoints) {
+                    try {
+                        const wpName = typeof wp === 'string' ? wp : (wp.name || wp.location || JSON.stringify(wp));
+                        console.log(`  🔍 Geocoding waypoint: "${wpName}"`);
+                        const wpLocation = await geocodeLocation(wpName);
+                        wpLocation.name = wpName;
+                        waypoints.push(wpLocation);
+                        console.log(`  ✅ ${wpName}:`, wpLocation);
+                    } catch (error) {
+                        console.warn(`  ⚠️ Could not geocode waypoint: ${error.message}`);
+                    }
+                }
+            }
+
+            // 2b. Add POIs (if any)
             if (parsedRoute.pois && parsedRoute.pois.length > 0) {
                 console.log('📍 Geocoding POIs:', parsedRoute.pois);
                 for (const poi of parsedRoute.pois) {
                     try {
-                        // POI can be string OR object - handle both!
                         const poiName = typeof poi === 'string' ? poi : (poi.name || poi.location || JSON.stringify(poi));
                         console.log(`  🔍 Processing POI: "${poiName}" (type: ${typeof poi})`);
-                        
                         const poiLocation = await geocodeLocation(poiName);
                         poiLocation.name = poiName;
                         waypoints.push(poiLocation);
                         console.log(`  ✅ ${poiName}:`, poiLocation);
                     } catch (error) {
                         console.warn(`  ⚠️ Could not geocode POI:`, error.message);
-                        // Continue with other POIs
                     }
                 }
             }
             
-            // 3. Determine if round trip - check MULTIPLE fields!
+            // 3. Determine if round trip - use backend field first, then keyword fallback
             const promptLower = (parsedRoute.prompt || '').toLowerCase();
             const directionLower = (parsedRoute.direction || '').toLowerCase();
             
             const isRoundTrip = 
+                parsedRoute.roundtrip === true ||
                 promptLower.includes('zurück') ||
                 promptLower.includes('rückweg') ||
                 promptLower.includes('rundkurs') ||
@@ -17766,19 +17781,18 @@
                 directionLower.includes('round') ||
                 directionLower.includes('loop');
             
-            console.log('🔄 Round trip detected:', isRoundTrip, '(from prompt or direction)');
+            console.log('🔄 Round trip detected:', isRoundTrip, '(roundtrip flag:', parsedRoute.roundtrip, ')');
             
-            // 3.5 AUTO-WAYPOINTS: If round trip WITHOUT POIs and checkbox is checked
+            // 3.5 AUTO-WAYPOINTS: If round trip WITHOUT named waypoints and checkbox is checked
             const autoWaypointsCheckbox = document.getElementById('aiAutoWaypointsCheckbox');
             const autoWaypointsEnabled = autoWaypointsCheckbox ? autoWaypointsCheckbox.checked : true;
             
             if (isRoundTrip && waypoints.length === 1 && autoWaypointsEnabled) {
-                console.log('🎯 Auto-generating intermediate waypoint for round trip...');
+                console.log('🎯 Auto-generating intermediate waypoint for round trip (no named waypoints)...');
                 
                 const distance = parseInt(parsedRoute.distance) || 50;
                 const direction = parsedRoute.direction || 'south';
                 
-                // Calculate midpoint in specified direction
                 const halfDistance = distance / 2;
                 const midPoint = calculateEndPoint(startLocation, halfDistance, direction);
                 midPoint.name = `${halfDistance}km ${direction}`;
