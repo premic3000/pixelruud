@@ -17466,86 +17466,6 @@
             }
         }
         
-        /**
-         * Calculate multiple waypoints along a circular arc for round trips.
-         * Creates a realistic loop by distributing points evenly around a circle.
-         * 
-         * @param {Object} start - {lat, lon} start/end point
-         * @param {number} totalDistance - desired road distance in km
-         * @param {string} direction - primary direction ('south', 'north', 'counterclockwise', etc.)
-         * @param {string} orientation - 'counterclockwise' or 'clockwise'
-         * @param {number} numPoints - number of arc waypoints to generate (default: 4)
-         * @returns {Array} array of {lat, lon, name} waypoints
-         */
-        function calculateCircularWaypoints(start, totalDistance, direction, orientation, numPoints = 4) {
-            const ROAD_FACTOR = 1.8; // roads are ~1.8x longer than straight line
-            const radius = (totalDistance / ROAD_FACTOR) / (2 * Math.PI) * (2 * Math.PI / (numPoints)); 
-            // Simpler: radius ≈ totalDistance / (2 * π * ROAD_FACTOR) * numPoints
-            // Actually: circumference = 2πr, so r = totalKm / (ROAD_FACTOR * 2π)
-            const radiusKm = totalDistance / (ROAD_FACTOR * 2 * Math.PI);
-            
-            console.log(`🔵 Circular route: ${totalDistance}km total, radius ~${radiusKm.toFixed(1)}km straight-line`);
-
-            // Primary bearing from direction string
-            const bearingMap = {
-                'north': 0, 'norden': 0, 'nord': 0,
-                'northeast': 45,
-                'east': 90, 'osten': 90, 'ost': 90,
-                'southeast': 135,
-                'south': 180, 'süden': 180, 'süd': 180,
-                'southwest': 225,
-                'west': 270, 'westen': 270,
-                'northwest': 315
-            };
-
-            let primaryBearing = 180; // default south
-            if (direction) {
-                const d = direction.toLowerCase();
-                for (const [key, val] of Object.entries(bearingMap)) {
-                    if (d.includes(key)) { primaryBearing = val; break; }
-                }
-            }
-
-            // Clockwise vs counterclockwise: determines arc direction
-            const isCounterClockwise = orientation && orientation.toLowerCase().includes('counter');
-            const arcSign = isCounterClockwise ? -1 : 1;
-
-            // Generate arc points: start from primaryBearing, sweep 360° in numPoints steps
-            // First point is in the primary direction, last point closes the loop
-            const points = [];
-            for (let i = 1; i <= numPoints; i++) {
-                // Angle along the arc (sweep full 360°, skip 0° = start and 360° = end)
-                const fraction = i / (numPoints + 1);
-                const angleDeg = primaryBearing + arcSign * fraction * 360;
-                const angleRad = angleDeg * Math.PI / 180;
-
-                // Convert radiusKm to lat/lon offset
-                const R = 6371; // Earth radius km
-                const d = radiusKm;
-                const lat1 = start.lat * Math.PI / 180;
-                const lon1 = start.lon * Math.PI / 180;
-
-                const lat2 = Math.asin(
-                    Math.sin(lat1) * Math.cos(d / R) +
-                    Math.cos(lat1) * Math.sin(d / R) * Math.cos(angleRad)
-                );
-                const lon2 = lon1 + Math.atan2(
-                    Math.sin(angleRad) * Math.sin(d / R) * Math.cos(lat1),
-                    Math.cos(d / R) - Math.sin(lat1) * Math.sin(lat2)
-                );
-
-                points.push({
-                    lat: lat2 * 180 / Math.PI,
-                    lon: lon2 * 180 / Math.PI,
-                    name: `Wegpunkt ${i}`
-                });
-
-                console.log(`  📍 Arc point ${i}: ${(lat2 * 180 / Math.PI).toFixed(5)}, ${(lon2 * 180 / Math.PI).toFixed(5)} (bearing ${angleDeg.toFixed(0)}°)`);
-            }
-
-            return points;
-        }
-
         function calculateEndPoint(start, distance, direction) {
             // Account for road distance vs straight line (roads are ~1.5-2x longer)
             // User wants X km road distance, so calculate endpoint as X/1.7 km straight line
@@ -17810,7 +17730,27 @@
             startLocation.name = parsedRoute.start;
             waypoints.push(startLocation);
             
-            // 2. Add named waypoints from AI (e.g. Perlacher Forst, Grünwald)
+            // 2. Add POIs (if any)
+            if (parsedRoute.pois && parsedRoute.pois.length > 0) {
+                console.log('📍 Geocoding POIs:', parsedRoute.pois);
+                for (const poi of parsedRoute.pois) {
+                    try {
+                        // POI can be string OR object - handle both!
+                        const poiName = typeof poi === 'string' ? poi : (poi.name || poi.location || JSON.stringify(poi));
+                        console.log(`  🔍 Processing POI: "${poiName}" (type: ${typeof poi})`);
+                        
+                        const poiLocation = await geocodeLocation(poiName);
+                        poiLocation.name = poiName;
+                        waypoints.push(poiLocation);
+                        console.log(`  ✅ ${poiName}:`, poiLocation);
+                    } catch (error) {
+                        console.warn(`  ⚠️ Could not geocode POI:`, error.message);
+                        // Continue with other POIs
+                    }
+                }
+            }
+            
+            // 2b. Add named waypoints from AI (e.g. Perlacher Forst, Grünwald)
             if (parsedRoute.waypoints && parsedRoute.waypoints.length > 0) {
                 console.log('📍 Geocoding AI waypoints:', parsedRoute.waypoints);
                 for (const wp of parsedRoute.waypoints) {
@@ -17827,24 +17767,7 @@
                 }
             }
 
-            // 2b. Add POIs (if any)
-            if (parsedRoute.pois && parsedRoute.pois.length > 0) {
-                console.log('📍 Geocoding POIs:', parsedRoute.pois);
-                for (const poi of parsedRoute.pois) {
-                    try {
-                        const poiName = typeof poi === 'string' ? poi : (poi.name || poi.location || JSON.stringify(poi));
-                        console.log(`  🔍 Processing POI: "${poiName}" (type: ${typeof poi})`);
-                        const poiLocation = await geocodeLocation(poiName);
-                        poiLocation.name = poiName;
-                        waypoints.push(poiLocation);
-                        console.log(`  ✅ ${poiName}:`, poiLocation);
-                    } catch (error) {
-                        console.warn(`  ⚠️ Could not geocode POI:`, error.message);
-                    }
-                }
-            }
-            
-            // 3. Determine if round trip - use backend field first, then keyword fallback
+            // 3. Determine if round trip - use backend flag first, then keyword fallback
             const promptLower = (parsedRoute.prompt || '').toLowerCase();
             const directionLower = (parsedRoute.direction || '').toLowerCase();
             
@@ -17863,38 +17786,23 @@
             
             console.log('🔄 Round trip detected:', isRoundTrip, '(roundtrip flag:', parsedRoute.roundtrip, ')');
             
-            // 3.5 AUTO-WAYPOINTS: Generate circular arc for round trips
+            // 3.5 AUTO-WAYPOINTS: If round trip WITHOUT named waypoints and checkbox is checked
             const autoWaypointsCheckbox = document.getElementById('aiAutoWaypointsCheckbox');
             const autoWaypointsEnabled = autoWaypointsCheckbox ? autoWaypointsCheckbox.checked : true;
-
-            if (isRoundTrip && autoWaypointsEnabled) {
+            
+            if (isRoundTrip && waypoints.length === 1 && autoWaypointsEnabled) {
+                console.log('🎯 Auto-generating intermediate waypoint for round trip...');
+                
                 const distance = parseInt(parsedRoute.distance) || 50;
                 const direction = parsedRoute.direction || 'south';
-                const orientation = parsedRoute.direction || '';
-
-                if (waypoints.length === 1) {
-                    // No named waypoints at all — full circular arc
-                    console.log('🔵 No named waypoints — generating full circular arc...');
-                    const arcPoints = calculateCircularWaypoints(startLocation, distance, direction, orientation, 4);
-                    arcPoints.forEach(p => waypoints.push(p));
-                    console.log(`  ✅ Added ${arcPoints.length} circular arc waypoints`);
-                } else {
-                    // Named waypoints exist (e.g. Perlacher Forst) — add arc points around them
-                    console.log('🔵 Named waypoints present — augmenting with arc points...');
-                    // Calculate how many extra arc points we need to cover the distance
-                    // Rough estimate: named WPs cover part of the route, fill the rest
-                    const namedWpCount = waypoints.length - 1; // exclude start
-                    const extraPoints = Math.max(2, 4 - namedWpCount);
-                    
-                    // Insert arc points BEFORE the named waypoints (outbound leg)
-                    const arcPoints = calculateCircularWaypoints(startLocation, distance, direction, orientation, extraPoints);
-                    
-                    // Insert arc points before named waypoints but after start
-                    const namedWps = waypoints.splice(1); // remove named wps temporarily
-                    arcPoints.forEach(p => waypoints.push(p)); // add arc points
-                    namedWps.forEach(p => waypoints.push(p));  // re-add named wps
-                    console.log(`  ✅ Added ${arcPoints.length} arc points + ${namedWps.length} named waypoints`);
-                }
+                
+                // Calculate midpoint in specified direction
+                const halfDistance = distance / 2;
+                const midPoint = calculateEndPoint(startLocation, halfDistance, direction);
+                midPoint.name = `${halfDistance}km ${direction}`;
+                
+                waypoints.push(midPoint);
+                console.log(`  ✅ Added auto-waypoint: ${midPoint.name} at ${midPoint.lat.toFixed(5)}, ${midPoint.lon.toFixed(5)}`);
             }
             
             // 4. Add end point
