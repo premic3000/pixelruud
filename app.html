@@ -17453,10 +17453,25 @@
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
+                    // If we have a nearLocation, pick the result closest to it
+                    let best = data[0];
+                    if (nearLocation && data.length > 1) {
+                        let minDist = Infinity;
+                        for (const candidate of data) {
+                            const dlat = parseFloat(candidate.lat) - nearLocation.lat;
+                            const dlon = parseFloat(candidate.lon) - nearLocation.lon;
+                            const dist = Math.sqrt(dlat*dlat + dlon*dlon);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                best = candidate;
+                            }
+                        }
+                        console.log(`  🎯 Picked closest result: ${best.display_name.substring(0,60)}`);
+                    }
                     const location = {
-                        lat: parseFloat(data[0].lat),
-                        lon: parseFloat(data[0].lon),
-                        name: data[0].display_name
+                        lat: parseFloat(best.lat),
+                        lon: parseFloat(best.lon),
+                        name: best.display_name
                     };
                     console.log(`✅ Geocoded via ${source}:`, location);
                     return location;
