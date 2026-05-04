@@ -12796,9 +12796,7 @@
                     btn.disabled = false;
                     setTimeout(() => { btn.textContent = '🗺️ Auf Karoo senden'; }, 3000);
                 }
-                alert('Fehler beim Senden: ' + err.message + '
-
-Stelle sicher dass du eingeloggt bist.');
+                alert('Fehler beim Senden: ' + err.message + '\n\nStelle sicher dass du eingeloggt bist.');
             }
         }
         window.sendToKaroo = sendToKaroo;
