@@ -6344,8 +6344,7 @@
             if (isLoggedIn && currentUser) {
                 if (loginBtn) loginBtn.textContent = 'Account';
                 if (userInfo) userInfo.textContent = currentUser.email;
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) logoutBtn.style.display = '';
+                setLogoutBtnVisible(true);
                 
                 // Hide/Remove Demo Banner when logged in
                 if (demoBanner) {
@@ -6360,8 +6359,7 @@
             } else {
                 if (loginBtn) loginBtn.textContent = 'Login';
                 if (userInfo) userInfo.textContent = '';
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) logoutBtn.style.display = 'none';
+                setLogoutBtnVisible(false);
                 
                 // Show Demo Banner when not logged in (if not exists)
                 if (!demoBanner && demoMode.active) {
@@ -6377,16 +6375,27 @@
         async function handleLogout() {
             try {
                 await sb.auth.signOut();
-                // Clear local session data
                 localStorage.removeItem('pixelruud_session');
                 localStorage.removeItem('pixelruud_user');
-                // Reload page to reset all state
                 window.location.reload();
             } catch (error) {
                 console.error('Logout error:', error);
-                // Force reload anyway
                 window.location.reload();
             }
+        }
+
+        function setLogoutBtnVisible(visible) {
+            // Retry up to 20x every 100ms until element is in DOM
+            let attempts = 0;
+            const interval = setInterval(() => {
+                const btn = document.getElementById('logoutBtn');
+                if (btn) {
+                    btn.style.display = visible ? '' : 'none';
+                    clearInterval(interval);
+                } else if (++attempts > 20) {
+                    clearInterval(interval);
+                }
+            }, 100);
         }
 
         // ==========================================
