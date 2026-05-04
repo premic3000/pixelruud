@@ -12777,12 +12777,67 @@
                 const publicUrl = urlData.publicUrl;
                 console.log('✅ GPX uploaded:', publicUrl);
 
-                // Open Hammerhead Dashboard with URL import
-                const hammerheadUrl = `https://dashboard.hammerhead.io/routes/import?url=${encodeURIComponent(publicUrl)}`;
-                window.open(hammerheadUrl, '_blank');
+                // Show public URL and copy to clipboard
+                console.log('✅ GPX public URL:', publicUrl);
+                
+                try {
+                    await navigator.clipboard.writeText(publicUrl);
+                    console.log('✅ URL copied to clipboard');
+                } catch(e) {
+                    console.warn('Clipboard not available');
+                }
+
+                // Show URL in a modal for manual copy
+                const existing = document.getElementById('karooUrlModal');
+                if (existing) existing.remove();
+                
+                const modal = document.createElement('div');
+                modal.id = 'karooUrlModal';
+                modal.style.cssText = `
+                    position: fixed; inset: 0; z-index: 99999;
+                    background: rgba(0,0,0,0.8);
+                    display: flex; align-items: center; justify-content: center;
+                    padding: 20px;
+                `;
+                modal.innerHTML = `
+                    <div style="
+                        background: #0a1628; border: 1px solid #00f0ff;
+                        border-radius: 12px; padding: 24px; max-width: 500px; width: 100%;
+                    ">
+                        <h3 style="color: #00f0ff; margin: 0 0 12px;">🗺️ GPX bereit für Karoo</h3>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 16px;">
+                            Die GPX-URL wurde in die Zwischenablage kopiert.<br>
+                            Öffne das Hammerhead Dashboard und importiere die Route via URL:
+                        </p>
+                        <div style="
+                            background: rgba(255,255,255,0.05); border-radius: 8px;
+                            padding: 10px; margin-bottom: 16px;
+                            font-family: monospace; font-size: 11px;
+                            color: #ccff00; word-break: break-all;
+                        ">${publicUrl}</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button onclick="navigator.clipboard.writeText('${publicUrl}')" style="
+                                flex: 1; background: rgba(0,240,255,0.2); border: 1px solid #00f0ff;
+                                color: #00f0ff; padding: 10px; border-radius: 8px; cursor: pointer;
+                                font-size: 13px;
+                            ">📋 URL kopieren</button>
+                            <button onclick="window.open('https://dashboard.hammerhead.io', '_blank')" style="
+                                flex: 1; background: linear-gradient(135deg, #ff6b00, #ff9500);
+                                border: none; color: #fff; padding: 10px; border-radius: 8px;
+                                cursor: pointer; font-size: 13px; font-weight: 600;
+                            ">🌐 Hammerhead Dashboard</button>
+                        </div>
+                        <button onclick="document.getElementById('karooUrlModal').remove()" style="
+                            margin-top: 12px; width: 100%; background: transparent;
+                            border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
+                            padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px;
+                        ">Schließen</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
 
                 if (btn) {
-                    btn.textContent = '✅ Dashboard geöffnet!';
+                    btn.textContent = '✅ URL bereit!';
                     setTimeout(() => {
                         btn.textContent = '🗺️ Auf Karoo senden';
                         btn.disabled = false;
