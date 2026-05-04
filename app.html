@@ -4811,6 +4811,18 @@
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
         </button>
+
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+
+        <!-- 14. Logout -->
+        <button class="toolbar-btn" id="logoutBtn" title="Ausloggen" onclick="handleLogout()" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        <span class="toolbar-label">Logout</span></button>
     </div>
     
     <!-- ========================================== -->
@@ -6332,6 +6344,8 @@
             if (isLoggedIn && currentUser) {
                 if (loginBtn) loginBtn.textContent = 'Account';
                 if (userInfo) userInfo.textContent = currentUser.email;
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) logoutBtn.style.display = '';
                 
                 // Hide/Remove Demo Banner when logged in
                 if (demoBanner) {
@@ -6346,6 +6360,8 @@
             } else {
                 if (loginBtn) loginBtn.textContent = 'Login';
                 if (userInfo) userInfo.textContent = '';
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) logoutBtn.style.display = 'none';
                 
                 // Show Demo Banner when not logged in (if not exists)
                 if (!demoBanner && demoMode.active) {
@@ -6354,6 +6370,25 @@
             }
         }
         
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+        
+        async function handleLogout() {
+            try {
+                await sb.auth.signOut();
+                // Clear local session data
+                localStorage.removeItem('pixelruud_session');
+                localStorage.removeItem('pixelruud_user');
+                // Reload page to reset all state
+                window.location.reload();
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force reload anyway
+                window.location.reload();
+            }
+        }
+
         // ==========================================
         // CLOUD ROUTE STORAGE
         // ==========================================
@@ -18817,13 +18852,13 @@
                     }
                 });
 
-                // Async: fetch place names directly from Nominatim (no proxy needed for reverse)
+                // Async: fetch place names via backend proxy (avoids CORS)
+                const _revBackend = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
                 waypoints.forEach((wp, i) => {
                     if (wp.label || wp._geocoding || wp._geocodingFailed) return;
                     wp._geocoding = true;
-                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${wp.lat}&lon=${wp.lng}&format=json&zoom=10`, {
-                        headers: { 'Accept-Language': 'de', 'User-Agent': 'PixelRuud/1.0' }
-                    })
+                    fetch(`${_revBackend}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`)
                         .then(r => {
                             if (!r.ok) throw new Error(`HTTP ${r.status}`);
                             return r.json();
