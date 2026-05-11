@@ -3,7 +3,7 @@
 // ⚠️ WICHTIG: Bei jedem Deploy diese Datei ebenfalls pushen!
 // CACHE_NAME Timestamp aktualisieren → Browser löscht alten Cache automatisch
 // Format: YYYYMMDD-HHMM
-const CACHE_NAME = 'pixelruud-20260410-1240';
+const CACHE_NAME = 'pixelruud-20260511-1200';
 const TILE_CACHE = 'pixelruud-tiles-v1';
 const TILE_CACHE_MAX = 500;
 
