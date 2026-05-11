@@ -15387,132 +15387,77 @@
             console.log('✅ Search panel initialized with direct search');
         }
         
-        // ==========================================
-        // NUTRITION PANEL
-        // ==========================================
-
         function initNutritionPanel(container) {
-            // Load saved rider profile
-            const savedProfile = JSON.parse(localStorage.getItem('pixelruud_nutrition_profile') || '{}');
-            
-            // Get current route stats
+            const saved = JSON.parse(localStorage.getItem('pixelruud_nutrition_profile') || '{}');
             const dist = window.routeStats ? Math.round(window.routeStats.totalDistance / 1000) : null;
             const elev = window.routeStats ? Math.round(window.routeStats.totalElevation || 0) : null;
 
-            container.innerHTML = `
-                <div style="padding: 4px 0;">
-                    <div style="color: rgba(255,255,255,0.5); font-size: 11px; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
-                        🍌 KI-Ernährungsempfehlung für deine Tour
-                    </div>
-
-                    <!-- Route Info -->
-                    <div style="background: rgba(0,240,255,0.07); border: 1px solid rgba(0,240,255,0.15); border-radius: 8px; padding: 10px; margin-bottom: 16px; font-size: 12px; color: rgba(255,255,255,0.7);">
-                        ${dist ? `📍 Aktuelle Route: <strong style="color:#00f0ff">${dist} km</strong>${elev ? ` · <strong style="color:#ccff00">${elev} hm</strong>` : ''}` : '⚠️ Noch keine Route — bitte zuerst eine Route erstellen.'}
-                    </div>
-
-                    <!-- Rider Profile -->
-                    <div style="margin-bottom: 16px;">
-                        <div style="color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Dein Profil</div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                            <div>
-                                <label style="color: rgba(255,255,255,0.5); font-size: 11px; display: block; margin-bottom: 4px;">Gewicht (kg)</label>
-                                <input id="nutritionWeight" type="number" min="40" max="150" placeholder="75"
-                                    value="${savedProfile.weight || ''}"
-                                    style="width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px; color: #fff; font-size: 13px; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="color: rgba(255,255,255,0.5); font-size: 11px; display: block; margin-bottom: 4px;">Fitnesslevel</label>
-                                <select id="nutritionFitness"
-                                    style="width: 100%; background: rgba(20,30,50,0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px; color: #fff; font-size: 13px; box-sizing: border-box;">
-                                    <option value="Einsteiger" ${(savedProfile.fitness||'') === 'Einsteiger' ? 'selected' : ''}>Einsteiger</option>
-                                    <option value="Fortgeschritten" ${(savedProfile.fitness||'Fortgeschritten') === 'Fortgeschritten' ? 'selected' : ''}>Fortgeschritten</option>
-                                    <option value="Profi" ${(savedProfile.fitness||'') === 'Profi' ? 'selected' : ''}>Profi</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 8px;">
-                            <label style="color: rgba(255,255,255,0.5); font-size: 11px; display: block; margin-bottom: 4px;">Ernährung / Allergien</label>
-                            <input id="nutritionDiet" type="text" placeholder="z.B. vegan, laktosefrei, keine Nüsse..."
-                                value="${savedProfile.diet || ''}"
-                                style="width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px; color: #fff; font-size: 13px; box-sizing: border-box;">
-                        </div>
-
-                        <div>
-                            <label style="color: rgba(255,255,255,0.5); font-size: 11px; display: block; margin-bottom: 4px;">Lieblingsverpflegung</label>
-                            <select id="nutritionFood"
-                                style="width: 100%; background: rgba(20,30,50,0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px; color: #fff; font-size: 13px; box-sizing: border-box;">
-                                <option value="Gels" ${(savedProfile.foodPreference||'') === 'Gels' ? 'selected' : ''}>⚡ Gels</option>
-                                <option value="Riegel" ${(savedProfile.foodPreference||'Riegel') === 'Riegel' ? 'selected' : ''}>🍫 Riegel</option>
-                                <option value="Echtes Essen" ${(savedProfile.foodPreference||'') === 'Echtes Essen' ? 'selected' : ''}>🥙 Echtes Essen</option>
-                                <option value="Mix aus allem" ${(savedProfile.foodPreference||'') === 'Mix aus allem' ? 'selected' : ''}>🎲 Mix aus allem</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Generate Button -->
-                    <button id="nutritionBtn" onclick="generateNutritionAdvice()" style="
-                        width: 100%;
-                        background: linear-gradient(135deg, #ccff00, #00f0ff);
-                        border: none; padding: 12px; border-radius: 8px;
-                        color: #000; font-weight: 700; cursor: pointer;
-                        font-size: 14px; margin-bottom: 12px;
-                        touch-action: manipulation;
-                    ">🍌 Ernährungsplan erstellen</button>
-
-                    <!-- Result -->
-                    <div id="nutritionResult" style="display:none;
-                        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-                        border-radius: 8px; padding: 14px; font-size: 13px;
-                        color: rgba(255,255,255,0.85); line-height: 1.6;
-                        max-height: 350px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-                    "></div>
-                </div>
-            `;
+            container.innerHTML = [
+                '<div style="padding:4px 0">',
+                '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:16px;">🍌 KI-Ernährungsempfehlung für deine Tour</div>',
+                '<div style="background:rgba(0,240,255,0.07);border:1px solid rgba(0,240,255,0.15);border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:rgba(255,255,255,0.7);">',
+                dist ? '📍 Route: <strong style="color:#00f0ff">' + dist + ' km</strong>' + (elev ? ' · <strong style="color:#ccff00">' + elev + ' hm</strong>' : '') : '⚠️ Noch keine Route vorhanden.',
+                '</div>',
+                '<div style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Dein Profil</div>',
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">',
+                '<div><label style="color:rgba(255,255,255,0.5);font-size:11px;display:block;margin-bottom:4px;">Gewicht (kg)</label>',
+                '<input id="nutritionWeight" type="number" min="40" max="150" placeholder="75" value="' + (saved.weight || '') + '" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px;color:#fff;font-size:13px;box-sizing:border-box;"></div>',
+                '<div><label style="color:rgba(255,255,255,0.5);font-size:11px;display:block;margin-bottom:4px;">Fitnesslevel</label>',
+                '<select id="nutritionFitness" style="width:100%;background:rgba(20,30,50,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px;color:#fff;font-size:13px;box-sizing:border-box;">',
+                '<option value="Einsteiger"' + (saved.fitness === 'Einsteiger' ? ' selected' : '') + '>Einsteiger</option>',
+                '<option value="Fortgeschritten"' + (saved.fitness !== 'Einsteiger' && saved.fitness !== 'Profi' ? ' selected' : '') + '>Fortgeschritten</option>',
+                '<option value="Profi"' + (saved.fitness === 'Profi' ? ' selected' : '') + '>Profi</option>',
+                '</select></div></div>',
+                '<div style="margin-bottom:8px;"><label style="color:rgba(255,255,255,0.5);font-size:11px;display:block;margin-bottom:4px;">Ernährung / Allergien</label>',
+                '<input id="nutritionDiet" type="text" placeholder="z.B. vegan, laktosefrei..." value="' + (saved.diet || '') + '" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px;color:#fff;font-size:13px;box-sizing:border-box;"></div>',
+                '<div style="margin-bottom:16px;"><label style="color:rgba(255,255,255,0.5);font-size:11px;display:block;margin-bottom:4px;">Lieblingsverpflegung</label>',
+                '<select id="nutritionFood" style="width:100%;background:rgba(20,30,50,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:8px;color:#fff;font-size:13px;box-sizing:border-box;">',
+                '<option value="Gels"' + (saved.foodPreference === 'Gels' ? ' selected' : '') + '>⚡ Gels</option>',
+                '<option value="Riegel"' + (saved.foodPreference !== 'Gels' && saved.foodPreference !== 'Echtes Essen' && saved.foodPreference !== 'Mix aus allem' ? ' selected' : '') + '>🍫 Riegel</option>',
+                '<option value="Echtes Essen"' + (saved.foodPreference === 'Echtes Essen' ? ' selected' : '') + '>🥙 Echtes Essen</option>',
+                '<option value="Mix aus allem"' + (saved.foodPreference === 'Mix aus allem' ? ' selected' : '') + '>🎲 Mix aus allem</option>',
+                '</select></div>',
+                '<button id="nutritionBtn" onclick="generateNutritionAdvice()" style="width:100%;background:linear-gradient(135deg,#ccff00,#00f0ff);border:none;padding:12px;border-radius:8px;color:#000;font-weight:700;cursor:pointer;font-size:14px;margin-bottom:12px;touch-action:manipulation;">🍌 Ernährungsplan erstellen</button>',
+                '<div id="nutritionResult" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.6;max-height:350px;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>',
+                '</div>'
+            ].join('');
         }
 
         async function generateNutritionAdvice() {
             const btn = document.getElementById('nutritionBtn');
             const result = document.getElementById('nutritionResult');
 
-            // Save profile
             const profile = {
-                weight: document.getElementById('nutritionWeight')?.value || null,
-                fitness: document.getElementById('nutritionFitness')?.value || 'Fortgeschritten',
-                diet: document.getElementById('nutritionDiet')?.value || null,
-                foodPreference: document.getElementById('nutritionFood')?.value || 'Riegel'
+                weight: document.getElementById('nutritionWeight') ? document.getElementById('nutritionWeight').value : null,
+                fitness: document.getElementById('nutritionFitness') ? document.getElementById('nutritionFitness').value : 'Fortgeschritten',
+                diet: document.getElementById('nutritionDiet') ? document.getElementById('nutritionDiet').value : null,
+                foodPreference: document.getElementById('nutritionFood') ? document.getElementById('nutritionFood').value : 'Riegel'
             };
             localStorage.setItem('pixelruud_nutrition_profile', JSON.stringify(profile));
 
-            // Get route info
             const dist = window.routeStats ? Math.round(window.routeStats.totalDistance / 1000) : null;
-            if (!dist) {
-                alert('Bitte zuerst eine Route erstellen.');
-                return;
-            }
+            if (!dist) { alert('Bitte zuerst eine Route erstellen.'); return; }
 
             const elev = window.routeStats ? Math.round(window.routeStats.totalElevation || 0) : 0;
             const avgSpeed = profile.fitness === 'Profi' ? 30 : profile.fitness === 'Einsteiger' ? 18 : 24;
-            const estimatedDuration = `${Math.round(dist / avgSpeed * 10) / 10} Stunden`;
-
-            // Get weather temp if available
-            const tempEl = document.querySelector('.weather-temp, [class*="temp"]');
+            const estimatedDuration = Math.round(dist / avgSpeed * 10) / 10 + ' Stunden';
+            const tempEl = document.querySelector('.weather-temp');
             const temp = tempEl ? tempEl.textContent : null;
 
             if (btn) { btn.textContent = '⏳ KI denkt nach...'; btn.disabled = true; }
-            if (result) { result.style.display = 'none'; }
+            if (result) result.style.display = 'none';
 
             try {
-                const { data: { session } } = await sb.auth.getSession();
+                const sessionData = await sb.auth.getSession();
+                const session = sessionData.data.session;
                 if (!session) throw new Error('Bitte einloggen');
 
                 const AI_URL = 'https://pixelruud-ai-backend-production.up.railway.app';
-                const response = await fetch(`${AI_URL}/api/nutrition`, {
+                const response = await fetch(AI_URL + '/api/nutrition', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
                     body: JSON.stringify({
-                        routeInfo: { distance: dist, elevation: elev, type: 'Gravel', estimatedDuration, temp },
+                        routeInfo: { distance: dist, elevation: elev, type: 'Gravel', estimatedDuration: estimatedDuration, temp: temp },
                         riderProfile: profile
                     })
                 });
@@ -15521,16 +15466,15 @@
                 const data = await response.json();
 
                 if (result) {
-                    // Convert markdown to simple HTML
-                    const html = data.recommendation
-                        .replace(/##[ ]+([^<]*)/g, '<strong style="color:#00f0ff;display:block;margin:12px 0 6px;">$1</strong>')
-                        .replace(/[*][*]([^*]+)[*][*]/g, '<strong style="color:#ccff00">$1</strong>')
-                        .replace(/^[-] ([^<]*)/gm, '<div style="padding:2px 0 2px 12px;border-left:2px solid rgba(0,240,255,0.3);margin:3px 0;">$1</div>')
-                        .split('\n').join('<br>');
-                    result.innerHTML = html;
+                    const lines = data.recommendation.split('\n');
+                    const htmlParts = lines.map(function(line) {
+                        if (line.indexOf('## ') === 0) return '<strong style="color:#00f0ff;display:block;margin:12px 0 6px;">' + line.substring(3) + '</strong>';
+                        if (line.indexOf('- ') === 0) return '<div style="padding:2px 0 2px 12px;border-left:2px solid rgba(0,240,255,0.3);margin:3px 0;">' + line.substring(2) + '</div>';
+                        return line ? line + '<br>' : '<br>';
+                    });
+                    result.innerHTML = htmlParts.join('');
                     result.style.display = 'block';
                 }
-
             } catch (err) {
                 console.error('Nutrition error:', err);
                 if (result) {
