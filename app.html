@@ -12311,17 +12311,20 @@
         async function getElevations(coordinates) {
             const elevations = [];
             const batchSize = 100;
+            const _elevBackend = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
             
             for (let i = 0; i < coordinates.length; i += batchSize) {
                 const batch = coordinates.slice(i, i + batchSize);
                 const locations = batch.map(c => ({ latitude: c[1], longitude: c[0] }));
                 
                 try {
-                    const response = await fetch('https://api.open-elevation.com/api/v1/lookup', {
+                    const response = await fetch(_elevBackend + '/api/elevation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ locations })
                     });
+                    if (!response.ok) throw new Error('Elevation proxy error: ' + response.status);
                     const data = await response.json();
                     elevations.push(...data.results.map(r => r.elevation || 0));
                 } catch (error) {
