@@ -3,7 +3,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- PWA -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -351,10 +351,10 @@
         /* Consolas Font wird system-weit verwendet (keine Import nötig) */
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100dvh; display: flex; flex-direction: column; -webkit-tap-highlight-color: transparent; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
         /* Prevent iOS bounce scroll */
         html { overflow: hidden; height: 100%; }
-        #map { flex: 1; width: 100%; min-height: 100vh; height: 100%; }
+        #map { flex: 1; width: 100%; min-height: 100dvh; height: 100%; }
         #loadingMessage { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 24px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); z-index: 10000; }
         /* ================================================ */
         /* BOTTOM FLOATING BAR - Corporate Design v3.53    */
@@ -3392,7 +3392,7 @@
         .floating-toolbar {
             position: fixed;
             top: 50%;
-            right: 20px;
+            right: max(20px, env(safe-area-inset-right, 20px));
             transform: translateY(-50%);
             background: rgba(0, 8, 20, 0.90);
             backdrop-filter: blur(20px);
@@ -3409,9 +3409,11 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
             cursor: default;
             width: 56px;
-            max-height: calc(100vh - 260px);
+            max-height: calc(100dvh - 160px);
             overflow-y: auto;
             overflow-x: hidden;
+            /* iOS momentum scrolling */
+            -webkit-overflow-scrolling: touch;
         }
         
         /* Custom scrollbar for toolbar */
@@ -3448,8 +3450,8 @@
         .toolbar-drag-handle:hover .drag-dots { color: rgba(255,255,255,0.8); }
         
         .toolbar-btn {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border: none;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
@@ -3459,6 +3461,9 @@
             cursor: default;
             transition: all 0.2s ease;
             position: relative;
+            /* iOS tap highlight */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         .toolbar-btn svg {
