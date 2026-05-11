@@ -15523,10 +15523,12 @@
                 if (result) {
                     // Convert markdown to simple HTML
                     const html = data.recommendation
-                        .replace(/## (.*)/g, '<strong style="color:#00f0ff;display:block;margin:12px 0 6px;">$1</strong>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ccff00">$1</strong>')
-                        .replace(/^- (.*)/gm, '<div style="padding: 2px 0 2px 12px; border-left: 2px solid rgba(0,240,255,0.3); margin: 3px 0;">$1</div>')
-                        .replace(/\n/g, '<br>').replace(/
+                        .replace(/## ([^
+]*)/g, '<strong style="color:#00f0ff;display:block;margin:12px 0 6px;">$1</strong>')
+                        .replace(/[*][*]([^*]+)[*][*]/g, '<strong style="color:#ccff00">$1</strong>')
+                        .replace(/^- ([^
+]*)/gm, '<div style="padding: 2px 0 2px 12px; border-left: 2px solid rgba(0,240,255,0.3); margin: 3px 0;">$1</div>')
+                        .replace(/
 /g, '<br>');
                     result.innerHTML = html;
                     result.style.display = 'block';
