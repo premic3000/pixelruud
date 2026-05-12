@@ -4652,7 +4652,7 @@
             <div class="drag-dots">⋮⋮</div>
         </div>
         
-        <!-- NEW: Routing Settings -->
+        <!-- ── NAVIGATION ── -->
         <button class="toolbar-btn" data-panel="routing" title="Routing Einstellungen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -4661,48 +4661,21 @@
                 <path d="M18.36 5.64l-4.24 4.24m-4.24 4.24l-4.24 4.24"></path>
             </svg>
         <span class="toolbar-label">Routing</span></button>
-        
-        <!-- 1. Waypoints -->
+
         <button class="toolbar-btn" data-panel="waypoints" title="Waypoints">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
             </svg>
         <span class="toolbar-label">Punkte</span></button>
-        
-        <!-- 2. Magnifier (HIGHLIGHT - X-Ray Icon) -->
-        <button class="toolbar-btn" data-panel="magnifier" title="X-Ray Magnifier">
+
+        <button class="toolbar-btn" data-panel="search" title="Adresse suchen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
-                <circle cx="11" cy="11" r="3"></circle>
             </svg>
-        <span class="toolbar-label">X-Ray</span></button>
-        
-        <!-- 3. Elevation Profile -->
-        <button class="toolbar-btn" data-panel="elevation" title="Elevation Profile">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-        <span class="toolbar-label">Höhe</span></button>
-        
-        <!-- 4. Statistics -->
-        <button class="toolbar-btn" data-panel="stats" title="Statistics">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-            </svg>
-        <span class="toolbar-label">Stats</span></button>
-        
-        <!-- 5. POI & Layers (Stack/Layers Icon) -->
-        <button class="toolbar-btn" data-panel="poi" title="POI">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-        <span class="toolbar-label">POI</span></button>
-        
-        <!-- 5b. Map Layers -->
+        <span class="toolbar-label">Suche</span></button>
+
         <button class="toolbar-btn" data-panel="layers" title="Karten-Layer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
@@ -4710,25 +4683,90 @@
                 <path d="M2 17l10 5 10-5"></path>
             </svg>
         <span class="toolbar-label">Layer</span></button>
-        
-        <!-- 6. Adresse suchen (Search/Magnifying Glass) -->
-        <button class="toolbar-btn" data-panel="search" title="Adresse suchen">
+
+        <button class="toolbar-btn" data-panel="poi" title="POI">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+        <span class="toolbar-label">POI</span></button>
+
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+
+        <!-- ── ANALYSE ── -->
+        <button class="toolbar-btn" data-panel="magnifier" title="Pixel XRay Magnifier">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
+                <circle cx="11" cy="11" r="3"></circle>
             </svg>
-        <span class="toolbar-label">Suche</span></button>
-        
-        <!-- 7. GPX Export -->
-        <button class="toolbar-btn" data-panel="export" title="GPX Export">
+        <span class="toolbar-label">Pixel XRay</span></button>
+
+        <button class="toolbar-btn" data-panel="elevation" title="Elevation Profile">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
-        <span class="toolbar-label">Export</span></button>
-        
-        <!-- 8. Import GPX -->
+        <span class="toolbar-label">Höhe</span></button>
+
+        <button class="toolbar-btn" data-panel="stats" title="Statistics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+        <span class="toolbar-label">Stats</span></button>
+
+        <button class="toolbar-btn" data-panel="weather-overlay" title="Weather Overlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+            </svg>
+        <span class="toolbar-label">Wetter</span></button>
+
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+
+        <!-- ── PIXEL AI SUITE ── -->
+        <button class="toolbar-btn" data-panel="ai-generator" title="Pixel RUUD – AI Route Generator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 14v7"></path>
+            </svg>
+        <span class="toolbar-label">Pixel RUUD</span></button>
+
+        <button class="toolbar-btn" id="pixelStoryBtn" title="Pixel Story – Route zur Story">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+        <span class="toolbar-label">Pixel Story</span></button>
+
+        <button class="toolbar-btn" id="wardrobeBtn" title="Pixel Wardrobe – Outfit Empfehlung">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"></path>
+            </svg>
+        <span class="toolbar-label">Pixel Wardrobe</span></button>
+
+        <button class="toolbar-btn" data-panel="nutrition" title="Pixel Fuel – Ernährungsplan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+            </svg>
+        <span class="toolbar-label">Pixel Fuel</span></button>
+
+        <button class="toolbar-btn" data-panel="route-surgery" title="Route Surgery – Hindernisse & Baustellen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+            <span class="toolbar-badge" id="surgeryBadge" style="display: none;">0</span>
+        <span class="toolbar-label">Surgery</span></button>
+
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+
+        <!-- ── DATEN ── -->
         <button class="toolbar-btn" data-panel="import" title="Import GPX">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -4736,17 +4774,15 @@
                 <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
         <span class="toolbar-label">Import</span></button>
-        
-        <!-- 8b. AI Route Generator ⚡ NEW! -->
-        <button class="toolbar-btn" data-panel="ai-generator" title="AI Route Generator">
+
+        <button class="toolbar-btn" data-panel="export" title="GPX Export">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 14v7"></path>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-        <span class="toolbar-label">KI Route</span></button>
-        
-        <!-- 9. Saved Routes (Heatmap) -->
+        <span class="toolbar-label">Export</span></button>
+
         <button class="toolbar-btn" data-panel="routes" title="Saved Routes">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -4754,48 +4790,18 @@
                 <polyline points="7 3 7 8 15 8"></polyline>
             </svg>
         <span class="toolbar-label">Touren</span></button>
-        
-        <!-- 10. API Settings -->
+
+        <!-- DIVIDER -->
+        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
+
+        <!-- ── SYSTEM ── -->
         <button class="toolbar-btn" data-panel="api" title="API Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M12 1v6m0 6v6m-9-9h6m6 0h6"></path>
             </svg>
         <span class="toolbar-label">API</span></button>
-        
-        <!-- 12. Weather Overlay -->
-        <button class="toolbar-btn" data-panel="weather-overlay" title="Weather Overlay">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-            </svg>
-        <span class="toolbar-label">Wetter</span></button>
-        
-        <!-- 13. Route Surgery (NEW!) -->
-        <button class="toolbar-btn" data-panel="route-surgery" title="Route Surgery - Hindernisse & Baustellen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-            </svg>
-            <span class="toolbar-badge" id="surgeryBadge" style="display: none;">0</span>
-        <span class="toolbar-label">Surgery</span></button>
-        
-        <!-- DIVIDER -->
-        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
 
-        <!-- 14. Kleiderschrank -->
-        <!-- pixel.story -->
-        <button class="toolbar-btn" id="pixelStoryBtn" title="pixel.story – Route zur Story">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-        <span class="toolbar-label">Story</span></button>
-
-        <button class="toolbar-btn" id="wardrobeBtn" title="Kleiderschrank – Outfit Empfehlung">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"></path>
-            </svg>
-        <span class="toolbar-label">Outfit</span></button>
-        
-        <!-- 15. Skin Switcher -->
         <button class="toolbar-btn" id="skinBtn" title="Design / Skin wechseln">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -4805,10 +4811,6 @@
             </svg>
         <span class="toolbar-label">Design</span></button>
 
-        <!-- DIVIDER -->
-        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
-        
-        <!-- 13. Tutorial Help -->
         <button class="toolbar-btn" id="tutorialBtn" title="Tutorial starten">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -4817,24 +4819,6 @@
             </svg>
         </button>
 
-        <!-- DIVIDER -->
-        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
-
-        <!-- 14. Nutrition -->
-        <button class="toolbar-btn" data-panel="nutrition" title="Ernährungsempfehlung">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                <line x1="6" y1="1" x2="6" y2="4"></line>
-                <line x1="10" y1="1" x2="10" y2="4"></line>
-                <line x1="14" y1="1" x2="14" y2="4"></line>
-            </svg>
-        <span class="toolbar-label">Nutrition</span></button>
-
-        <!-- DIVIDER -->
-        <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 8px 0;"></div>
-
-        <!-- 15. Logout -->
         <button class="toolbar-btn" id="logoutBtn" title="Ausloggen" onclick="handleLogout()" style="display:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -14819,7 +14803,7 @@
                 `,
                 nutrition: `
                     <div class="panel-header">
-                        <div class="panel-title">🍌 Ernährungsplan</div>
+                        <div class="panel-title">🍌 Pixel Fuel</div>
                         <button class="panel-close">×</button>
                     </div>
                     <div class="panel-content">
@@ -15406,7 +15390,7 @@
 
             container.innerHTML = [
                 '<div style="padding:4px 0">',
-                '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:16px;">🍌 KI-Ernährungsempfehlung für deine Tour</div>',
+                '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:16px;">🍌 Pixel Fuel – Dein KI-Ernährungsplan</div>',
                 '<div style="background:rgba(0,240,255,0.07);border:1px solid rgba(0,240,255,0.15);border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:rgba(255,255,255,0.7);">',
                 dist ? '📍 Route: <strong style="color:#00f0ff">' + dist + ' km</strong>' + (elev ? ' · <strong style="color:#ccff00">' + elev + ' hm</strong>' : '') : '⚠️ Noch keine Route vorhanden.',
                 '</div>',
@@ -15429,7 +15413,7 @@
                 '<option value="Echtes Essen"' + (saved.foodPreference === 'Echtes Essen' ? ' selected' : '') + '>🥙 Echtes Essen</option>',
                 '<option value="Mix aus allem"' + (saved.foodPreference === 'Mix aus allem' ? ' selected' : '') + '>🎲 Mix aus allem</option>',
                 '</select></div>',
-                '<button id="nutritionBtn" onclick="generateNutritionAdvice()" style="width:100%;background:linear-gradient(135deg,#ccff00,#00f0ff);border:none;padding:12px;border-radius:8px;color:#000;font-weight:700;cursor:pointer;font-size:14px;margin-bottom:12px;touch-action:manipulation;">🍌 Ernährungsplan erstellen</button>',
+                '<button id="nutritionBtn" onclick="generateNutritionAdvice()" style="width:100%;background:linear-gradient(135deg,#ccff00,#00f0ff);border:none;padding:12px;border-radius:8px;color:#000;font-weight:700;cursor:pointer;font-size:14px;margin-bottom:12px;touch-action:manipulation;">🍌 Pixel Fuel erstellen</button>',
                 '<div id="nutritionResult" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.6;max-height:350px;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>',
                 '</div>'
             ].join('');
@@ -15456,7 +15440,7 @@
             const tempEl = document.querySelector('.weather-temp');
             const temp = tempEl ? tempEl.textContent : null;
 
-            if (btn) { btn.textContent = '⏳ KI denkt nach...'; btn.disabled = true; }
+            if (btn) { btn.textContent = '⏳ Pixel Fuel wird berechnet...'; btn.disabled = true; }
             if (result) result.style.display = 'none';
 
             try {
@@ -15494,7 +15478,7 @@
                     result.style.display = 'block';
                 }
             } finally {
-                if (btn) { btn.textContent = '🍌 Ernährungsplan erstellen'; btn.disabled = false; }
+                if (btn) { btn.textContent = '🍌 Pixel Fuel erstellen'; btn.disabled = false; }
             }
         }
         window.generateNutritionAdvice = generateNutritionAdvice;
@@ -16971,22 +16955,43 @@
             },
             {
                 icon: '🤖',
-                title: 'AI Route Generator (NEU!)',
-                content: '<strong>Beschreibe deine Route in Worten!</strong><br><br>Beispiele:<br>• "50km Gravel von München"<br>• "80km via Tegernsee zurück"<br>• "Rennrad, ruhige Straßen, flach"<br><br>Die KI plant automatisch:<br>• Start & Ziel<br>• POIs & Zwischenstopps<br>• Rundkurse<br>• Distanz & Richtung<br><br>💡 Klick auf <strong>🤖</strong> in der Toolbar!',
+                title: 'Pixel RUUD – AI Routengenerator',
+                content: '<strong>Beschreibe deine Route in natürlicher Sprache!</strong><br><br>Beispiele:<br>• "80km Gravel Rundkurs ab München Süden"<br>• "60km via Tegernsee, viele Höhenmeter"<br>• "Rennrad, ruhige Straßen, flach"<br><br>Die KI plant automatisch:<br>• Start & Ziel<br>• Wegpunkte & Rundkurse<br>• Distanz & Richtung<br><br>💡 <strong>Pixel RUUD</strong> in der Toolbar (AI Suite Block)',
                 spotlight: '[data-panel="ai-generator"]',
                 cardPosition: 'left'
             },
             {
+                icon: '📖',
+                title: 'Pixel Story – Route zur Story',
+                content: '<strong>Verwandle deine Route in eine persönliche Story!</strong><br><br>• GPX-Daten werden zu einem authentischen Fahrtbericht<br>• Perfekt für Instagram, Strava oder den Blog<br>• KI schreibt im Stil eines echten Gravel-Bikers<br>• Kein Marketing-Sprech, kein KI-Tonfall<br><br>💡 <strong>Pixel Story</strong> Button in der Toolbar (AI Suite Block)',
+                spotlight: null,
+                cardPosition: 'left'
+            },
+            {
+                icon: '👕',
+                title: 'Pixel Wardrobe – Outfit-KI',
+                content: '<strong>Dein digitaler Kleiderschrank!</strong><br><br>• Füge deine Kleidungsstücke hinzu (Foto oder URL)<br>• KI analysiert Route + Wetter + Kleiderschrank<br>• Empfiehlt das perfekte Outfit für jede Tour<br>• Zwiebelprinzip, Windjacke bei Abfahrten, etc.<br><br>💡 <strong>Pixel Wardrobe</strong> in der Toolbar (AI Suite Block)',
+                spotlight: null,
+                cardPosition: 'left'
+            },
+            {
+                icon: '🍌',
+                title: 'Pixel Fuel – Ernährungsplan',
+                content: '<strong>Dein KI-Verpflegungsplan!</strong><br><br>Basierend auf:<br>• Route (Distanz + Höhenmeter)<br>• Körpergewicht & Fitnesslevel<br>• Lieblingsverpflegung (Gels, Riegel, echtes Essen)<br><br>Ergebnis:<br>• Kalorienverbrauch<br>• Detaillierter Zeitplan<br>• Flüssigkeitsbedarf<br><br>💡 <strong>Pixel Fuel</strong> in der Toolbar (AI Suite Block)',
+                spotlight: '[data-panel="nutrition"]',
+                cardPosition: 'left'
+            },
+            {
                 icon: '🔧',
-                title: 'Route Surgery (NEU!)',
-                content: '<strong>Automatische Hinderniserkennung!</strong><br><br>Erkennt:<br>• Straßensperrungen<br>• Baustellen<br>• Gesperrte Wege<br><br>Zeigt dir:<br>• Betroffene Segmente<br>• Alternative Routen<br>• Umgehungsvorschläge<br><br>💡 Button in der Toolbar!<br>💡 Nutzt OpenStreetMap Live-Daten',
+                title: 'Route Surgery – Hindernisse',
+                content: '<strong>Automatische Hinderniserkennung!</strong><br><br>Erkennt:<br>• Straßensperrungen<br>• Baustellen<br>• Gesperrte Wege<br><br>Zeigt dir:<br>• Betroffene Segmente<br>• Umgehungsvorschläge<br><br>💡 Nutzt OpenStreetMap Live-Daten',
                 spotlight: '[data-panel="route-surgery"]',
                 cardPosition: 'left'
             },
             {
                 icon: '🎉',
                 title: 'Los geht\'s!',
-                content: 'Du kennst jetzt alle Features!<br><br><strong>Starte deine erste Route:</strong><br>1. Klicke auf die Karte<br>2. Setze Wegpunkte<br>3. Route wird automatisch berechnet<br><br>Klicke auf <strong>?</strong> um dieses Tutorial jederzeit neu zu starten.<br><br><strong>Viel Spaß beim Planen! 🚴</strong>',
+                content: 'Du kennst jetzt alle Features!<br><br><strong>Die Pixel AI Suite:</strong><br>🤖 Pixel RUUD – Routen planen<br>📖 Pixel Story – Route zur Story<br>👕 Pixel Wardrobe – Outfit-KI<br>🍌 Pixel Fuel – Ernährungsplan<br>🔍 Pixel XRay – Surface-Analyse<br><br>Klicke auf <strong>?</strong> um dieses Tutorial jederzeit neu zu starten.<br><br><strong>Viel Spaß beim Planen! 🚴</strong>',
                 spotlight: '#tutorialBtn',
                 cardPosition: 'left'
             }
@@ -17080,22 +17085,43 @@
             },
             {
                 icon: '🤖',
-                title: 'AI Route Generator (NEW!)',
-                content: '<strong>Describe your route in words!</strong><br><br>Examples:<br>• "50km gravel from Munich"<br>• "80km via Tegernsee back"<br>• "Road bike, quiet roads, flat"<br><br>AI automatically plans:<br>• Start & destination<br>• POIs & waypoints<br>• Round trips<br>• Distance & direction<br><br>💡 Click <strong>🤖</strong> in toolbar!',
+                title: 'Pixel RUUD – AI Route Generator',
+                content: '<strong>Describe your route in natural language!</strong><br><br>Examples:<br>• "80km gravel loop from Munich south"<br>• "60km via Tegernsee, lots of climbing"<br>• "Road bike, quiet roads, flat"<br><br>AI plans automatically:<br>• Start & End + waypoints<br>• Round trips & direction<br><br>💡 <strong>Pixel RUUD</strong> in toolbar (AI Suite block)',
                 spotlight: '[data-panel="ai-generator"]',
                 cardPosition: 'left'
             },
             {
+                icon: '📖',
+                title: 'Pixel Story – Route to Narrative',
+                content: '<strong>Turn your route into a personal story!</strong><br><br>• GPX data becomes an authentic ride report<br>• Perfect for Instagram, Strava or your blog<br>• AI writes like a real gravel biker<br>• No marketing speak, no AI tone<br><br>💡 <strong>Pixel Story</strong> in toolbar (AI Suite block)',
+                spotlight: null,
+                cardPosition: 'left'
+            },
+            {
+                icon: '👕',
+                title: 'Pixel Wardrobe – Outfit AI',
+                content: '<strong>Your digital wardrobe!</strong><br><br>• Add clothing items (photo or URL)<br>• AI analyzes route + weather + wardrobe<br>• Recommends the perfect outfit for every ride<br>• Layering, wind jacket for descents, etc.<br><br>💡 <strong>Pixel Wardrobe</strong> in toolbar (AI Suite block)',
+                spotlight: null,
+                cardPosition: 'left'
+            },
+            {
+                icon: '🍌',
+                title: 'Pixel Fuel – Nutrition Plan',
+                content: '<strong>Your AI nutrition plan!</strong><br><br>Based on route, body weight & fitness level.<br><br>Result:<br>• Calorie burn estimate<br>• Detailed time schedule<br>• Hydration needs<br>• Tailored to gels, bars or real food<br><br>💡 <strong>Pixel Fuel</strong> in toolbar (AI Suite block)',
+                spotlight: '[data-panel="nutrition"]',
+                cardPosition: 'left'
+            },
+            {
                 icon: '🔧',
-                title: 'Route Surgery (NEW!)',
-                content: '<strong>Automatic obstacle detection!</strong><br><br>Detects:<br>• Road closures<br>• Construction sites<br>• Blocked paths<br><br>Shows you:<br>• Affected segments<br>• Alternative routes<br>• Detour suggestions<br><br>💡 Button in toolbar!<br>💡 Uses OpenStreetMap live data',
+                title: 'Route Surgery – Obstacles',
+                content: '<strong>Automatic obstacle detection!</strong><br><br>Detects road closures, construction sites & blocked paths.<br><br>Shows affected segments & detour suggestions.<br><br>💡 Uses OpenStreetMap live data',
                 spotlight: '[data-panel="route-surgery"]',
                 cardPosition: 'left'
             },
             {
                 icon: '🎉',
                 title: 'Let\'s Go!',
-                content: 'You now know all features!<br><br><strong>Start your first route:</strong><br>1. Click on the map<br>2. Set waypoints<br>3. Route calculates automatically<br><br>Click <strong>?</strong> to restart this tutorial anytime.<br><br><strong>Happy Planning! 🚴</strong>',
+                content: 'You now know all features!<br><br><strong>The Pixel AI Suite:</strong><br>🤖 Pixel RUUD – Route planning<br>📖 Pixel Story – Route to narrative<br>👕 Pixel Wardrobe – Outfit AI<br>🍌 Pixel Fuel – Nutrition plan<br>🔍 Pixel XRay – Surface analysis<br><br>Click <strong>?</strong> to restart anytime.<br><br><strong>Happy planning! 🚴</strong>',
                 spotlight: '#tutorialBtn',
                 cardPosition: 'left'
             }
