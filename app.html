@@ -5772,6 +5772,11 @@
         
         // Handle Login
         async function handleLogin() {
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('Login Attempt', {
+                    title: 'Auth: Login attempted'
+                });
+            }
             // Skip if Supabase not available
             if (!sb) {
                 alert('⚠️ Login currently unavailable. Please use Demo Mode.');
@@ -6351,6 +6356,11 @@
             
             if (isLoggedIn && currentUser) {
                 if (loginBtn) loginBtn.textContent = 'Account';
+                if (window.trackPixelRuudEvent) {
+                    window.trackPixelRuudEvent('User Logged In', {
+                        title: 'Auth: User logged in'
+                    });
+                }
                 if (userInfo) userInfo.textContent = currentUser.email;
                 setLogoutBtnVisible(true);
                 
@@ -6417,6 +6427,11 @@
             }
             
             trackEvent('Route Saved', { storage: 'cloud' });
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('Route Saved Cloud', {
+                    title: 'Cloud: Route saved'
+                });
+            }
             
             const { data, error } = await sb
                 .from('user_routes')
@@ -8183,6 +8198,11 @@
             
             // Track GPX import
             trackEvent('gpx-imported');
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('GPX Imported', {
+                    title: `GPX Import: ${waypoints ? waypoints.length : '?'} waypoints`
+                });
+            }
         }
         
         // ========================================
@@ -11489,6 +11509,9 @@
                             route = await getBRouterRoute(start, end, i);
                             if (!route && apiKeys.graphhopper) {
                                 console.log(`⚠ BRouter failed for segment ${segmentKey}, trying GraphHopper...`);
+                                if (window.trackPixelRuudEvent) {
+                                    window.trackPixelRuudEvent('BRouter Fallback', { title: 'Routing: BRouter → GraphHopper fallback' });
+                                }
                                 route = await getGraphHopperRoute(start, end, i);
                             }
                         }
@@ -12787,6 +12810,11 @@
 
                 const publicUrl = urlData.publicUrl;
                 console.log('✅ GPX uploaded:', publicUrl);
+                if (window.trackPixelRuudEvent) {
+                    window.trackPixelRuudEvent('Karoo Export', {
+                        title: 'Karoo: GPX uploaded to cloud'
+                    });
+                }
 
                 // Show public URL and copy to clipboard
                 console.log('✅ GPX public URL:', publicUrl);
@@ -13007,6 +13035,11 @@
             requestAnimationFrame(() => { overlay.style.width = '65vw'; });
             document.getElementById('psRouteName').textContent = rd.name;
             document.getElementById('pixelStoryBtn').classList.add('active');
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('Pixel Story Opened', {
+                    title: 'Pixel Story: Opened'
+                });
+            }
 
             // Pass route data once iframe loads
             const frame = document.getElementById('pixelStoryFrame');
@@ -14536,6 +14569,11 @@
             initPanelFunctionality(type, panel);
             
             console.log('📂 Panel opened:', type);
+            if (window.trackPixelRuudEvent && ['ai-generator','nutrition','route-surgery','magnifier','weather-overlay'].includes(type)) {
+                window.trackPixelRuudEvent('Panel Opened', {
+                    title: 'Panel: ' + type
+                });
+            }
         }
         
         function makePanelDraggable(panel) {
@@ -15475,6 +15513,11 @@
                     });
                     result.innerHTML = htmlParts.join('');
                     result.style.display = 'block';
+                    if (window.trackPixelRuudEvent) {
+                        window.trackPixelRuudEvent('Pixel Fuel Generated', {
+                            title: 'Pixel Fuel: Nutrition plan created'
+                        });
+                    }
                 }
             } catch (err) {
                 console.error('Nutrition error:', err);
@@ -16637,6 +16680,11 @@
         }
         
         function initRouteSurgeryPanel(container) {
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('Route Surgery Opened', {
+                    title: 'Route Surgery: Panel opened'
+                });
+            }
             console.log('🔧 Initializing Route Surgery panel');
             
             // Get current closures
@@ -17185,6 +17233,11 @@
         const tutorialBtn = document.getElementById('tutorialBtn');
         
         function startTutorial() {
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('Tutorial Started', {
+                    title: 'Tutorial: Started'
+                });
+            }
             currentStep = 0;
             overlay.classList.add('active');
             showStep(0);
@@ -18449,6 +18502,11 @@
                     await calculateRoutes();
                     
                     console.log('✅ AI Route fully integrated into PixelRuud!');
+            if (window.trackPixelRuudEvent) {
+                window.trackPixelRuudEvent('AI Route Applied', {
+                    title: `Applied: ${parsedRoute.distance || '?'}km ${parsedRoute.type || 'gravel'}`
+                });
+            }
 
                     // Success
                     applyBtn.textContent = '✅ Route integrated!';
@@ -18686,6 +18744,11 @@
                 resultTxt.textContent = data.recommendation;
                 resultEl.classList.add('show');
                 statusEl.textContent = '';
+                if (window.trackPixelRuudEvent) {
+                    window.trackPixelRuudEvent('Pixel Wardrobe Used', {
+                        title: 'Pixel Wardrobe: Outfit recommended'
+                    });
+                }
             } catch (err) {
                 statusEl.textContent = '❌ Fehler: ' + err.message;
             } finally {
