@@ -18502,11 +18502,13 @@
                     await calculateRoutes();
                     
                     console.log('✅ AI Route fully integrated into PixelRuud!');
-            if (window.trackPixelRuudEvent) {
-                window.trackPixelRuudEvent('AI Route Applied', {
-                    title: `Applied: ${parsedRoute.distance || '?'}km ${parsedRoute.type || 'gravel'}`
-                });
-            }
+                    if (window.trackPixelRuudEvent) {
+                        const _dist = (typeof parsedRoute !== 'undefined' && parsedRoute.distance) ? parsedRoute.distance : '?';
+                        const _type = (typeof parsedRoute !== 'undefined' && parsedRoute.type) ? parsedRoute.type : 'gravel';
+                        window.trackPixelRuudEvent('AI Route Applied', {
+                            title: `Applied: ${_dist}km ${_type}`
+                        });
+                    }
 
                     // Success
                     applyBtn.textContent = '✅ Route integrated!';
