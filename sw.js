@@ -1,5 +1,5 @@
 // PixelRuud Service Worker
-// Version: 20260328-0915
+// Version: 20260328-1000
 // ⚠️ WICHTIG: Bei jedem Deploy diese Datei ebenfalls pushen!
 // CACHE_NAME Timestamp aktualisieren → Browser löscht alten Cache automatisch
 // Format: YYYYMMDD-HHMM
