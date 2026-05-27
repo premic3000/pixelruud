@@ -12788,12 +12788,19 @@
             }
 
             try {
+                // Check session first
+                const { data: { session: karooSession } } = await sb.auth.getSession();
+                if (!karooSession) {
+                    throw new Error('Bitte zuerst bei PixelRuud einloggen (nicht Karoo).');
+                }
+                console.log('✅ Karoo upload: session active for', karooSession.user.email);
+
                 const dist = window.routeStats ? Math.round(window.routeStats.totalDistance/1000) : 'route';
                 const filename = `pixelruud_${dist}km_${Date.now()}.gpx`;
                 const gpxContent = generateGPXContent(filename);
                 const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
 
-                // Upload to Supabase Storage (public bucket: gpx-exports)
+                // Upload to Supabase Storage with explicit auth
                 const { data, error } = await sb.storage
                     .from('gpx-exports')
                     .upload(filename, blob, {
@@ -12801,7 +12808,10 @@
                         upsert: true
                     });
 
-                if (error) throw new Error('Upload fehlgeschlagen: ' + error.message);
+                if (error) {
+                    console.error('Storage error details:', error);
+                    throw new Error('Upload fehlgeschlagen: ' + error.message);
+                }
 
                 // Get public URL
                 const { data: urlData } = sb.storage
