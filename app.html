@@ -12805,7 +12805,7 @@
                     .from('gpx-exports')
                     .upload(filename, blob, {
                         contentType: 'application/gpx+xml',
-                        upsert: true
+                        upsert: false
                     });
 
                 if (error) {
