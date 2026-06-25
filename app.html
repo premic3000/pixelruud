@@ -6656,6 +6656,9 @@
         setTimeout(() => {
             if (initSupabase()) {
                 checkAuthState();
+                // Strava OAuth callback verarbeiten (nach Supabase init!)
+                handleStravaCallback();
+                checkStravaStatus();
                 
                 // Listen for auth changes
                 try {
@@ -19668,11 +19671,6 @@
 
         // Wire up elevation toolbar button to hide badge
         document.addEventListener('DOMContentLoaded', () => {
-            // Strava OAuth callback verarbeiten (wenn ?code= in URL)
-            handleStravaCallback();
-            // Strava-Status prüfen (wenn User eingeloggt)
-            checkStravaStatus();
-
             const _elevBtn = document.querySelector('[data-panel="elevation"]');
             if (_elevBtn) {
                 _elevBtn.addEventListener('click', () => {
