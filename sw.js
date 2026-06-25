@@ -1,9 +1,9 @@
 // PixelRuud Service Worker
-// Version: 20260328-1000
+// Version: 20260328-1100
 // ⚠️ WICHTIG: Bei jedem Deploy diese Datei ebenfalls pushen!
 // CACHE_NAME Timestamp aktualisieren → Browser löscht alten Cache automatisch
 // Format: YYYYMMDD-HHMM
-const CACHE_NAME = 'pixelruud-20260527-1000';
+const CACHE_NAME = 'pixelruud-20260527-1100';
 const TILE_CACHE = 'pixelruud-tiles-v1';
 const TILE_CACHE_MAX = 500;
 
