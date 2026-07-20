@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.65 | Build: 2026-06-24 | Strava Integration -->
+<!-- PixelRuud v3.63 | Build: 2026-04-10 12:40 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="PixelRuud">
     <meta name="theme-color" content="#050a14">
     <link rel="manifest" href="/manifest.json">
-    <title>Pixelruud v3.65 - AI ROUTE PLANNER | Gravel Route Planner</title>
+    <title>Pixelruud v3.58 - AI ROUTE PLANNER | Gravel Route Planner</title>
     <meta name="description" content="Pixelruud: Pixel-perfect gravel bike route planning with X-Ray Magnifier, precise elevation data, and surface analysis. Your gravel companion.">
     <meta name="keywords" content="gravel bike, route planner, cycling, elevation, surface analysis, GPX, bikepacking">
     <meta name="author" content="Pixelruud">
@@ -3203,47 +3203,6 @@
             justify-content: center;
         }
         
-        /* STRAVA INTEGRATION */
-        .strava-connect-section {
-            margin-top: 1rem;
-            padding: 1rem;
-            border: 0.5px solid rgba(252,76,2,0.3);
-            border-radius: 8px;
-            background: rgba(252,76,2,0.05);
-        }
-        .strava-connect-section .strava-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 13px;
-        }
-        .strava-connect-section .strava-status {
-            font-size: 11px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        .strava-btn {
-            width: 100%;
-            padding: 8px;
-            background: rgba(252,76,2,0.15);
-            border: 1px solid rgba(252,76,2,0.5);
-            border-radius: 6px;
-            color: #fc4c02;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .strava-btn:hover { background: rgba(252,76,2,0.25); }
-        .strava-btn.connected {
-            background: rgba(252,76,2,0.1);
-            border-color: rgba(252,76,2,0.3);
-            color: rgba(252,76,2,0.7);
-        }
-
         .auth-modal-close:hover {
             background: #ff0055;
             color: #000;
@@ -4537,7 +4496,8 @@
                 min-width: unset !important;
                 transform: none !important;
                 border-radius: 12px 12px 0 0 !important;
-                height: 175px !important;
+                height: 130px !important;
+                max-height: 35vh !important;
                 resize: none !important;
                 padding: 0 !important;
                 flex-direction: column !important;
@@ -5974,123 +5934,6 @@
         }
         
         // ==========================================
-        // STRAVA INTEGRATION
-        // ==========================================
-
-        const STRAVA_CLIENT_ID = '260728';
-        const STRAVA_REDIRECT_URI = 'https://pixelruud.com/app.html';
-        const STRAVA_SCOPE = 'activity:read_all';
-
-        function connectStrava() {
-            const url = 'https://www.strava.com/oauth/authorize'
-                + '?client_id=' + STRAVA_CLIENT_ID
-                + '&redirect_uri=' + encodeURIComponent(STRAVA_REDIRECT_URI)
-                + '&response_type=code'
-                + '&scope=' + STRAVA_SCOPE
-                + '&approval_prompt=auto';
-            window.location.href = url;
-        }
-
-        async function handleStravaCallback() {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            const scope = params.get('scope');
-            if (!code || !scope) return;
-
-            // Nur Strava-Callbacks verarbeiten
-            if (!scope.includes('activity')) return;
-
-            // Code aus URL entfernen
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            try {
-                const { data: { session } } = await sb.auth.getSession();
-                if (!session) {
-                    showToast('Bitte zuerst einloggen, dann Strava verbinden.', 'warning');
-                    return;
-                }
-
-                showToast('Strava wird verbunden...', 'info');
-
-                const AI_BACKEND_URL = 'https://pixelruud-ai-backend-production.up.railway.app';
-                const res = await fetch(`${AI_BACKEND_URL}/api/strava/callback`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
-                    },
-                    body: JSON.stringify({ code, user_id: session.user.id })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    showToast(`✅ Strava verbunden! Hallo ${data.athlete.name}`, 'success');
-                    updateStravaUI(true, data.athlete.name);
-                } else {
-                    showToast('Strava-Verbindung fehlgeschlagen.', 'error');
-                }
-            } catch (err) {
-                console.error('Strava callback error:', err);
-                showToast('Fehler beim Verbinden mit Strava.', 'error');
-            }
-        }
-
-        async function checkStravaStatus() {
-            try {
-                const { data: { session } } = await sb.auth.getSession();
-                if (!session) return;
-
-                const AI_BACKEND_URL = 'https://pixelruud-ai-backend-production.up.railway.app';
-                const res = await fetch(`${AI_BACKEND_URL}/api/strava/status`, {
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
-                });
-                const data = await res.json();
-                updateStravaUI(data.connected);
-            } catch {
-                // Silent fail – Strava ist optional
-            }
-        }
-
-        async function disconnectStrava() {
-            try {
-                const { data: { session } } = await sb.auth.getSession();
-                if (!session) return;
-
-                const AI_BACKEND_URL = 'https://pixelruud-ai-backend-production.up.railway.app';
-                await fetch(`${AI_BACKEND_URL}/api/strava/disconnect`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
-                });
-                updateStravaUI(false);
-                showToast('Strava getrennt.', 'info');
-            } catch (err) {
-                console.error('Strava disconnect error:', err);
-            }
-        }
-
-        function updateStravaUI(connected, athleteName = '') {
-            const btn = document.getElementById('stravaConnectBtn');
-            const status = document.getElementById('stravaStatus');
-            if (!btn || !status) return;
-
-            if (connected) {
-                btn.textContent = '⛓️ Strava trennen';
-                btn.onclick = disconnectStrava;
-                btn.classList.add('connected');
-                status.textContent = athleteName
-                    ? `✅ Verbunden als ${athleteName} – KI-Routen nutzen deinen Trainingszustand`
-                    : '✅ Strava verbunden – KI-Routen nutzen deinen Trainingszustand';
-                status.style.color = '#fc4c02';
-            } else {
-                btn.textContent = '🔗 Mit Strava verbinden';
-                btn.onclick = connectStrava;
-                btn.classList.remove('connected');
-                status.textContent = 'Nicht verbunden – KI-Routen werden ohne Trainingsdaten erstellt';
-                status.style.color = '';
-            }
-        }
-
-        // ==========================================
         // UNDO/REDO SYSTEM
         // ==========================================
         
@@ -6656,9 +6499,6 @@
         setTimeout(() => {
             if (initSupabase()) {
                 checkAuthState();
-                // Strava OAuth callback verarbeiten (nach Supabase init!)
-                handleStravaCallback();
-                checkStravaStatus();
                 
                 // Listen for auth changes
                 try {
@@ -14540,20 +14380,6 @@
                 <div id="registerError" class="auth-error" style="display: none;"></div>
                 <div id="registerSuccess" class="auth-success" style="display: none;"></div>
             </div>
-
-            <!-- Strava Connect -->
-            <div class="strava-connect-section">
-                <div class="strava-header">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#fc4c02"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-                    Strava Integration
-                </div>
-                <p id="stravaStatus" class="strava-status">
-                    Nicht verbunden – KI-Routen werden ohne Trainingsdaten erstellt
-                </p>
-                <button id="stravaConnectBtn" class="strava-btn" onclick="connectStrava()">
-                    🔗 Mit Strava verbinden
-                </button>
-            </div>
         </div>
     </div>
 
@@ -19586,7 +19412,7 @@
 
     </script>
 
-
+    <script>
         // ── Mobile Elevation Badge ────────────────────────────────────
         // ── Bottom Sheet: swipe down pill to dismiss ────────────────
         (function initBottomSheetDismiss() {
