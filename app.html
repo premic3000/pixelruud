@@ -7381,21 +7381,37 @@
                 addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: var(--text-dim);">Suche...</div>';
                 addressResults.classList.add('show');
                 
-                const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-                    ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
-                const response = await fetch(`${AI_URL}/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
-                
-                const results = await response.json();
-                
-                // Handle 429 rate limit or error responses
-                if (!Array.isArray(results)) {
-                    const msg = results?.error || results?.message || '';
-                    if (response.status === 502 || msg.includes('429')) {
-                        addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: #f59e0b;">⚠️ Suche kurz überlastet – bitte 10 Sekunden warten</div>';
-                    } else {
-                        addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: #ef4444;">Fehler bei der Suche</div>';
+                // Try Photon first (no rate limit, CORS-friendly)
+                // Fallback to Railway proxy if Photon fails
+                let results = null;
+                try {
+                    const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=de`;
+                    const photonResp = await fetch(photonUrl);
+                    if (photonResp.ok) {
+                        const photonData = await photonResp.json();
+                        // Convert Photon GeoJSON to Nominatim-style format
+                        results = photonData.features.map(f => ({
+                            lat: f.geometry.coordinates[1],
+                            lon: f.geometry.coordinates[0],
+                            display_name: [f.properties.name, f.properties.street, f.properties.city, f.properties.country].filter(Boolean).join(', ')
+                        }));
                     }
-                    return;
+                } catch(e) {
+                    console.warn('Photon failed, trying Railway proxy...');
+                }
+
+                // Fallback: Railway Nominatim proxy
+                if (!results) {
+                    const AI_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                        ? 'http://localhost:3001' : 'https://pixelruud-ai-backend-production.up.railway.app';
+                    const response = await fetch(`${AI_URL}/api/geocode?q=${encodeURIComponent(query)}&limit=5`);
+                    const fallbackData = await response.json();
+                    if (Array.isArray(fallbackData)) {
+                        results = fallbackData;
+                    } else {
+                        addressResults.innerHTML = '<div style="padding: 8px; font-size: 11px; color: #f59e0b;">⚠️ Suche momentan nicht verfügbar – bitte kurz warten</div>';
+                        return;
+                    }
                 }
                 
                 if (results.length === 0) {
