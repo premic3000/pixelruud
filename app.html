@@ -13312,7 +13312,7 @@
                     label: wp.label || null,
                     segmentToNext: wp.segmentToNext ? {
                         ...wp.segmentToNext,
-                        locked: true  // Always lock restored segments
+                        locked: false  // Unlocked so route is editable after loading
                     } : null
                 };
                 waypoints.push(newWp);
