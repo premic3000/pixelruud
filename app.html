@@ -13329,6 +13329,20 @@
                     }),
                     draggable: true
                 }).addTo(map);
+
+                // Wire up drag handler so waypoint position updates and route recalculates
+                (function(wpIndex) {
+                    marker.on('dragend', function(e) {
+                        const latlng = e.target.getLatLng();
+                        waypoints[wpIndex].lat = latlng.lat;
+                        waypoints[wpIndex].lng = latlng.lng;
+                        // Unlock adjacent segments so they recalculate
+                        if (waypoints[wpIndex - 1]?.segmentToNext) waypoints[wpIndex - 1].segmentToNext.locked = false;
+                        if (waypoints[wpIndex]?.segmentToNext) waypoints[wpIndex].segmentToNext.locked = false;
+                        triggerAutoCalc();
+                    });
+                })(i);
+
                 markers.push(marker);
             });
 
