@@ -3,7 +3,7 @@
 // ⚠️ WICHTIG: Bei jedem Deploy diese Datei ebenfalls pushen!
 // CACHE_NAME Timestamp aktualisieren → Browser löscht alten Cache automatisch
 // Format: YYYYMMDD-HHMM
-const CACHE_NAME = 'pixelruud-20260803-0900';
+const CACHE_NAME = 'pixelruud-20260803-1000';
 const TILE_CACHE = 'pixelruud-tiles-v1';
 const TILE_CACHE_MAX = 500;
 
@@ -15,7 +15,7 @@ const APP_SHELL = [
 
 // ── Install ────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
-    console.log('[SW] Installing 20260803-0900');
+    console.log('[SW] Installing 20260803-1000');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             // Jeden URL einzeln — Fehler bei einem blockiert nicht den Rest
@@ -35,7 +35,7 @@ self.addEventListener('install', event => {
 
 // ── Activate ───────────────────────────────────────────────────────
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating 20260803-0900');
+    console.log('[SW] Activating 20260803-1000');
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
