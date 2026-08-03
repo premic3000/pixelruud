@@ -19586,6 +19586,30 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then(reg => {
                         console.log('✅ Service Worker registered:', reg.scope);
+
+                        // Handle GPX files opened via "Open with PixelRuud" (PWA File Handler)
+                        if ('launchQueue' in window) {
+                            window.launchQueue.setConsumer(async (launchParams) => {
+                                if (!launchParams.files || !launchParams.files.length) return;
+                                try {
+                                    const fileHandle = launchParams.files[0];
+                                    const file = await fileHandle.getFile();
+                                    const text = await file.text();
+                                    console.log('\uD83D\uDCC2 GPX file received via launchQueue:', file.name);
+                                    // Wait for app to initialize fully
+                                    setTimeout(() => {
+                                        if (typeof showGPXImportModal === 'function') {
+                                            showGPXImportModal(text, file.name);
+                                        } else if (typeof parseAndLoadGPX === 'function') {
+                                            parseAndLoadGPX(text, file.name);
+                                        }
+                                    }, 1500);
+                                } catch (err) {
+                                    console.error('launchQueue GPX error:', err);
+                                }
+                            });
+                            console.log('\u2705 PWA File Handler registered (GPX support)');
+                        }
                         
                         // Check for updates
                         reg.addEventListener('updatefound', () => {
