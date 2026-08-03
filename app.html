@@ -12217,13 +12217,29 @@
                 // Note: BRouter's 'fastbike' profile already prefers paved roads
                 // but may still include some unpaved sections if no paved alternative exists
                 
-                const response = await fetch(`${url}?${params.toString()}`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-                
-                if (!response.ok) {
-                    console.warn(`BRouter failed for segment ${segmentIndex + 1}`);
+                // Retry up to 3 times before giving up
+                let response = null;
+                let lastError = null;
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                    try {
+                        response = await fetch(`${url}?${params.toString()}`, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' },
+                            signal: AbortSignal.timeout(8000) // 8s timeout per attempt
+                        });
+                        if (response.ok) break;
+                        lastError = `HTTP ${response.status}`;
+                        console.warn(`BRouter segment ${segmentIndex + 1}: attempt ${attempt}/3 failed (${lastError})`);
+                        if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+                    } catch (e) {
+                        lastError = e.message;
+                        console.warn(`BRouter segment ${segmentIndex + 1}: attempt ${attempt}/3 error (${lastError})`);
+                        if (attempt < 3) await new Promise(r => setTimeout(r, 1000 * attempt));
+                    }
+                }
+
+                if (!response || !response.ok) {
+                    console.warn(`BRouter failed for segment ${segmentIndex + 1} after 3 attempts: ${lastError}`);
                     return null;
                 }
                 
@@ -19344,7 +19360,8 @@
                     wp._geocoding = true;
                     const _delay = _revDelay;
                     _revDelay += 1200; // 1.2s between requests
-                    setTimeout(() => fetch(`${_revBackend}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`), _delay)
+                    setTimeout(() => {
+                        fetch(`${_revBackend}/api/reverse?lat=${wp.lat}&lon=${wp.lng}&zoom=10`)
                         .then(r => {
                             if (!r.ok) throw new Error(`HTTP ${r.status}`);
                             return r.json();
@@ -19361,6 +19378,7 @@
                             wp._geocoding = false;
                             wp._geocodingFailed = true; // Don't retry
                         });
+                    }, _delay);
                 });
             }
 
