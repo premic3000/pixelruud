@@ -21,6 +21,32 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["sports", "navigation"],
-  "lang": "de"
+  "categories": [
+    "sports",
+    "navigation"
+  ],
+  "lang": "de",
+  "file_handlers": [
+    {
+      "action": "/app.html",
+      "accept": {
+        "application/gpx+xml": [
+          ".gpx"
+        ],
+        "text/xml": [
+          ".gpx"
+        ]
+      },
+      "launch_type": "single-client"
+    }
+  ],
+  "share_target": {
+    "action": "/app.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
