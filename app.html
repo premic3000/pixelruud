@@ -6884,7 +6884,18 @@
             // Setup proximity fading for panels
             setupProximityFading();
             
-            console.log('✓ App initialisiert (inkl. POI + Adresssuche + Lupe + Route-Bibliothek)');
+            // Check for pending GPX from PWA file handler
+        if (window._pendingGPX) {
+            const { text, name } = window._pendingGPX;
+            window._pendingGPX = null;
+            setTimeout(() => {
+                if (typeof showGPXImportModal === 'function') {
+                    showGPXImportModal(text, name);
+                }
+            }, 500);
+        }
+
+        console.log('✓ App initialisiert (inkl. POI + Adresssuche + Lupe + Route-Bibliothek)');
             console.log('🎯 PixelRuud v3.62 - AI Route Fallback Chain: BRouter → GraphHopper → OSRM');
             
         } catch (error) {
@@ -19476,6 +19487,28 @@
     </script>
 
     <script>
+        // ── PWA File Handler: GPX "Open with PixelRuud" ──────────────
+        if ('launchQueue' in window) {
+            window.launchQueue.setConsumer(async (launchParams) => {
+                if (!launchParams.files || !launchParams.files.length) return;
+                try {
+                    const fileHandle = launchParams.files[0];
+                    const file = await fileHandle.getFile();
+                    const text = await file.text();
+                    console.log('📂 PWA GPX received:', file.name);
+                    // Store for when app is ready
+                    window._pendingGPX = { text, name: file.name };
+                    // Try immediately if app already loaded
+                    if (typeof showGPXImportModal === 'function') {
+                        showGPXImportModal(text, file.name);
+                        window._pendingGPX = null;
+                    }
+                } catch (err) {
+                    console.error('PWA GPX error:', err);
+                }
+            });
+        }
+
         // ── Mobile Elevation Badge ────────────────────────────────────
         // ── Bottom Sheet: swipe down pill to dismiss ────────────────
         (function initBottomSheetDismiss() {
