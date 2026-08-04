@@ -42,11 +42,21 @@
   ],
   "share_target": {
     "action": "/app.html",
-    "method": "GET",
+    "method": "POST",
+    "enctype": "multipart/form-data",
     "params": {
       "title": "title",
       "text": "text",
-      "url": "url"
+      "url": "url",
+      "files": [
+        {
+          "name": "gpx",
+          "accept": [
+            "application/gpx+xml",
+            ".gpx"
+          ]
+        }
+      ]
     }
   }
 }
