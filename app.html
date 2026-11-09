@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.63 | Build: 2026-04-10 12:40 -->
+<!-- PixelRuud v3.64 | Build: 2026-11-09 23:30 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4599,6 +4599,130 @@
 
 
     </style>
+    <!-- ═══ MOBILE UI v3.64: compact route bar, elevation sheet, map action buttons ═══ -->
+    <style id="pr-mobile-ui">
+        .pr-elev-bar, #prMapFabs, .elevation-scrub-info { display: none; }
+
+        @media (pointer: coarse) {
+            /* ── Compact route bar (replaces the auto-opening profile) ── */
+            .pr-elev-bar {
+                position: fixed;
+                left: 8px;
+                right: 8px;
+                bottom: var(--pr-tb, 70px);
+                height: 48px;
+                align-items: center;
+                gap: 12px;
+                padding: 0 6px 0 14px;
+                background: rgba(0, 8, 20, 0.92);
+                border: 1px solid rgba(0, 240, 255, 0.28);
+                border-radius: 14px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                z-index: 1001;
+                color: #00f0ff;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                font-weight: 700;
+                white-space: nowrap;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                user-select: none;
+                -webkit-user-select: none;
+                touch-action: none;
+            }
+            .pr-elev-bar.pr-show { display: flex; }
+            .pr-elev-bar:active { background: rgba(0, 24, 40, 0.96); }
+            .pr-elev-bar:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+            .pr-elev-spark { width: 72px; height: 24px; flex-shrink: 0; overflow: visible; }
+            .pr-spark-area { fill: rgba(0, 240, 255, 0.18); stroke: none; }
+            .pr-spark-line { fill: none; stroke: #00f0ff; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+            .pr-elev-bar .badge-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+            .pr-elev-bar-cta {
+                width: 36px; height: 36px; flex-shrink: 0;
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 10px;
+                background: rgba(0, 240, 255, 0.1);
+            }
+            .pr-elev-bar-cta svg { width: 18px; height: 18px; }
+
+            /* ── Elevation sheet: sits on the toolbar, tall enough to read ── */
+            .elevation-profile {
+                bottom: var(--pr-tb, 62px) !important;
+                height: clamp(160px, 27vh, 230px) !important;
+                min-height: 0 !important;
+                max-height: 48vh !important;
+            }
+            .elevation-profile.faded { opacity: 1 !important; }
+            .elevation-profile .elev-desktop-only { display: none !important; }
+            .elevation-profile #elevationDragHandle {
+                padding: 4px 6px 4px 14px !important;
+                min-height: 44px !important;
+                touch-action: none;
+            }
+            .elevation-profile .elevation-mobile-info,
+            .elevation-profile .elevation-scrub-info {
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                font-family: 'Courier New', monospace !important;
+                font-variant-numeric: tabular-nums;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            .elevation-profile .elevation-scrub-info { color: #ffffff !important; }
+            .elevation-profile.pr-scrub .elevation-mobile-info { display: none !important; }
+            .elevation-profile.pr-scrub .elevation-scrub-info { display: block !important; }
+            .elevation-profile .elevation-mobile-close {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 20px !important;
+                border-radius: 10px !important;
+                color: rgba(255, 255, 255, 0.8) !important;
+                flex-shrink: 0;
+            }
+            .elevation-profile #elevationChartWrap { padding: 0 2px 2px; }
+            .elevation-profile #elevationChart { touch-action: none; }
+
+            /* ── Floating map actions (thumb zone, right edge) ── */
+            #prMapFabs {
+                position: fixed;
+                right: 10px;
+                bottom: var(--pr-fab, 82px);
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 1000;
+                transition: bottom 0.2s ease;
+            }
+            #prMapFabs.pr-hidden { display: none; }
+            #prMapFabs button {
+                width: 44px; height: 44px; padding: 0;
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 50%;
+                background: rgba(0, 8, 20, 0.9);
+                border: 1px solid rgba(0, 240, 255, 0.3);
+                color: #00f0ff;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            #prMapFabs button svg { width: 20px; height: 20px; }
+            #prMapFabs button:active { background: rgba(0, 240, 255, 0.2); }
+            #prMapFabs button:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+            #prMapFabs button:disabled { opacity: 0.35; cursor: default; }
+            #prMapFabs button.pr-active { background: #00f0ff; color: #001018; }
+            #prMapFabs button.pr-busy svg { animation: prFabPulse 1s ease-in-out infinite; }
+            @keyframes prFabPulse { 50% { opacity: 0.35; } }
+            @media (prefers-reduced-motion: reduce) {
+                #prMapFabs { transition: none; }
+                #prMapFabs button.pr-busy svg { animation: none; opacity: 0.5; }
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
@@ -4910,30 +5034,29 @@
     <!-- Floating Panels Container -->
     <div class="floating-panels" id="floatingPanels"></div>
 
-    <!-- Mobile Elevation Badge / Bottom Sheet Trigger -->
-    <div id="elevationBadge" style="
-        display: none;
-        position: fixed;
-        bottom: 148px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,8,20,0.88);
-        border: 1px solid rgba(0,240,255,0.35);
-        border-radius: 20px;
-        padding: 7px 18px;
-        font-family: Courier New, monospace;
-        font-size: 11px;
-        font-weight: 700;
-        color: #00f0ff;
-        z-index: 2000;
-        cursor: pointer;
-        white-space: nowrap;
-        align-items: center;
-        gap: 8px;
-        backdrop-filter: blur(10px);
-    " onclick="window.toggleElevationFromBadge()">
-        <span class="badge-text">∿ Höhenprofil</span>
-        <span style="opacity:0.5; font-size:9px;">▲</span>
+    <!-- Mobile: compact route bar (tap / swipe up opens the elevation profile) -->
+    <div id="elevationBadge" class="pr-elev-bar" role="button" tabindex="0" aria-label="Höhenprofil öffnen" onclick="window.toggleElevationFromBadge()">
+        <svg class="pr-elev-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+            <path class="pr-spark-area" d=""></path>
+            <path class="pr-spark-line" d=""></path>
+        </svg>
+        <span class="badge-text">Höhenprofil</span>
+        <span class="pr-elev-bar-cta" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </span>
+    </div>
+
+    <!-- Mobile: floating map actions -->
+    <div id="prMapFabs">
+        <button type="button" id="prFabLocate" title="Mein Standort" aria-label="Mein Standort">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="1" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="23"></line><line x1="1" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="23" y2="12"></line></svg>
+        </button>
+        <button type="button" id="prFabLayers" title="Kartenebenen" aria-label="Kartenebenen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        </button>
+        <button type="button" id="prFabUndo" title="Rückgängig" aria-label="Rückgängig" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+        </button>
     </div>
 
     <!-- Skin Switcher Panel -->
@@ -5286,6 +5409,8 @@
                 </span>
                 <!-- Mobile compact info line -->
                 <span class="elevation-mobile-info" id="elevationMobileInfo" style="display:none;"></span>
+                <!-- Mobile scrub readout (km · Höhe · Steigung at the touched point) -->
+                <span class="elevation-scrub-info" id="elevationScrubInfo" style="display:none;"></span>
                 <!-- Surface Legend (desktop) -->
                 <div id="surfaceLegend" style="display:none; font-size:8px; color:var(--text-muted,#94a3b8); gap:5px; align-items:center; flex-wrap:wrap;">
                     <span style="display:inline-flex;align-items:center;gap:2px;"><span style="width:8px;height:8px;background:#10b981;border-radius:1px;display:inline-block;"></span>Asphalt</span>
@@ -5296,11 +5421,11 @@
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
                 <!-- Highlight checkboxes (desktop only) -->
-                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
+                <label class="elev-desktop-only" style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
                     <input type="checkbox" id="highlightClimbs" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Anstiege
                 </label>
-                <label style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
+                <label class="elev-desktop-only" style="display:flex;align-items:center;gap:3px;font-family:'Courier New',monospace;font-size:9px;color:#e2e8f0;cursor:pointer;user-select:none;">
                     <input type="checkbox" id="highlightPlaces" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Orte
                 </label>
@@ -5369,7 +5494,10 @@
         
         <!-- Weather icons now integrated directly into elevation profile chart -->
         
-        <canvas id="elevationChart" style="flex:1; min-height:0; display:block; width:100%;"></canvas>
+        <!-- Wrapper gives Chart.js a dedicated container to measure (fixes empty chart on mobile) -->
+        <div id="elevationChartWrap" style="flex:1; min-height:0; position:relative; width:100%;">
+            <canvas id="elevationChart" style="display:block; width:100%; height:100%;"></canvas>
+        </div>
     </div>
 
     <div class="control-panel" id="controlPanel">
@@ -11998,8 +12126,9 @@
                 
                 // Auto-show both panels
                 if (statsPanel) statsPanel.classList.add('show');
-                if (elevationProfile) elevationProfile.classList.add('show');
-                
+                // Mobile: no auto-popup — compact bar is shown instead (see MOBILE UI block)
+                if (elevationProfile && !window.matchMedia('(pointer: coarse)').matches) elevationProfile.classList.add('show');
+
                 // Check TOTAL distance limit AFTER all segments calculated
                 if (demoMode.active && totalDist > DEMO_LIMITS.MAX_DISTANCE_KM * 1000) {
                     clearRoutes();
@@ -13588,7 +13717,8 @@
             // On mobile: don't auto-open — show badge instead
             // Unless forceRender=true (called from badge tap)
             const _isMobile = window.matchMedia('(pointer: coarse)').matches;
-            if (_isMobile && !forceRender) {
+            // _elevKeepOpen: user had the profile open → keep it open across recalculations
+            if (_isMobile && !forceRender && !window._elevKeepOpen) {
                 if (typeof window.showElevationBadge === 'function') window.showElevationBadge();
                 if (!profile.classList.contains('show')) {
                     if (typeof window.setupChartTogglesData === 'function') window.setupChartTogglesData();
@@ -14005,6 +14135,33 @@
                 }
             };
             
+            // Mobile scrub cursor: vertical line + dot at the last touched position
+            const scrubLinePlugin = {
+                id: 'scrubLine',
+                afterDatasetsDraw(chart) {
+                    if (!_isMobile || chart.$scrubIdx == null) return;
+                    const pt = chart.getDatasetMeta(0).data[chart.$scrubIdx];
+                    if (!pt) return;
+                    const { ctx, chartArea: { top, bottom } } = chart;
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(pt.x, top);
+                    ctx.lineTo(pt.x, bottom);
+                    ctx.stroke();
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            };
+            if (typeof window._elevScrubReset === 'function') window._elevScrubReset();
+
             window.elevationChart = elevationChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -14016,7 +14173,7 @@
                         })),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
+                        borderWidth: _isMobile ? 2 : 3,
                         fill: true,
                         tension: 0.3,
                         pointRadius: 0,
@@ -14104,6 +14261,8 @@
                     },
                     onHover: (event, activeElements, chart) => {
                         if (!activeElements || activeElements.length === 0) {
+                            // Mobile: keep marker + cursor where the finger left off
+                            if (_isMobile) return;
                             // Remove marker when mouse leaves
                             if (window.routeHoverMarker) {
                                 map.removeLayer(window.routeHoverMarker);
@@ -14167,12 +14326,27 @@
                                 fillOpacity: 0.9
                             }).addTo(map);
                         }
+
+                        // Mobile: fixed readout in the header + keep the point visible on the map
+                        if (_isMobile) {
+                            chart.$scrubIdx = dataIndex;
+                            if (typeof window._elevScrub === 'function') {
+                                window._elevScrub({
+                                    distance: distance,
+                                    elevation: sampledElevations[dataIndex],
+                                    gradient: sampledGradients[dataIndex],
+                                    latlng: targetCoord
+                                });
+                            }
+                        }
                     },
                     plugins: {
                         legend: {
                             display: false
                         },
                         tooltip: {
+                            // Mobile: finger covers the tooltip → header readout is used instead
+                            enabled: !_isMobile,
                             callbacks: {
                                 title: ctx => {
                                     return `${ctx[0].parsed.x.toFixed(2)} km`;
@@ -14192,17 +14366,21 @@
                         x: {
                             type: 'linear',
                             title: {
-                                display: true,
+                                display: !_isMobile,
                                 text: 'Distanz (km)',
                                 font: { size: 10 }
                             },
                             ticks: {
-                                font: { size: 9 },
+                                font: { size: _isMobile ? 10 : 9 },
+                                maxTicksLimit: _isMobile ? 6 : 11,
+                                ...(_isMobile ? { color: 'rgba(226,232,240,0.75)' } : {}),
                                 callback: function(value) {
+                                    if (_isMobile) return (Math.round(value * 10) / 10) + ' km';
                                     return value.toFixed(1);
                                 }
                             },
                             grid: {
+                                display: !_isMobile,
                                 color: 'rgba(0, 0, 0, 0.05)'
                             },
                             min: 0,
@@ -14210,22 +14388,24 @@
                         },
                         y: {
                             title: {
-                                display: true,
+                                display: !_isMobile,
                                 text: 'Höhe (m)',
                                 font: { size: 10 }
                             },
                             min: yAxisMin,
                             max: yAxisMax,
                             ticks: {
-                                font: { size: 9 }
+                                font: { size: _isMobile ? 10 : 9 },
+                                maxTicksLimit: _isMobile ? 4 : 11,
+                                ...(_isMobile ? { color: 'rgba(226,232,240,0.75)', callback: v => Math.round(v) + ' m' } : {})
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                color: _isMobile ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.05)'
                             }
                         }
                     }
                 },
-                plugins: [waypointPlugin, surfacePlugin, weatherIconPlugin]
+                plugins: [waypointPlugin, surfacePlugin, weatherIconPlugin, scrubLinePlugin]
             });
             
             console.log('✓ Elevation profile displayed with correct x-axis scale');
@@ -19546,70 +19726,275 @@
             }, { passive: true });
         })();
 
-        window.showElevationBadge = function() {
-            const isMobile = window.matchMedia('(pointer: coarse)').matches;
-            if (!isMobile) return;
-            const badge = document.getElementById('elevationBadge');
-            if (badge) {
-                badge.style.display = 'flex';
-                if (window.routeStats) {
-                    const dist = (window.routeStats.totalDistance/1000).toFixed(1);
-                    const asc  = Math.round(window.routeStats.totalAscent);
-                    badge.querySelector('.badge-text').textContent = `∿ ${dist} km  ↑${asc} m`;
-                }
-            }
-        };
-
-        window.toggleElevationFromBadge = function() {
-            const profile = document.getElementById('elevationProfile');
-            const badge   = document.getElementById('elevationBadge');
-            if (!profile) return;
-            if (profile.classList.contains('show')) {
-                profile.classList.remove('show');
-                if (badge) badge.style.display = 'flex';
-            } else {
-                profile.classList.add('show');
-                if (badge) badge.style.display = 'none';
-                // Force full chart render (forceRender=true bypasses mobile check)
-                if (typeof showElevationProfile === 'function') {
-                    showElevationProfile(true);
-                }
-                // Resize after paint so Chart.js measures container correctly
-                setTimeout(() => {
-                    if (window.elevationChart) {
-                        window.elevationChart.resize();
-                        window.elevationChart.update();
-                    }
-                    if (typeof window.drawProfileHighlights === 'function') {
-                        window.drawProfileHighlights();
-                    }
-                }, 100);
-            }
-        };
+        // (Mobile elevation bar logic moved to the MOBILE UI block below)
 
         window.setupChartTogglesData = function() {
             if (typeof setupChartToggles === 'function') setupChartToggles();
         };
+    </script>
 
-        // Wire up elevation toolbar button to hide badge
-        document.addEventListener('DOMContentLoaded', () => {
-            const _elevBtn = document.querySelector('[data-panel="elevation"]');
-            if (_elevBtn) {
-                _elevBtn.addEventListener('click', () => {
-                    const badge = document.getElementById('elevationBadge');
-                    const profile = document.getElementById('elevationProfile');
-                    if (badge && profile && !profile.classList.contains('show')) {
-                        badge.style.display = 'none';
-                    }
-                });
+    <!-- ═══ MOBILE UI v3.64: compact route bar, elevation sheet, scrubbing, map action buttons ═══ -->
+    <script>
+    (function initMobileUI() {
+        const mq = window.matchMedia('(pointer: coarse)');
+        const isMobile = () => mq.matches;
+        const root    = document.documentElement;
+        const profile = document.getElementById('elevationProfile');
+        const bar     = document.getElementById('elevationBadge');
+        const fabs    = document.getElementById('prMapFabs');
+        if (!profile || !bar) return;
+
+        const hasRoute    = () => { try { return routes.length > 0 && !!routes[0].elevations; } catch (e) { return false; } };
+        const calculating = () => { try { return !!isCalculating; } catch (e) { return false; } };
+        const liveChart   = () => { const c = window.elevationChart; return (c && c.ctx && typeof c.resize === 'function') ? c : null; };
+        const toast       = (msg, type) => { if (typeof showToast === 'function') showToast(msg, type || 'info'); };
+
+        // ── Layout: everything stacks on top of the bottom toolbar + control bar ──
+        const bottomChrome = () => [document.querySelector('.floating-toolbar'), document.getElementById('controlPanel')].filter(Boolean);
+        function layout() {
+            if (!isMobile()) return;
+            let tbH = 0;
+            bottomChrome().forEach(el => {
+                const r = el.getBoundingClientRect();
+                // only bars that are visible and docked at the bottom edge
+                if (r.height === 0 || r.bottom < window.innerHeight - 140) return;
+                const h = Math.round(window.innerHeight - r.top) + 6;
+                if (h > tbH && h < 220) tbH = h;
+            });
+            if (!tbH) tbH = 70;
+            root.style.setProperty('--pr-tb', tbH + 'px');
+            let above = tbH;
+            if (profile.classList.contains('show')) above += profile.getBoundingClientRect().height;
+            else if (bar.classList.contains('pr-show')) above += bar.offsetHeight;
+            root.style.setProperty('--pr-fab', (above + 12) + 'px');
+            // Not enough room (e.g. landscape with open profile) → hide the action buttons
+            if (fabs) fabs.classList.toggle('pr-hidden', window.innerHeight - (above + 12) < 200);
+        }
+        window.addEventListener('resize', layout);
+        window.addEventListener('orientationchange', () => setTimeout(layout, 250));
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(layout);
+            ro.observe(profile);
+            bottomChrome().forEach(el => ro.observe(el));
+        }
+
+        // ── Compact bar: stats + sparkline ──────────────────────────────────
+        function drawSparkline() {
+            const area = bar.querySelector('.pr-spark-area');
+            const line = bar.querySelector('.pr-spark-line');
+            if (!area || !line) return;
+            let d = '', a = '';
+            try {
+                const el = routes[0].elevations;
+                const N = Math.min(60, el.length);
+                if (N >= 2) {
+                    const pts = [];
+                    for (let i = 0; i < N; i++) pts.push(el[Math.round(i * (el.length - 1) / (N - 1))]);
+                    const min = Math.min(...pts), max = Math.max(...pts);
+                    const span = Math.max(max - min, 20); // flat routes stay flat
+                    const xy = pts.map((v, i) => [(i * 100 / (N - 1)).toFixed(1), (21 - ((v - min) / span) * 18).toFixed(1)]);
+                    d = 'M' + xy.map(p => p.join(',')).join(' L');
+                    a = d + ' L100,24 L0,24 Z';
+                }
+            } catch (e) {}
+            line.setAttribute('d', d);
+            area.setAttribute('d', a);
+        }
+
+        window.showElevationBadge = function() {
+            if (!isMobile() || !hasRoute()) return;
+            const txt = bar.querySelector('.badge-text');
+            const st = window.routeStats;
+            if (txt) {
+                txt.textContent = st
+                    ? `${(st.totalDistance / 1000).toFixed(1)} km · ↑${Math.round(st.totalAscent)} m · ↓${Math.round(st.totalDescent)} m`
+                    : 'Höhenprofil';
             }
+            drawSparkline();
+            if (!profile.classList.contains('show')) bar.classList.add('pr-show');
+            layout();
+        };
+
+        // Open/close (bar tap, close button). Rendering happens in the observer below.
+        window.toggleElevationFromBadge = function() {
+            if (profile.classList.contains('show')) {
+                window._elevKeepOpen = false;
+                profile.classList.remove('show');
+            } else {
+                if (!hasRoute()) { toast('Erst eine Route berechnen, dann gibt es ein Höhenprofil'); return; }
+                window._elevKeepOpen = true;
+                profile.classList.add('show');
+            }
+        };
+        bar.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.toggleElevationFromBadge(); }
         });
 
-            modal.querySelector('#saveRouteConfirmBtn').addEventListener('click', doSave);
-            modal.querySelector('#saveRouteCancelBtn').addEventListener('click', () => modal.remove());
-            inp.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
-            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        // ── Scrubbing: readout in the header, marker stays visible on the map ──
+        const scrubInfo = document.getElementById('elevationScrubInfo');
+        window._elevScrub = function(d) {
+            if (!isMobile()) return;
+            if (scrubInfo) {
+                const g = d.gradient || 0;
+                scrubInfo.textContent = `km ${d.distance.toFixed(1)} · ${Math.round(d.elevation)} m · ${g >= 0 ? '+' : ''}${g.toFixed(1)} %`;
+                profile.classList.add('pr-scrub');
+            }
+            try {
+                const cover = Math.round(window.innerHeight - profile.getBoundingClientRect().top);
+                map.panInside(d.latlng, { paddingTopLeft: [40, 70], paddingBottomRight: [60, cover + 30], animate: true, duration: 0.25 });
+            } catch (e) {}
         };
+        window._elevScrubReset = function() {
+            if (!isMobile()) return;
+            profile.classList.remove('pr-scrub');
+            const c = liveChart();
+            if (c) c.$scrubIdx = null;
+            try {
+                if (window.routeHoverMarker) { map.removeLayer(window.routeHoverMarker); window.routeHoverMarker = null; }
+            } catch (e) {}
+        };
+
+        // ── Single source of truth: react to the profile being shown/hidden ──
+        // (covers bar tap, close button, toolbar "Höhe" button, route clearing)
+        let wasShown = profile.classList.contains('show');
+        let rendering = false;
+        function onProfileChange() {
+            const shown = profile.classList.contains('show');
+            if (shown === wasShown) return;
+            wasShown = shown;
+            if (!isMobile()) return;
+            const btn = document.querySelector('.floating-toolbar [data-panel="elevation"]');
+
+            if (shown && !hasRoute()) {
+                wasShown = false;
+                profile.classList.remove('show');
+                if (btn) btn.classList.remove('active');
+                if (!calculating()) toast('Erst eine Route berechnen, dann gibt es ein Höhenprofil');
+                return;
+            }
+            if (btn) btn.classList.toggle('active', shown);
+
+            if (shown) {
+                window._elevKeepOpen = true;
+                bar.classList.remove('pr-show');
+                // Opened without a rendered chart (e.g. via toolbar button) → render now
+                if (!liveChart() && !rendering) {
+                    rendering = true;
+                    try { showElevationProfile(true); } catch (e) { console.warn('Elevation render failed:', e); }
+                    rendering = false;
+                }
+                const userOpened = !calculating();
+                requestAnimationFrame(() => {
+                    const c = liveChart();
+                    if (c) { try { c.resize(); } catch (e) {} }
+                    layout();
+                    // Opened by the user → make sure the route is not hidden behind the sheet
+                    if (userOpened) {
+                        try {
+                            const b = L.latLngBounds(routes[0].coordinates);
+                            const cover = Math.round(window.innerHeight - profile.getBoundingClientRect().top);
+                            const size = map.getSize();
+                            const visible = L.latLngBounds(
+                                map.containerPointToLatLng([20, 60]),
+                                map.containerPointToLatLng([size.x - 20, Math.max(80, size.y - cover - 10)])
+                            );
+                            if (!visible.contains(b)) {
+                                map.fitBounds(b, { paddingTopLeft: [30, 70], paddingBottomRight: [64, cover + 24], animate: true });
+                            }
+                        } catch (e) {}
+                    }
+                });
+            } else {
+                window._elevScrubReset();
+                // Closed by the user (not by a recalculation) → stay closed next time
+                if (!calculating()) window._elevKeepOpen = false;
+                bar.classList.toggle('pr-show', hasRoute() || (calculating() && bar.classList.contains('pr-show')));
+                layout();
+            }
+        }
+        new MutationObserver(onProfileChange).observe(profile, { attributes: true, attributeFilter: ['class'] });
+
+        // Route cleared while the profile was closed → remove the bar as well
+        if (typeof hideElevationProfile === 'function') {
+            const origHide = hideElevationProfile;
+            window.hideElevationProfile = function() {
+                origHide.apply(this, arguments);
+                if (isMobile() && !hasRoute() && !calculating()) {
+                    bar.classList.remove('pr-show');
+                    window._elevScrubReset();
+                    layout();
+                }
+            };
+        }
+
+        // ── Swipe: up on the bar opens, down on the sheet header closes ──────
+        function onSwipe(el, cb) {
+            let y0 = null;
+            el.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
+            el.addEventListener('touchend', e => {
+                if (y0 === null) return;
+                const dy = e.changedTouches[0].clientY - y0;
+                y0 = null;
+                cb(dy, e);
+            });
+        }
+        onSwipe(bar, (dy, e) => {
+            if (dy < -24 && !profile.classList.contains('show')) { e.preventDefault(); window.toggleElevationFromBadge(); }
+        });
+        const header = document.getElementById('elevationDragHandle');
+        if (header) onSwipe(header, dy => {
+            if (isMobile() && dy > 36 && profile.classList.contains('show')) window.toggleElevationFromBadge();
+        });
+
+        // ── Floating map actions ─────────────────────────────────────────────
+        const fabLocate = document.getElementById('prFabLocate');
+        const fabLayers = document.getElementById('prFabLayers');
+        const fabUndo   = document.getElementById('prFabUndo');
+
+        if (fabLocate) {
+            let locDot = null, locRing = null;
+            fabLocate.addEventListener('click', () => {
+                if (!navigator.geolocation) { toast('Standort wird von diesem Browser nicht unterstützt', 'error'); return; }
+                if (fabLocate.classList.contains('pr-busy')) return;
+                fabLocate.classList.add('pr-busy');
+                navigator.geolocation.getCurrentPosition(pos => {
+                    fabLocate.classList.remove('pr-busy');
+                    fabLocate.classList.add('pr-active');
+                    try {
+                        const ll = [pos.coords.latitude, pos.coords.longitude];
+                        if (locRing) map.removeLayer(locRing);
+                        if (locDot) map.removeLayer(locDot);
+                        locRing = L.circle(ll, { radius: Math.min(pos.coords.accuracy || 0, 2000), weight: 1, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.12, interactive: false }).addTo(map);
+                        locDot  = L.circleMarker(ll, { radius: 7, weight: 2, color: '#ffffff', fillColor: '#3b82f6', fillOpacity: 1, interactive: false }).addTo(map);
+                        map.setView(ll, Math.max(map.getZoom(), 14));
+                    } catch (e) { console.warn('Locate failed:', e); }
+                }, err => {
+                    fabLocate.classList.remove('pr-busy', 'pr-active');
+                    toast(err && err.code === 1
+                        ? 'Standortfreigabe abgelehnt – bitte im Browser erlauben'
+                        : 'Standort konnte nicht ermittelt werden', 'error');
+                }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+            });
+        }
+
+        if (fabLayers) {
+            fabLayers.addEventListener('click', () => {
+                const b = document.querySelector('.floating-toolbar [data-panel="layers"]');
+                if (b) b.click();
+            });
+        }
+
+        if (fabUndo) {
+            const src = document.getElementById('undoBtn');
+            const sync = () => { fabUndo.disabled = src ? src.disabled : true; };
+            if (src) new MutationObserver(sync).observe(src, { attributes: true, attributeFilter: ['disabled'] });
+            sync();
+            fabUndo.addEventListener('click', () => { if (typeof undo === 'function') undo(); });
+        }
+
+        layout();
+        window.addEventListener('load', () => { layout(); setTimeout(layout, 800); });
+    })();
     </script>
 
     <!-- Service Worker Registration -->
