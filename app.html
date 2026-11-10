@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.64 | Build: 2026-11-09 23:30 -->
+<!-- PixelRuud v3.65 | Build: 2026-11-10 11:15 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4604,16 +4604,16 @@
         .pr-elev-bar, #prMapFabs, .elevation-scrub-info { display: none; }
 
         @media (pointer: coarse) {
-            /* ── Compact route bar (replaces the auto-opening profile) ── */
+            /* ── Compact route bar: stats · ride time · send ── */
             .pr-elev-bar {
                 position: fixed;
                 left: 8px;
                 right: 8px;
-                bottom: var(--pr-tb, 70px);
+                bottom: var(--pr-tb, 72px);
                 height: 48px;
                 align-items: center;
-                gap: 12px;
-                padding: 0 6px 0 14px;
+                gap: 6px;
+                padding: 0 6px;
                 background: rgba(0, 8, 20, 0.92);
                 border: 1px solid rgba(0, 240, 255, 0.28);
                 border-radius: 14px;
@@ -4626,26 +4626,44 @@
                 font-size: 12px;
                 font-weight: 700;
                 white-space: nowrap;
-                cursor: pointer;
-                -webkit-tap-highlight-color: transparent;
                 user-select: none;
                 -webkit-user-select: none;
                 touch-action: none;
             }
             .pr-elev-bar.pr-show { display: flex; }
-            .pr-elev-bar:active { background: rgba(0, 24, 40, 0.96); }
-            .pr-elev-bar:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
-            .pr-elev-spark { width: 72px; height: 24px; flex-shrink: 0; overflow: visible; }
+            .pr-elev-bar button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+            .pr-elev-bar button:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+            .pr-bar-main {
+                flex: 1; min-width: 0; height: 100%;
+                display: flex; align-items: center; gap: 8px;
+                padding: 0 2px 0 8px;
+                background: none; border: 0; color: inherit; text-align: left;
+            }
+            .pr-bar-main:active { opacity: 0.7; }
+            .pr-elev-spark { width: 44px; height: 22px; flex-shrink: 0; overflow: visible; }
             .pr-spark-area { fill: rgba(0, 240, 255, 0.18); stroke: none; }
             .pr-spark-line { fill: none; stroke: #00f0ff; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-            .pr-elev-bar .badge-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
-            .pr-elev-bar-cta {
-                width: 36px; height: 36px; flex-shrink: 0;
-                display: flex; align-items: center; justify-content: center;
+            .pr-elev-bar .badge-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+            .pr-bar-chev { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+            .pr-bar-time {
+                flex-shrink: 0; height: 36px; padding: 0 10px;
                 border-radius: 10px;
-                background: rgba(0, 240, 255, 0.1);
+                background: rgba(204, 255, 0, 0.1);
+                border: 1px solid rgba(204, 255, 0, 0.4);
+                color: #ccff00;
+                font-variant-numeric: tabular-nums;
             }
-            .pr-elev-bar-cta svg { width: 18px; height: 18px; }
+            .pr-bar-time:empty { display: none; }
+            .pr-bar-send {
+                flex-shrink: 0; height: 36px; padding: 0 12px;
+                display: flex; align-items: center; gap: 6px;
+                border-radius: 10px;
+                background: #00f0ff; border: 0; color: #001018;
+            }
+            .pr-bar-send svg { width: 15px; height: 15px; }
+            .pr-bar-send:active { background: #7ff7ff; }
+            .pr-bar-send:disabled { opacity: 0.5; }
+            @media (max-width: 379px) { .pr-elev-spark { display: none; } }
 
             /* ── Elevation sheet: sits on the toolbar, tall enough to read ── */
             .elevation-profile {
@@ -4720,6 +4738,244 @@
             @media (prefers-reduced-motion: reduce) {
                 #prMapFabs { transition: none; }
                 #prMapFabs button.pr-busy svg { animation: none; opacity: 0.5; }
+            }
+        }
+    </style>
+    <!-- ═══ MOBILE UI v3.65: tab bar, profile chips, sheets, route bar with time + send ═══ -->
+    <style id="pr-mobile-nav">
+        #prChips, #prTabbar, #prSheet, #prSheetBackdrop { display: none; }
+
+        @media (pointer: coarse) {
+            /* Long toolbar + control bar are replaced by the tab bar on touch devices.
+               They stay in the DOM: the tab bar and sheets trigger their buttons. */
+            .floating-toolbar, .control-panel { display: none !important; }
+
+            /* ── Tab bar ── */
+            #prTabbar {
+                position: fixed;
+                left: 8px; right: 8px;
+                bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                height: 58px;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                background: rgba(0, 8, 20, 0.94);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                z-index: 10000;
+                overflow: hidden;
+            }
+            #prTabbar button {
+                position: relative;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                gap: 4px; padding: 0; margin: 0;
+                background: none; border: 0;
+                color: rgba(255, 255, 255, 0.62);
+                font-family: 'Courier New', monospace;
+                font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            #prTabbar button svg { width: 22px; height: 22px; }
+            #prTabbar button:active { background: rgba(0, 240, 255, 0.08); }
+            #prTabbar button:focus-visible { outline: 2px solid #00f0ff; outline-offset: -3px; border-radius: 14px; }
+            #prTabbar button.pr-on { color: #00f0ff; }
+            #prTabbar button.pr-on::before {
+                content: ''; position: absolute; top: 0; left: 28%; right: 28%;
+                height: 2px; border-radius: 0 0 2px 2px; background: #00f0ff;
+            }
+            #prTabbar button.tutorial-highlighted { color: #00f0ff; background: rgba(0, 240, 255, 0.12); }
+            .pr-tab-dot {
+                position: absolute; top: 9px; left: calc(50% + 8px);
+                width: 8px; height: 8px; border-radius: 50%;
+                background: #ff6b00; border: 1.5px solid rgba(0, 8, 20, 1);
+            }
+            .pr-tab-dot[hidden] { display: none; }
+            /* Calculating: thin progress line on the tab bar (the old "Berechne…" label is hidden) */
+            body.pr-calc #prTabbar::after {
+                content: ''; position: absolute; left: 0; top: 0; height: 2px; width: 40%;
+                background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+                animation: prCalc 1.1s linear infinite;
+            }
+            @keyframes prCalc { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+            /* ── Profile chips ── */
+            #prChips {
+                position: fixed;
+                left: 0; right: 0;
+                bottom: var(--pr-chips, 76px);
+                display: flex; gap: 6px;
+                padding: 0 8px;
+                overflow-x: auto;
+                scrollbar-width: none;
+                z-index: 1000;
+                transition: bottom 0.2s ease;
+                -webkit-overflow-scrolling: touch;
+            }
+            #prChips::-webkit-scrollbar { display: none; }
+            #prChips.pr-hidden { display: none; }
+            .pr-chip {
+                flex-shrink: 0;
+                height: 36px; padding: 0 13px;
+                background: rgba(0, 8, 20, 0.9);
+                border: 1px solid rgba(255, 255, 255, 0.16);
+                border-radius: 18px;
+                color: rgba(255, 255, 255, 0.82);
+                font-family: 'Courier New', monospace;
+                font-size: 12px; font-weight: 700;
+                white-space: nowrap;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .pr-chip:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+            .pr-chip.pr-on { background: #00f0ff; border-color: #00f0ff; color: #001018; }
+            .pr-chip-more { min-width: 44px; }
+            body.pr-calc .pr-chip.pr-on { animation: prChipPulse 1s ease-in-out infinite; }
+            @keyframes prChipPulse { 50% { opacity: 0.6; } }
+
+            /* ── Sheets (Pixel AI, Mehr, Senden-Ziel) ── */
+            #prSheetBackdrop {
+                position: fixed; inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9998;
+            }
+            #prSheetBackdrop.pr-open { display: block; }
+            #prSheet {
+                display: block;
+                position: fixed; left: 0; right: 0; bottom: 0;
+                max-height: 76vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 6px 14px calc(84px + env(safe-area-inset-bottom, 0px));
+                background: rgba(0, 8, 20, 0.98);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: 0;
+                border-radius: 20px 20px 0 0;
+                z-index: 9999;
+                transform: translateY(105%);
+                visibility: hidden;
+                transition: transform 0.22s ease, visibility 0s linear 0.22s;
+            }
+            #prSheet.pr-open { transform: none; visibility: visible; transition: transform 0.22s ease; }
+            .pr-sheet-head {
+                display: flex; align-items: center; justify-content: space-between;
+                min-height: 48px; margin-bottom: 6px;
+                color: #00f0ff;
+                font-family: 'Courier New', monospace;
+                font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            }
+            .pr-sheet-close {
+                width: 40px; height: 40px;
+                background: rgba(255, 255, 255, 0.06); border: 0; border-radius: 12px;
+                color: rgba(255, 255, 255, 0.8); font-size: 22px; line-height: 1;
+                cursor: pointer;
+            }
+            .pr-row {
+                display: flex; align-items: center; gap: 14px;
+                width: 100%; min-height: 60px; padding: 10px 12px; margin-bottom: 8px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                color: #e2e8f0; text-align: left;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .pr-row:active, .pr-tile:active { background: rgba(0, 240, 255, 0.12); }
+            .pr-row:focus-visible, .pr-tile:focus-visible, .pr-sheet-close:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+            .pr-row.pr-on { border-color: #00f0ff; }
+            .pr-row-icon {
+                width: 40px; height: 40px; flex-shrink: 0;
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 12px; background: rgba(0, 240, 255, 0.1); color: #00f0ff;
+            }
+            .pr-row-icon svg, .pr-tile svg { width: 22px; height: 22px; }
+            .pr-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+            .pr-row-title { font-size: 15px; font-weight: 600; }
+            .pr-row-sub { font-size: 12px; color: rgba(226, 232, 240, 0.6); line-height: 1.35; }
+            .pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .pr-tile {
+                position: relative;
+                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+                min-height: 76px; padding: 8px 4px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                color: #e2e8f0; font-size: 12px; font-weight: 600;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .pr-tile svg { color: #00f0ff; }
+            .pr-tile .pr-tile-badge {
+                position: absolute; top: 6px; right: 8px;
+                min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+                background: #ff6b00; color: #fff; font-size: 11px; line-height: 18px; text-align: center;
+            }
+            .pr-sheet-note { margin: 10px 2px 0; font-size: 12px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
+
+            /* ── Route sheet additions (speed + actions inside the routing panel) ── */
+            .pr-speed {
+                margin: 0 0 16px; padding: 14px;
+                background: rgba(0, 240, 255, 0.06);
+                border: 1px solid rgba(0, 240, 255, 0.22);
+                border-radius: 14px;
+            }
+            .pr-speed-head {
+                display: flex; align-items: baseline; justify-content: space-between;
+                font-family: 'Courier New', monospace; color: rgba(226, 232, 240, 0.75); font-size: 12px; font-weight: 700;
+                letter-spacing: 0.06em; text-transform: uppercase;
+            }
+            .pr-speed-head strong { color: #00f0ff; font-size: 18px; letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
+            .pr-speed input[type="range"] {
+                -webkit-appearance: none; appearance: none;
+                width: 100%; height: 44px; margin: 4px 0 0; background: transparent; cursor: pointer;
+            }
+            .pr-speed input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.18); }
+            .pr-speed input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.18); }
+            .pr-speed input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none; appearance: none;
+                width: 28px; height: 28px; margin-top: -11px; border-radius: 50%;
+                background: #00f0ff; border: 3px solid #001018; box-shadow: 0 0 0 1px #00f0ff;
+            }
+            .pr-speed input[type="range"]::-moz-range-thumb {
+                width: 24px; height: 24px; border-radius: 50%;
+                background: #00f0ff; border: 3px solid #001018; box-shadow: 0 0 0 1px #00f0ff;
+            }
+            .pr-speed input[type="range"]:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; border-radius: 8px; }
+            .pr-speed-scale { display: flex; justify-content: space-between; font-size: 11px; color: rgba(226, 232, 240, 0.45); font-variant-numeric: tabular-nums; }
+            .pr-speed-time { margin-top: 10px; font-size: 14px; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+            .pr-speed-time strong { color: #ccff00; font-size: 18px; }
+            .pr-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+            .pr-actions button {
+                min-height: 46px; padding: 0 10px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 12px;
+                color: #e2e8f0; font-size: 13px; font-weight: 600;
+                cursor: pointer;
+            }
+            .pr-actions button:disabled { opacity: 0.35; }
+            .pr-actions button.pr-primary { background: rgba(0, 240, 255, 0.14); border-color: rgba(0, 240, 255, 0.45); color: #00f0ff; }
+            .pr-actions button.pr-danger { grid-column: 1 / -1; border-color: rgba(239, 68, 68, 0.45); color: #f87171; }
+            .pr-import-row { padding: 0 16px 12px; }
+            .pr-import-row button {
+                width: 100%; min-height: 44px;
+                background: rgba(0, 240, 255, 0.08); border: 1px dashed rgba(0, 240, 255, 0.4); border-radius: 12px;
+                color: #00f0ff; font-size: 13px; font-weight: 600; cursor: pointer;
+            }
+
+            #prChips.tutorial-highlighted { background: none !important; box-shadow: none !important; }
+            /* Tutorial buttons: keep all three inside the card on narrow screens */
+            .tutorial-card-buttons { gap: 8px !important; }
+            .tutorial-card-buttons .tutorial-btn { padding: 12px 6px !important; font-size: 13px !important; min-width: 0; white-space: nowrap; }
+
+            @media (prefers-reduced-motion: reduce) {
+                #prSheet, #prChips { transition: none; }
+                body.pr-calc #prTabbar::after, body.pr-calc .pr-chip.pr-on { animation: none; }
             }
         }
     </style>
@@ -5034,16 +5290,65 @@
     <!-- Floating Panels Container -->
     <div class="floating-panels" id="floatingPanels"></div>
 
-    <!-- Mobile: compact route bar (tap / swipe up opens the elevation profile) -->
-    <div id="elevationBadge" class="pr-elev-bar" role="button" tabindex="0" aria-label="Höhenprofil öffnen" onclick="window.toggleElevationFromBadge()">
-        <svg class="pr-elev-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
-            <path class="pr-spark-area" d=""></path>
-            <path class="pr-spark-line" d=""></path>
-        </svg>
-        <span class="badge-text">Höhenprofil</span>
-        <span class="pr-elev-bar-cta" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-        </span>
+    <!-- Mobile: compact route bar (stats · time · send; tap / swipe up opens the elevation profile) -->
+    <div id="elevationBadge" class="pr-elev-bar">
+        <button type="button" class="pr-bar-main" aria-label="Höhenprofil öffnen" onclick="window.toggleElevationFromBadge()">
+            <svg class="pr-elev-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
+                <path class="pr-spark-area" d=""></path>
+                <path class="pr-spark-line" d=""></path>
+            </svg>
+            <span class="badge-text">Höhenprofil</span>
+            <svg class="pr-bar-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+        <button type="button" class="pr-bar-time" id="prBarTime" aria-label="Fahrzeit – Tempo ändern" title="Tempo ändern"></button>
+        <button type="button" class="pr-bar-send" id="prBarSend" aria-label="Route senden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <span id="prBarSendLabel">Senden</span>
+        </button>
+    </div>
+
+    <!-- Mobile: routing profile chips (one tap switches profile and recalculates) -->
+    <div id="prChips" role="radiogroup" aria-label="Routing-Profil">
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="gravel" data-sub="gravel-balanced">Gravel</button>
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="gravel" data-sub="gravel-offroad">Gravel Offroad</button>
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="road" data-sub="road-fast">Straße schnell</button>
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="road" data-sub="road-safety">Straße sicher</button>
+        <button type="button" class="pr-chip pr-chip-more" id="prChipMore" aria-label="Weitere Profile und Einstellungen">⋯</button>
+    </div>
+
+    <!-- Mobile: main navigation (replaces the long toolbar + control bar on touch devices) -->
+    <nav id="prTabbar" aria-label="Hauptnavigation">
+        <button type="button" data-tab="route">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle cx="18" cy="5" r="3"></circle></svg>
+            <span>Route</span>
+        </button>
+        <button type="button" data-tab="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            <span>Suche</span>
+        </button>
+        <button type="button" data-tab="ai">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"></path></svg>
+            <span>Pixel AI</span>
+        </button>
+        <button type="button" data-tab="tours">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            <span>Touren</span>
+        </button>
+        <button type="button" data-tab="more">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+            <span>Mehr</span>
+            <i class="pr-tab-dot" id="prMoreDot" hidden></i>
+        </button>
+    </nav>
+
+    <!-- Mobile: generic bottom sheet (Pixel AI, Mehr, Senden-Ziel) -->
+    <div id="prSheetBackdrop"></div>
+    <div id="prSheet" role="dialog" aria-modal="true" aria-labelledby="prSheetTitle">
+        <div class="pr-sheet-head">
+            <span id="prSheetTitle"></span>
+            <button type="button" class="pr-sheet-close" aria-label="Schließen">×</button>
+        </div>
+        <div class="pr-sheet-body"></div>
     </div>
 
     <!-- Mobile: floating map actions -->
@@ -17468,6 +17773,24 @@
             }
         ];
         
+        // Mobile only: one extra step for profile chips, ride time and the send button
+        if (window.matchMedia('(pointer: coarse)').matches) {
+            STEPS_DE.splice(2, 0, {
+                icon: '🚴',
+                title: 'Profil, Fahrzeit & Senden',
+                content: '<strong>Die drei Dinge für die schnelle Planung:</strong><br><br>• <strong>Profil-Chips</strong> über der Leiste: Gravel, Gravel Offroad, Straße schnell, Straße sicher. Ein Tipp rechnet die Route neu.<br>• <strong>Routenzeile:</strong> Distanz, Höhenmeter und Fahrzeit. Ein Tipp auf die Zeit öffnet den Tempo-Regler.<br>• <strong>Senden:</strong> schickt die Route direkt ans Karoo oder exportiert sie als GPX-Datei.',
+                spotlight: '#prChips',
+                cardPosition: 'center'
+            });
+            STEPS_EN.splice(2, 0, {
+                icon: '🚴',
+                title: 'Profile, ride time & send',
+                content: '<strong>The three things for quick planning:</strong><br><br>• <strong>Profile chips</strong> above the navigation: Gravel, Gravel Offroad, Straße schnell (road fast), Straße sicher (road safe). One tap recalculates the route.<br>• <strong>Route bar:</strong> distance, elevation gain and ride time. Tap the time to open the speed slider.<br>• <strong>Senden (Send):</strong> sends the route straight to your Karoo or exports it as a GPX file.',
+                spotlight: '#prChips',
+                cardPosition: 'center'
+            });
+        }
+
         let STEPS = STEPS_DE; // Default to German
         let currentLanguage = localStorage.getItem('pixelruud_tutorial_language') || 'de';
         
@@ -17562,7 +17885,15 @@
             backBtn.style.display = idx === 0 ? 'none' : 'block';
             
             if (step.spotlight) {
-                const el = document.querySelector(step.spotlight);
+                let el = document.querySelector(step.spotlight);
+                // Mobile: the long toolbar is replaced by the tab bar → point at the mobile equivalent
+                if (typeof window._prTutorialTarget === 'function') {
+                    const m = window._prTutorialTarget(step.spotlight, currentLanguage);
+                    if (m) {
+                        el = m.el;
+                        if (m.hint) contentEl.innerHTML = step.content + m.hint;
+                    }
+                }
                 if (el) {
                     // Scroll element into view first (for scrollable toolbars)
                     const toolbar = document.getElementById('floatingToolbar');
@@ -19749,8 +20080,8 @@
         const liveChart   = () => { const c = window.elevationChart; return (c && c.ctx && typeof c.resize === 'function') ? c : null; };
         const toast       = (msg, type) => { if (typeof showToast === 'function') showToast(msg, type || 'info'); };
 
-        // ── Layout: everything stacks on top of the bottom toolbar + control bar ──
-        const bottomChrome = () => [document.querySelector('.floating-toolbar'), document.getElementById('controlPanel')].filter(Boolean);
+        // ── Layout: tab bar → route bar / elevation sheet → profile chips → map buttons ──
+        const bottomChrome = () => [document.getElementById('prTabbar'), document.querySelector('.floating-toolbar'), document.getElementById('controlPanel')].filter(Boolean);
         function layout() {
             if (!isMobile()) return;
             let tbH = 0;
@@ -19761,15 +20092,23 @@
                 const h = Math.round(window.innerHeight - r.top) + 6;
                 if (h > tbH && h < 220) tbH = h;
             });
-            if (!tbH) tbH = 70;
+            if (!tbH) tbH = 72;
             root.style.setProperty('--pr-tb', tbH + 'px');
             let above = tbH;
-            if (profile.classList.contains('show')) above += profile.getBoundingClientRect().height;
-            else if (bar.classList.contains('pr-show')) above += bar.offsetHeight;
-            root.style.setProperty('--pr-fab', (above + 12) + 'px');
+            const sheetOpen = profile.classList.contains('show');
+            if (sheetOpen) above += profile.getBoundingClientRect().height + 6;
+            else if (bar.classList.contains('pr-show')) above += bar.offsetHeight + 6;
+            const chipsEl = document.getElementById('prChips');
+            if (chipsEl) {
+                chipsEl.classList.toggle('pr-hidden', window.innerHeight - above < 150);
+                root.style.setProperty('--pr-chips', above + 'px');
+                if (chipsEl.offsetHeight) above += chipsEl.offsetHeight + 6;
+            }
+            root.style.setProperty('--pr-fab', (above + 6) + 'px');
             // Not enough room (e.g. landscape with open profile) → hide the action buttons
-            if (fabs) fabs.classList.toggle('pr-hidden', window.innerHeight - (above + 12) < 200);
+            if (fabs) fabs.classList.toggle('pr-hidden', window.innerHeight - (above + 6) < 200);
         }
+        window._prLayout = layout;
         window.addEventListener('resize', layout);
         window.addEventListener('orientationchange', () => setTimeout(layout, 250));
         if (window.ResizeObserver) {
@@ -19807,9 +20146,10 @@
             const st = window.routeStats;
             if (txt) {
                 txt.textContent = st
-                    ? `${(st.totalDistance / 1000).toFixed(1)} km · ↑${Math.round(st.totalAscent)} m · ↓${Math.round(st.totalDescent)} m`
+                    ? `${(st.totalDistance / 1000).toFixed(1)} km · ↑${Math.round(st.totalAscent)} m`
                     : 'Höhenprofil';
             }
+            if (typeof window._prRefreshBar === 'function') window._prRefreshBar();
             drawSparkline();
             if (!profile.classList.contains('show')) bar.classList.add('pr-show');
             layout();
@@ -19826,9 +20166,6 @@
                 profile.classList.add('show');
             }
         };
-        bar.addEventListener('keydown', e => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.toggleElevationFromBadge(); }
-        });
 
         // ── Scrubbing: readout in the header, marker stays visible on the map ──
         const scrubInfo = document.getElementById('elevationScrubInfo');
@@ -19979,6 +20316,7 @@
 
         if (fabLayers) {
             fabLayers.addEventListener('click', () => {
+                if (typeof window._prTogglePanel === 'function') { window._prTogglePanel('layers'); return; }
                 const b = document.querySelector('.floating-toolbar [data-panel="layers"]');
                 if (b) b.click();
             });
@@ -19994,6 +20332,416 @@
 
         layout();
         window.addEventListener('load', () => { layout(); setTimeout(layout, 800); });
+    })();
+    </script>
+
+    <!-- ═══ MOBILE UI v3.65: tab bar, profile chips, sheets, speed in route sheet, send button ═══ -->
+    <script>
+    (function initMobileNav() {
+        if (!window.matchMedia('(pointer: coarse)').matches) return;
+
+        const $ = (s, r) => (r || document).querySelector(s);
+        const tabbar   = $('#prTabbar');
+        const chips    = $('#prChips');
+        const sheet    = $('#prSheet');
+        const backdrop = $('#prSheetBackdrop');
+        const panelsEl = $('#floatingPanels');
+        if (!tabbar || !chips || !sheet || !panelsEl) return;
+
+        const hasRoute    = () => { try { return routes.length > 0 && !!routes[0].elevations; } catch (e) { return false; } };
+        const calculating = () => { try { return !!isCalculating; } catch (e) { return false; } };
+        const wpCount     = () => { try { return waypoints.length; } catch (e) { return 0; } };
+        const toast       = (msg, type) => { if (typeof showToast === 'function') showToast(msg, type || 'info'); };
+        const relayout    = () => { if (typeof window._prLayout === 'function') window._prLayout(); };
+        const store = {
+            get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }
+        };
+
+        // The old toolbar stays in the DOM (hidden on touch); its buttons keep doing the work.
+        const oldBtn = type => $(`.floating-toolbar .toolbar-btn[data-panel="${type}"]`);
+        const iconOf = sel => { const s = $(sel + ' svg'); return s ? s.cloneNode(true) : document.createElement('span'); };
+        const openPanels = () => Array.from(panelsEl.children).filter(p => !p.classList.contains('closing'));
+
+        // ── Panels: one at a time on mobile ─────────────────────────────────
+        function closeAllPanels(except) {
+            openPanels().forEach(p => {
+                if (p.dataset.type === except) return;
+                const b = oldBtn(p.dataset.type);
+                if (b) b.click(); else p.remove();
+            });
+        }
+        function showPanel(type) {
+            closeSheet();
+            closeAllPanels(type);
+            if (!openPanels().some(p => p.dataset.type === type)) {
+                const b = oldBtn(type);
+                if (b) b.click();
+            }
+        }
+        function togglePanel(type) {
+            if (openPanels().some(p => p.dataset.type === type)) closeAllPanels();
+            else showPanel(type);
+        }
+        window._prTogglePanel = togglePanel;
+
+        // ── Generic sheet ───────────────────────────────────────────────────
+        let sheetKind = null;
+        function openSheet(kind, title, build) {
+            closeAllPanels();
+            sheetKind = kind;
+            $('#prSheetTitle').textContent = title;
+            const body = $('.pr-sheet-body', sheet);
+            body.innerHTML = '';
+            build(body);
+            sheet.scrollTop = 0;
+            sheet.classList.add('pr-open');
+            backdrop.classList.add('pr-open');
+            syncTabs();
+        }
+        function closeSheet() {
+            if (!sheetKind) return;
+            sheetKind = null;
+            sheet.classList.remove('pr-open');
+            backdrop.classList.remove('pr-open');
+            syncTabs();
+        }
+        backdrop.addEventListener('click', closeSheet);
+        $('.pr-sheet-close', sheet).addEventListener('click', closeSheet);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+        function row(icon, title, sub, onTap, on) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'pr-row' + (on ? ' pr-on' : '');
+            const i = document.createElement('span'); i.className = 'pr-row-icon'; i.appendChild(icon);
+            const t = document.createElement('span'); t.className = 'pr-row-text';
+            const t1 = document.createElement('span'); t1.className = 'pr-row-title'; t1.textContent = title;
+            const t2 = document.createElement('span'); t2.className = 'pr-row-sub'; t2.textContent = sub;
+            t.append(t1, t2); b.append(i, t);
+            b.addEventListener('click', () => { closeSheet(); onTap(); });
+            return b;
+        }
+        function tile(icon, label, onTap, badge) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'pr-tile';
+            const l = document.createElement('span'); l.textContent = label;
+            b.append(icon, l);
+            if (badge) { const x = document.createElement('span'); x.className = 'pr-tile-badge'; x.textContent = badge; b.appendChild(x); }
+            b.addEventListener('click', () => { closeSheet(); onTap(); });
+            return b;
+        }
+        const note = text => { const p = document.createElement('p'); p.className = 'pr-sheet-note'; p.textContent = text; return p; };
+        const clickOld = sel => () => { const b = $(sel); if (b) b.click(); };
+
+        function openAISheet() {
+            openSheet('ai', 'Pixel AI Suite', body => {
+                body.append(
+                    row(iconOf('.floating-toolbar [data-panel="ai-generator"]'), 'Pixel RUUD', 'Route in eigenen Worten beschreiben', clickOld('.floating-toolbar [data-panel="ai-generator"]')),
+                    row(iconOf('#pixelStoryBtn'), 'Pixel Story', 'Aus der Route wird ein Fahrtbericht', clickOld('#pixelStoryBtn')),
+                    row(iconOf('#wardrobeBtn'), 'Pixel Wardrobe', 'Outfit passend zu Route und Wetter', clickOld('#wardrobeBtn')),
+                    row(iconOf('.floating-toolbar [data-panel="nutrition"]'), 'Pixel Fuel', 'Verpflegungsplan für die Tour', () => showPanel('nutrition'))
+                );
+            });
+        }
+
+        function surgeryCount() {
+            const b = $('#surgeryBadge');
+            if (!b || b.style.display === 'none') return '';
+            const n = (b.textContent || '').trim();
+            return n && n !== '0' ? n : '';
+        }
+        function openMoreSheet() {
+            openSheet('more', 'Mehr', body => {
+                const g = document.createElement('div'); g.className = 'pr-grid';
+                const p = (type, label, badge) => tile(iconOf(`.floating-toolbar [data-panel="${type}"]`), label, () => showPanel(type), badge);
+                g.append(
+                    p('waypoints', 'Wegpunkte'),
+                    p('poi', 'POI'),
+                    p('stats', 'Stats'),
+                    p('weather-overlay', 'Wetter'),
+                    p('route-surgery', 'Surgery', surgeryCount()),
+                    p('import', 'Import'),
+                    p('export', 'Export'),
+                    p('api', 'API'),
+                    tile(iconOf('#skinBtn'), 'Design', clickOld('#skinBtn')),
+                    tile(iconOf('#tutorialBtn'), 'Hilfe', clickOld('#tutorialBtn'))
+                );
+                const lo = $('#logoutBtn');
+                if (lo && lo.style.display !== 'none') g.append(tile(iconOf('#logoutBtn'), 'Logout', clickOld('#logoutBtn')));
+                body.append(g);
+            });
+        }
+
+        // ── Tab bar ─────────────────────────────────────────────────────────
+        const TAB_PANELS = { route: ['routing', 'waypoints'], search: ['search'], tours: ['routes', 'import'] };
+        function syncTabs() {
+            const open = openPanels().map(p => p.dataset.type);
+            tabbar.querySelectorAll('button[data-tab]').forEach(b => {
+                const tab = b.dataset.tab;
+                const on = TAB_PANELS[tab] ? TAB_PANELS[tab].some(t => open.includes(t)) : sheetKind === tab;
+                b.classList.toggle('pr-on', on);
+                if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+            });
+        }
+        function tabPanel(tab, type) {
+            if (TAB_PANELS[tab].some(t => openPanels().some(p => p.dataset.type === t))) { closeSheet(); closeAllPanels(); }
+            else showPanel(type);
+        }
+        tabbar.addEventListener('click', e => {
+            const b = e.target.closest('button[data-tab]');
+            if (!b) return;
+            switch (b.dataset.tab) {
+                case 'route':  tabPanel('route', 'routing'); break;
+                case 'search': tabPanel('search', 'search'); break;
+                case 'tours':  tabPanel('tours', 'routes'); break;
+                case 'ai':     sheetKind === 'ai' ? closeSheet() : openAISheet(); break;
+                case 'more':   sheetKind === 'more' ? closeSheet() : openMoreSheet(); break;
+            }
+        });
+
+        // ── Speed + ride time ───────────────────────────────────────────────
+        const SPEED_KEY = 'pixelruud_speed';
+        const curSpeed = () => { try { return averageSpeed || 25; } catch (e) { return 25; } };
+        const routeKm  = () => { const st = window.routeStats; return (hasRoute() && st && st.totalDistance) ? st.totalDistance / 1000 : null; };
+        function fmtTime(hours) {
+            const m = Math.round(hours * 60);
+            return Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') + ' h';
+        }
+        function refreshTime() {
+            const km = routeKm();
+            const barTime = $('#prBarTime');
+            if (barTime) barTime.textContent = km ? fmtTime(km / curSpeed()) : '';
+            const val = $('#prSpeedVal'), out = $('#prSpeedTime'), sl = $('#prSpeedSlider');
+            if (val) val.textContent = curSpeed() + ' km/h';
+            if (sl && document.activeElement !== sl) sl.value = curSpeed();
+            if (out) {
+                out.textContent = '';
+                if (km) {
+                    const s = document.createElement('strong'); s.textContent = fmtTime(km / curSpeed());
+                    out.append('Fahrzeit ', s, ` für ${km.toFixed(1)} km`);
+                } else {
+                    out.textContent = 'Die Fahrzeit erscheint, sobald eine Route steht.';
+                }
+            }
+        }
+        function setSpeed(v) {
+            v = Math.max(15, Math.min(40, parseInt(v, 10) || 25));
+            const o = $('#speedSlider');
+            if (o) o.value = v;
+            if (typeof updateSpeed === 'function') updateSpeed(v);
+            store.set(SPEED_KEY, String(v));
+            refreshTime();
+        }
+        window._prRefreshBar = refreshTime;
+        const savedSpeed = parseInt(store.get(SPEED_KEY), 10);
+        if (savedSpeed >= 15 && savedSpeed <= 40) setSpeed(savedSpeed);
+
+        // ── Routing profile: chips + radios in the route sheet stay in sync ──
+        const MAIN_SUBS = ['gravel-balanced', 'gravel-offroad', 'road-fast', 'road-safety'];
+        const OTHER_LABELS = { 'gravel-max': 'Max Offroad', 'road-safe': 'Wenig Verkehr' };
+        const curSub = () => { try { return currentSubProfile; } catch (e) { return 'gravel-offroad'; } };
+        function syncChips(scroll) {
+            const sub = curSub();
+            let active = null;
+            chips.querySelectorAll('.pr-chip[data-sub]').forEach(c => {
+                const on = c.dataset.sub === sub;
+                c.classList.toggle('pr-on', on);
+                c.setAttribute('aria-checked', on ? 'true' : 'false');
+                if (on) active = c;
+            });
+            const more = $('#prChipMore');
+            const other = !MAIN_SUBS.includes(sub);
+            more.classList.toggle('pr-on', other);
+            more.textContent = other ? (OTHER_LABELS[sub] || 'Profil') : '⋯';
+            if (other) active = more;
+            if (scroll && active && active.scrollIntoView) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+        }
+        function syncRadios() {
+            const r = $(`#floatingPanels input[name="routingProfilePanel"][value="${curSub()}"]`);
+            if (r) r.checked = true;
+            let pref = null; try { pref = currentElevationPref; } catch (e) {}
+            const h = pref && $(`#floatingPanels input[name="elevationPrefPanel"][value="${pref}"]`);
+            if (h) h.checked = true;
+        }
+        function recalc() {
+            if (wpCount() < 2 || typeof calculateRoutes !== 'function') return;
+            if (!calculating()) { calculateRoutes(); return; }
+            // A calculation is running → start the new one right after it
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (!calculating()) { clearInterval(iv); calculateRoutes(); }
+                else if (++tries > 80) clearInterval(iv);
+            }, 300);
+        }
+        function applyProfile(cat, sub) {
+            if (sub === curSub()) return;
+            if (typeof setProfile === 'function') setProfile(cat, sub);
+            syncChips(true);
+            syncRadios();
+            recalc();
+        }
+        chips.addEventListener('click', e => {
+            const c = e.target.closest('.pr-chip');
+            if (!c) return;
+            if (c.id === 'prChipMore') { showPanel('routing'); return; }
+            applyProfile(c.dataset.cat, c.dataset.sub);
+        });
+        syncChips(false);
+
+        // ── Route sheet = routing panel + speed on top + actions below ──────
+        function decorateRouting(panel) {
+            const host = $('.routing-panel-content', panel);
+            if (!host || $('.pr-speed', host)) return;
+
+            const sp = document.createElement('div');
+            sp.className = 'pr-speed';
+            sp.innerHTML =
+                '<div class="pr-speed-head"><label for="prSpeedSlider">Ø Tempo</label><strong id="prSpeedVal"></strong></div>' +
+                '<input type="range" id="prSpeedSlider" min="15" max="40" step="1">' +
+                '<div class="pr-speed-scale"><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span><span>40</span></div>' +
+                '<div class="pr-speed-time" id="prSpeedTime" aria-live="polite"></div>';
+            host.prepend(sp);
+            const sl = $('#prSpeedSlider', sp);
+            sl.value = curSpeed();
+            sl.addEventListener('input', () => setSpeed(sl.value));
+
+            // Changing profile or elevation preference recalculates right away
+            syncRadios();
+            host.querySelectorAll('input[name="routingProfilePanel"]').forEach(r => r.addEventListener('change', () => {
+                if (r.checked) { syncChips(true); recalc(); }
+            }));
+            host.querySelectorAll('input[name="elevationPrefPanel"]').forEach(r => r.addEventListener('change', () => {
+                if (r.checked) recalc();
+            }));
+
+            const act = document.createElement('div');
+            act.className = 'pr-actions';
+            const mk = (label, cls, srcId, fn) => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.textContent = label; if (cls) b.className = cls;
+                const src = srcId && document.getElementById(srcId);
+                if (src) b.disabled = src.disabled;
+                b.addEventListener('click', fn || (() => { if (src) src.click(); closeAllPanels(); }));
+                return b;
+            };
+            act.append(
+                mk(`Wegpunkte (${wpCount()})`, '', null, () => showPanel('waypoints')),
+                mk('Umkehren', '', 'reverseBtn', () => { const r = document.getElementById('reverseBtn'); if (r) r.click(); closeAllPanels(); recalc(); }),
+                mk('Neu berechnen', 'pr-primary', 'calculateBtn'),
+                mk('Wiederholen', '', 'redoBtn'),
+                mk('Route löschen', 'pr-danger', 'clearBtn')
+            );
+            host.append(act);
+            refreshTime();
+        }
+        // Touren sheet = saved routes + GPX import shortcut
+        function decorateRoutes(panel) {
+            const content = $('.panel-content', panel);
+            if (!content || $('.pr-import-row', panel)) return;
+            const w = document.createElement('div');
+            w.className = 'pr-import-row';
+            const b = document.createElement('button');
+            b.type = 'button'; b.textContent = 'GPX-Datei importieren';
+            b.addEventListener('click', () => showPanel('import'));
+            w.appendChild(b);
+            content.before(w);
+        }
+        new MutationObserver(muts => {
+            muts.forEach(m => m.addedNodes.forEach(n => {
+                if (n.nodeType !== 1 || !n.dataset) return;
+                if (n.dataset.type === 'routing') decorateRouting(n);
+                if (n.dataset.type === 'routes') decorateRoutes(n);
+            }));
+            syncTabs();
+        }).observe(panelsEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+
+        // ── Send: always offer both targets (Karoo and GPX are used equally often) ──
+        const sendBtn = $('#prBarSend');
+        function doSend(t) {
+            if (!hasRoute()) { toast('Erst eine Route berechnen'); return; }
+            if (t === 'karoo' && typeof sendToKaroo === 'function') {
+                sendBtn.disabled = true;
+                Promise.resolve().then(() => sendToKaroo()).catch(e => console.warn('Karoo send failed:', e)).then(() => { sendBtn.disabled = false; });
+            } else if (typeof exportGPX === 'function') {
+                exportGPX();
+            }
+        }
+        function openSendSheet() {
+            openSheet('send', 'Route senden', body => {
+                body.append(
+                    row(iconOf('#prBarSend'), 'Auf Karoo senden', 'Route hochladen, Link fürs Hammerhead Dashboard kopieren', () => doSend('karoo')),
+                    row(iconOf('.floating-toolbar [data-panel="export"]'), 'GPX exportieren', 'Als Datei herunterladen', () => doSend('gpx'))
+                );
+            });
+        }
+        if (sendBtn) sendBtn.addEventListener('click', openSendSheet);
+        const barTime = $('#prBarTime');
+        if (barTime) barTime.addEventListener('click', () => {
+            showPanel('routing');
+            setTimeout(() => { const s = $('#prSpeedSlider'); if (s) s.focus({ preventScroll: true }); }, 60);
+        });
+
+        // ── Small status mirrors ────────────────────────────────────────────
+        const loading = document.getElementById('loading');
+        if (loading) {
+            const syncCalc = () => document.body.classList.toggle('pr-calc', loading.classList.contains('show'));
+            new MutationObserver(syncCalc).observe(loading, { attributes: true, attributeFilter: ['class'] });
+            syncCalc();
+        }
+        const sBadge = $('#surgeryBadge'), dot = $('#prMoreDot');
+        if (sBadge && dot) {
+            const syncDot = () => { dot.hidden = !surgeryCount(); };
+            new MutationObserver(syncDot).observe(sBadge, { attributes: true, childList: true, characterData: true, subtree: true });
+            syncDot();
+        }
+
+        // ── Tutorial: point at what exists on mobile ────────────────────────
+        const tab = name => $(`#prTabbar button[data-tab="${name}"]`);
+        const HINT = {
+            de: { more: 'Am Handy: unter <strong>Mehr</strong>.', ai: 'Am Handy: unter <strong>Pixel AI</strong>.', route: 'Am Handy: unter <strong>Route</strong>.',
+                  layers: 'Am Handy: der runde Button rechts an der Karte.', elev: 'Am Handy: die Zeile über der Leiste antippen oder hochwischen.',
+                  speed: 'Am Handy: Tempo-Regler unter <strong>Route</strong>, oder die Fahrzeit in der Routenzeile antippen.',
+                  send: 'Am Handy: der <strong>Senden</strong>-Button in der Routenzeile.', none: 'Dieses Feature gibt es nur am Desktop.' },
+            en: { more: 'On your phone: under <strong>Mehr</strong> (More).', ai: 'On your phone: under <strong>Pixel AI</strong>.', route: 'On your phone: under <strong>Route</strong>.',
+                  layers: 'On your phone: the round button at the right edge of the map.', elev: 'On your phone: tap or swipe up the bar above the navigation.',
+                  speed: 'On your phone: speed slider under <strong>Route</strong>, or tap the ride time in the route bar.',
+                  send: 'On your phone: the <strong>Senden</strong> (Send) button in the route bar.', none: 'This feature is desktop only.' }
+        };
+        const TUTORIAL_MAP = {
+            '[data-panel="waypoints"]': ['route', () => tab('route')],
+            '[data-panel="magnifier"]': ['none', () => null],
+            '[data-panel="elevation"]': ['elev', () => (hasRoute() ? $('#elevationBadge') : null)],
+            '[data-panel="stats"]': ['speed', () => tab('more')],
+            '[data-panel="poi"]': ['more', () => tab('more')],
+            '[data-panel="layers"]': ['layers', () => $('#prFabLayers')],
+            '[data-panel="search"]': [null, () => tab('search')],
+            '[data-panel="import"]': ['send', () => tab('tours')],
+            '[data-panel="api"]': ['more', () => tab('more')],
+            '[data-panel="weather-overlay"]': ['more', () => tab('more')],
+            '[data-panel="routes"]': [null, () => tab('tours')],
+            '#skinBtn': ['more', () => tab('more')],
+            '[data-panel="ai-generator"]': ['ai', () => tab('ai')],
+            '#pixelStoryBtn': ['ai', () => tab('ai')],
+            '#wardrobeBtn': ['ai', () => tab('ai')],
+            '[data-panel="nutrition"]': ['ai', () => tab('ai')],
+            '[data-panel="route-surgery"]': ['more', () => tab('more')],
+            '#tutorialBtn': ['more', () => tab('more')]
+        };
+        window._prTutorialTarget = function(selector, lang) {
+            const m = TUTORIAL_MAP[selector];
+            if (!m) return null;
+            closeSheet();
+            closeAllPanels();
+            const h = m[0] ? (HINT[lang === 'en' ? 'en' : 'de'][m[0]] || '') : '';
+            return { el: m[1](), hint: h ? `<br><br>📱 ${h}` : '' };
+        };
+
+        syncTabs();
+        refreshTime();
+        relayout();
+        window.addEventListener('load', () => { syncChips(true); relayout(); });
     })();
     </script>
 
