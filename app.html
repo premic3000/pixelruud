@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.66 | Build: 2026-11-10 12:30 -->
+<!-- PixelRuud v3.67 | Build: 2026-11-10 19:30 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -5016,6 +5016,115 @@
             }
         }
     </style>
+    <!-- ═══ ROUTE CUES v3.67 ═══ -->
+    <style id="pr-route-cues">
+        .pr-cue-marker { background: none !important; border: 0 !important; }
+        .pr-cue-pin {
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: #0b1220; border: 2.5px solid var(--c, #a855f7);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+            font-size: 15px; line-height: 1; cursor: pointer;
+        }
+        .pr-cue-pin.pr-off { border-style: dashed; border-color: #f59e0b; opacity: 0.75; }
+
+        #prCueAddBtn {
+            background: rgba(204, 255, 0, 0.1); border: 1px solid rgba(204, 255, 0, 0.45);
+            color: #ccff00; font-family: 'Courier New', monospace; font-size: 9px; font-weight: 700;
+            padding: 3px 9px; cursor: pointer; letter-spacing: 0.5px; border-radius: 3px; white-space: nowrap;
+        }
+        #prCueAddBtn:hover { background: rgba(204, 255, 0, 0.2); }
+        #prCueAddBtn:focus-visible { outline: 2px solid #ccff00; outline-offset: 2px; }
+
+        /* Section in the routing panel */
+        .pr-cue-section { margin: 14px 0 4px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .pr-cue-head { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #ccff00; margin-bottom: 8px; }
+        .pr-cue-count { color: rgba(226, 232, 240, 0.6); }
+        .pr-cue-list { display: flex; flex-direction: column; gap: 6px; }
+        .pr-cue-item {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            width: 100%; min-height: 40px; padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+            color: #e2e8f0; font-size: 12px; text-align: left; cursor: pointer;
+        }
+        .pr-cue-item:hover { background: rgba(255, 255, 255, 0.08); }
+        .pr-cue-item:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+        .pr-cue-item-icon {
+            width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--c); font-size: 13px;
+        }
+        .pr-cue-item-km { font-family: 'Courier New', monospace; font-weight: 700; color: #00f0ff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .pr-cue-item-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+        .pr-cue-item-warn { flex-basis: 100%; padding-left: 34px; color: #f59e0b; font-size: 11px; }
+        .pr-cue-help { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
+
+        /* Buttons in POI popups and search results */
+        .pr-cue-poi-btn, .pr-cue-search-btn {
+            margin-top: 6px; padding: 5px 10px;
+            background: rgba(204, 255, 0, 0.12); border: 1px solid rgba(132, 160, 0, 0.6); border-radius: 6px;
+            color: #4d5c00; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .pr-cue-search-btn { margin: 4px 0 0; color: #ccff00; border-color: rgba(204, 255, 0, 0.45); background: rgba(204, 255, 0, 0.08); }
+
+        /* Editor dialog */
+        #prCueModal {
+            display: none; position: fixed; inset: 0; z-index: 10060;
+            background: rgba(0, 0, 0, 0.55);
+            align-items: center; justify-content: center; padding: 16px;
+        }
+        #prCueModal.pr-open { display: flex; }
+        .pr-cue-card {
+            width: 100%; max-width: 420px; max-height: calc(100dvh - 32px); overflow-y: auto;
+            padding: 16px;
+            background: #050c18; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            color: #e2e8f0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        .pr-cue-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+        #prCueTitle { font-size: 17px; font-weight: 700; color: #ffffff; }
+        .pr-cue-where { margin-top: 2px; font-size: 13px; color: #00f0ff; font-family: 'Courier New', monospace; font-weight: 700; }
+        .pr-cue-x { width: 36px; height: 36px; flex-shrink: 0; background: rgba(255, 255, 255, 0.06); border: 0; border-radius: 10px; color: rgba(255, 255, 255, 0.8); font-size: 22px; line-height: 1; cursor: pointer; }
+        .pr-cue-kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+        .pr-cue-kinds button {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            min-height: 60px; padding: 8px 4px;
+            background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.14); border-radius: 12px;
+            color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .pr-cue-kinds button span:first-child { font-size: 20px; }
+        .pr-cue-kinds button.pr-on { border-color: var(--c); background: rgba(255, 255, 255, 0.09); color: #ffffff; box-shadow: inset 0 0 0 1px var(--c); }
+        .pr-cue-label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: rgba(226, 232, 240, 0.75); }
+        .pr-cue-input-row { position: relative; }
+        #prCueText {
+            width: 100%; box-sizing: border-box; height: 46px; padding: 0 56px 0 12px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px;
+            color: #ffffff; font-size: 16px; font-weight: 600;
+        }
+        #prCueText:focus { outline: 2px solid #00f0ff; outline-offset: 0; border-color: transparent; }
+        .pr-cue-counter { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: rgba(226, 232, 240, 0.5); font-variant-numeric: tabular-nums; }
+        .pr-cue-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .pr-cue-presets button {
+            min-height: 34px; padding: 0 12px;
+            background: rgba(0, 240, 255, 0.07); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 17px;
+            color: #b8f8ff; font-size: 13px; cursor: pointer;
+        }
+        .pr-cue-note { margin: 14px 0 0; font-size: 12px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
+        .pr-cue-actions { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; margin-top: 16px; align-items: center; }
+        .pr-cue-actions button { min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .pr-cue-del { background: none; border: 1px solid rgba(239, 68, 68, 0.45); color: #f87171; }
+        .pr-cue-cancel { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; }
+        .pr-cue-save { background: #00f0ff; border: 0; color: #001018; }
+        .pr-cue-card button:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+
+        @media (pointer: coarse) {
+            #prCueModal { align-items: flex-end; padding: 0; }
+            .pr-cue-card { max-width: none; border-radius: 20px 20px 0 0; border-bottom: 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-height: 88dvh; }
+            #prCueAddBtn { font-size: 12px !important; padding: 0 10px !important; height: 36px; border-radius: 10px; }
+            .pr-cue-item { min-height: 48px; font-size: 14px; }
+            .pr-cue-search-btn { min-height: 40px; font-size: 13px; }
+        }
+    </style>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
@@ -5775,6 +5884,8 @@
                     <input type="checkbox" id="highlightPlaces" checked style="accent-color:#00f0ff;width:11px;height:11px;cursor:pointer;">
                     Orte
                 </label>
+                <!-- Route cue at the last touched / hovered profile position -->
+                <button type="button" id="prCueAddBtn" title="Hinweis fürs Navi an dieser Stelle (oder Doppelklick ins Profil)">+ Hinweis</button>
                 <!-- Export button (desktop only) -->
                 <button id="exportProfileBtn" title="Als PNG exportieren" style="
                     background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.35);
@@ -7918,6 +8029,7 @@
                                  onmouseout="this.style.background='transparent'"
                                  onclick="window.selectAddress(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}'); this.parentElement.innerHTML=''; this.parentElement.classList.remove('show');">
                         📍 ${displayName}
+                        <br><button type="button" class="pr-cue-search-btn">☕ Als Kaffeestopp mit Hinweis</button>
                     </div>`;
                 }).join('');
                 
@@ -8956,6 +9068,9 @@
             
             const menuHTML = `
                 <div class="segment-menu">
+                    <button class="segment-menu-btn" style="border-color:#ccff00;color:#ccff00;" onclick="window.prCueAddAt && window.prCueAddAt(${latlng.lat}, ${latlng.lng})">
+                        📍 Hinweis fürs Navi hier
+                    </button>
                     <div class="segment-menu-title">Segment ${segmentIndex.replace('-', ' → ')}</div>
                     <button class="segment-menu-btn ${currentOverride === 'auto' ? 'active' : ''}" 
                             onclick="setSegmentEngine('${segmentIndex}', 'auto')">
@@ -10470,7 +10585,11 @@
                     
                     const name = element.tags.name || 'Unbenannt';
                     const amenity = element.tags.amenity || element.tags.shop || '';
-                    marker.bindPopup(`<b>${icon} ${name}</b>${amenity ? '<br><small>' + amenity + '</small>' : ''}`);
+                    const cueKind = type === 'water' ? 'water' : (type === 'cafe' || type === 'shop') ? 'food' : '';
+                    const cueBtn = cueKind
+                        ? `<br><button type="button" class="pr-cue-poi-btn" data-lat="${element.lat}" data-lon="${element.lon}" data-kind="${cueKind}" data-name="${String(name).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">📍 Als Hinweis fürs Navi</button>`
+                        : '';
+                    marker.bindPopup(`<b>${icon} ${name}</b>${amenity ? '<br><small>' + amenity + '</small>' : ''}${cueBtn}`);
                     
                     marker.addTo(layerGroup);
                 });
@@ -13268,7 +13387,8 @@
 
         function doExportGPX(filename) {
             if (!filename.endsWith('.gpx')) filename += '.gpx';
-            let gpx = `<?xml version="1.0"?>\n<gpx version="1.1" creator="PixelRuud">\n  <trk>\n    <name>${filename.replace('.gpx','')}</name>\n    <trkseg>\n`;
+            const cueWpts = typeof window.prCueGpx === 'function' ? window.prCueGpx() : '';
+            let gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="PixelRuud" xmlns="http://www.topografix.com/GPX/1/1">\n${cueWpts}  <trk>\n    <name>${filename.replace('.gpx','')}</name>\n    <trkseg>\n`;
             routes[0].coordinates.forEach(c => gpx += `      <trkpt lat="${c[0]}" lon="${c[1]}"/>\n`);
             gpx += `    </trkseg>\n  </trk>\n</gpx>`;
             const blob = new Blob([gpx], { type: 'application/gpx+xml' });
@@ -13288,9 +13408,10 @@
          * Generate GPX content string from current route
          */
         function generateGPXContent(filename) {
-            let gpx = `<?xml version="1.0"?>
-<gpx version="1.1" creator="PixelRuud">
-  <trk>
+            const cueWpts = typeof window.prCueGpx === 'function' ? window.prCueGpx() : '';
+            let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PixelRuud" xmlns="http://www.topografix.com/GPX/1/1">
+${cueWpts}  <trk>
     <name>${filename.replace('.gpx','')}</name>
     <trkseg>
 `;
@@ -13752,6 +13873,7 @@
                 coordinates: route.coordinates,
                 elevations: route.elevations,
                 stats: route.stats,
+                cues: typeof window.prCueData === 'function' ? window.prCueData() : [],
                 count: 1,
                 profile: currentProfile
             };
@@ -13764,6 +13886,7 @@
                 savedRoutes[existingIndex].count++;
                 savedRoutes[existingIndex].date = new Date().toISOString();
                 savedRoutes[existingIndex].waypoints = fullWaypoints;
+                savedRoutes[existingIndex].cues = savedRoute.cues;
             } else {
                 savedRoutes.push(savedRoute);
             }
@@ -13781,7 +13904,7 @@
                         waypoints: fullWaypoints,
                         coordinates: route.coordinates,
                         elevations: route.elevations,
-                        stats: route.stats
+                        stats: Object.assign({}, route.stats || {}, { pr_cues: savedRoute.cues })
                     }, { onConflict: 'user_id,name' });
 
                     if (error) throw error;
@@ -17819,14 +17942,14 @@
             STEPS_DE.splice(2, 0, {
                 icon: '🚴',
                 title: 'Profil, Fahrzeit & Senden',
-                content: '<strong>Die drei Dinge für die schnelle Planung:</strong><br><br>• <strong>Gravel oder Straße</strong> über der Leiste: ein Tipp rechnet die Route neu. Der dritte Chip zeigt die Variante und führt zu den feineren Einstellungen.<br>• <strong>Routenzeile:</strong> Distanz, Höhenmeter und Fahrzeit. Ein Tipp auf die Zeit öffnet den Tempo-Regler.<br>• <strong>Senden:</strong> passend zu deinem Gerät: direkt ans Karoo oder als GPX-Datei für Garmin, Wahoo und andere.<br>• <strong>Lange auf die Karte drücken:</strong> Start setzen, Ziel anhängen oder die Rundtour schließen.',
+                content: '<strong>Die drei Dinge für die schnelle Planung:</strong><br><br>• <strong>Gravel oder Straße</strong> über der Leiste: ein Tipp rechnet die Route neu. Der dritte Chip zeigt die Variante und führt zu den feineren Einstellungen.<br>• <strong>Routenzeile:</strong> Distanz, Höhenmeter und Fahrzeit. Ein Tipp auf die Zeit öffnet den Tempo-Regler.<br>• <strong>Senden:</strong> passend zu deinem Gerät: direkt ans Karoo oder als GPX-Datei für Garmin, Wahoo und andere.<br>• <strong>Lange auf die Karte drücken:</strong> Start setzen, Ziel anhängen, die Rundtour schließen oder einen <strong>Hinweis fürs Navi</strong> setzen (Intervall, Trinken, Kaffee).',
                 spotlight: '#prChips',
                 cardPosition: 'center'
             });
             STEPS_EN.splice(2, 0, {
                 icon: '🚴',
                 title: 'Profile, ride time & send',
-                content: '<strong>The three things for quick planning:</strong><br><br>• <strong>Gravel or Straße (road)</strong> above the navigation: one tap recalculates the route. The third chip shows the variant and opens the finer settings.<br>• <strong>Route bar:</strong> distance, elevation gain and ride time. Tap the time to open the speed slider.<br>• <strong>Senden (Send):</strong> matched to your device: straight to your Karoo, or as a GPX file for Garmin, Wahoo and others.<br>• <strong>Long-press the map:</strong> set the start, append a destination or close the loop.',
+                content: '<strong>The three things for quick planning:</strong><br><br>• <strong>Gravel or Straße (road)</strong> above the navigation: one tap recalculates the route. The third chip shows the variant and opens the finer settings.<br>• <strong>Route bar:</strong> distance, elevation gain and ride time. Tap the time to open the speed slider.<br>• <strong>Senden (Send):</strong> matched to your device: straight to your Karoo, or as a GPX file for Garmin, Wahoo and others.<br>• <strong>Long-press the map:</strong> set the start, append a destination, close the loop or add a <strong>note for your bike computer</strong> (interval, water, coffee).',
                 spotlight: '#prChips',
                 cardPosition: 'center'
             });
@@ -20869,6 +20992,11 @@
             let pin = null;
             try { pin = L.circleMarker(ll, { radius: 9, weight: 3, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.25, interactive: false }).addTo(map); } catch (err) {}
             openSheet('hold', 'Dieser Punkt', body => {
+                const cueOff = typeof window.prCueOff === 'function' && hasRoute() ? window.prCueOff(ll) : null;
+                if (cueOff !== null && cueOff <= 200) {
+                    const fl = document.createElement('span'); fl.textContent = '📍'; fl.style.fontSize = '20px';
+                    body.append(row(fl, 'Hinweis fürs Navi', 'Intervall, Trinken oder Kaffee – Pop-up kurz vor der Stelle', () => window.prCueAddAt(ll.lat, ll.lng)));
+                }
                 if (n === 0) {
                     body.append(row(pinIcon(), 'Start hier', 'Erster Punkt der Route', () => addWaypoint(ll.lat, ll.lng)));
                 } else {
@@ -20969,6 +21097,470 @@
         refreshTime();
         relayout();
         window.addEventListener('load', () => { syncChips(); relayout(); });
+    })();
+    </script>
+
+    <!-- ═══ ROUTE CUES v3.67: notes for the bike computer (Water / Food / Generic → pop-up on Karoo) ═══ -->
+    <script>
+    (function initRouteCues() {
+        const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+        // GPX <type> values verified on a Hammerhead Karoo: Water, Food and Generic show a pop-up ~150–200 m ahead
+        const KINDS = {
+            interval: { label: 'Intervall', icon: '🚩', gpx: 'Generic', color: '#a855f7', presets: ['SST 3x10 Start', 'VO2 5x4 Start', 'Intervall Ende', 'Locker rollen'] },
+            water:    { label: 'Trinken',   icon: '💧', gpx: 'Water',   color: '#3b82f6', presets: ['Flaschen auffüllen', 'Trinkpause', 'Letzter Brunnen'] },
+            food:     { label: 'Kaffee',    icon: '☕', gpx: 'Food',    color: '#d97706', presets: ['Kaffee & Kuchen', 'Mittagspause', 'Bäcker'] }
+        };
+        const MAX_LEN = 30;          // devices shorten long names
+        const OFF_ROUTE_M = 150;     // further away → not exported, shown as warning
+        const ADD_MAX_M = 300;       // how far from the route a new cue may be placed
+        let cues = [];
+        let layer = null;
+        let seq = 0;
+        let offWarned = new Set();   // cues we already warned about (after a recalculation moved the route)
+
+        const toast = (msg, type) => { if (typeof showToast === 'function') showToast(msg, type || 'info'); };
+        const xml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const clean = s => String(s || '').replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
+
+        // ── Route geometry ──────────────────────────────────────────────────
+        function routeCoords() {
+            try { const c = routes[0] && routes[0].coordinates; return (c && c.length > 1) ? c : null; } catch (e) { return null; }
+        }
+        function hav(aLat, aLng, bLat, bLng) {
+            const R = 6371000, r = Math.PI / 180;
+            const dLat = (bLat - aLat) * r, dLng = (bLng - aLng) * r;
+            const h = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * r) * Math.cos(bLat * r) * Math.sin(dLng / 2) ** 2;
+            return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+        }
+        let cumRef = null, cumVal = null;
+        function cumDist(c) {
+            if (cumRef === c && cumVal && cumVal.length === c.length) return cumVal;
+            const cum = [0];
+            for (let i = 1; i < c.length; i++) cum.push(cum[i - 1] + hav(c[i - 1][0], c[i - 1][1], c[i][0], c[i][1]));
+            cumRef = c; cumVal = cum;
+            return cum;
+        }
+        // Nearest point on the route line: position, km along the route, distance off the route (m)
+        function snap(lat, lng) {
+            const c = routeCoords();
+            if (!c) return null;
+            const cum = cumDist(c);
+            const kx = Math.cos(lat * Math.PI / 180) * 111320, ky = 110540;
+            let best = null;
+            for (let i = 0; i < c.length - 1; i++) {
+                const ax = (c[i][1] - lng) * kx, ay = (c[i][0] - lat) * ky;
+                const bx = (c[i + 1][1] - lng) * kx, by = (c[i + 1][0] - lat) * ky;
+                const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+                const t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+                const px = ax + t * dx, py = ay + t * dy, d2 = px * px + py * py;
+                if (!best || d2 < best.d2) best = { d2, i, t };
+            }
+            const a = c[best.i], b = c[best.i + 1];
+            return {
+                lat: a[0] + (b[0] - a[0]) * best.t,
+                lng: a[1] + (b[1] - a[1]) * best.t,
+                km: (cum[best.i] + (cum[best.i + 1] - cum[best.i]) * best.t) / 1000,
+                off: Math.sqrt(best.d2)
+            };
+        }
+        function pointAtKm(km) {
+            const c = routeCoords();
+            if (!c) return null;
+            const cum = cumDist(c), m = Math.max(0, Math.min(cum[cum.length - 1], km * 1000));
+            for (let i = 1; i < c.length; i++) {
+                if (cum[i] >= m) {
+                    const t = (m - cum[i - 1]) / Math.max(cum[i] - cum[i - 1], 1e-9);
+                    return { lat: c[i - 1][0] + (c[i][0] - c[i - 1][0]) * t, lng: c[i - 1][1] + (c[i][1] - c[i - 1][1]) * t };
+                }
+            }
+            return { lat: c[c.length - 1][0], lng: c[c.length - 1][1] };
+        }
+        window.prCueOff = ll => { const s = snap(ll.lat, ll.lng); return s ? s.off : null; };
+
+        // ── Map markers, profile icons, lists ───────────────────────────────
+        function render() {
+            if (!layer) { try { layer = L.layerGroup().addTo(map); } catch (e) { return; } }
+            layer.clearLayers();
+            const hasLine = !!routeCoords();
+            cues.forEach(q => {
+                q._s = hasLine ? snap(q.lat, q.lng) : null;
+                if (!q._s) return;                       // no route (yet) → keep the cue, hide the marker
+                const K = KINDS[q.kind] || KINDS.interval;
+                const off = q._s.off > OFF_ROUTE_M;
+                const pos = off ? [q.lat, q.lng] : [q._s.lat, q._s.lng];
+                const m = L.marker(pos, {
+                    icon: L.divIcon({
+                        className: 'pr-cue-marker',
+                        html: `<div class="pr-cue-pin${off ? ' pr-off' : ''}" style="--c:${K.color}"><span>${K.icon}</span></div>`,
+                        iconSize: [30, 30], iconAnchor: [15, 15]
+                    }),
+                    draggable: true, keyboard: false, zIndexOffset: 600,
+                    title: (q.text || K.label) + (off ? ' – nicht an der Route' : '')
+                });
+                m.on('click', () => openEditor(q, false));
+                m.on('dragend', e => {
+                    const ll = e.target.getLatLng(), s = snap(ll.lat, ll.lng);
+                    if (s) { q.lat = s.lat; q.lng = s.lng; }
+                    render();
+                });
+                m.addTo(layer);
+            });
+            // Tell once when a recalculation leaves cues away from the route
+            const nowOff = cues.filter(q => q._s && q._s.off > OFF_ROUTE_M);
+            const fresh = nowOff.filter(q => !offWarned.has(q));
+            offWarned = new Set(nowOff);
+            if (fresh.length) toast(fresh.length === 1
+                ? '1 Hinweis liegt nicht mehr an der Route – auf die Route ziehen oder löschen'
+                : `${fresh.length} Hinweise liegen nicht mehr an der Route – auf die Route ziehen oder löschen`);
+            refreshChart();
+            refreshLists();
+        }
+        function refreshChart() {
+            const ch = window.elevationChart;
+            if (ch && ch.ctx && typeof ch.update === 'function') { try { ch.update('none'); } catch (e) {} }
+        }
+        try {
+            if (window.Chart && typeof Chart.register === 'function') {
+                Chart.register({
+                    id: 'prRouteCues',
+                    afterDatasetsDraw(chart) {
+                        if (!chart.canvas || chart.canvas.id !== 'elevationChart' || !cues.length || !chart.scales.x) return;
+                        const x = chart.scales.x, { ctx, chartArea: { top, bottom, left, right } } = chart;
+                        ctx.save();
+                        ctx.font = '14px system-ui, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top';
+                        cues.forEach(q => {
+                            const s = q._s;
+                            if (!s || s.off > OFF_ROUTE_M) return;
+                            const px = x.getPixelForValue(s.km);
+                            if (px < left - 1 || px > right + 1) return;
+                            ctx.strokeStyle = (KINDS[q.kind] || KINDS.interval).color;
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([3, 3]);
+                            ctx.beginPath(); ctx.moveTo(px, top + 17); ctx.lineTo(px, bottom); ctx.stroke();
+                            ctx.setLineDash([]);
+                            ctx.fillText((KINDS[q.kind] || KINDS.interval).icon, px, top);
+                        });
+                        ctx.restore();
+                    }
+                });
+            }
+        } catch (e) { console.warn('Cue chart plugin failed:', e); }
+
+        function sorted() {
+            return cues.slice().sort((a, b) => ((a._s ? a._s.km : 1e9) - (b._s ? b._s.km : 1e9)));
+        }
+        function refreshLists() {
+            document.querySelectorAll('.pr-cue-section').forEach(sec => {
+                const count = sec.querySelector('.pr-cue-count');
+                if (count) count.textContent = cues.length ? `(${cues.length})` : '';
+                const list = sec.querySelector('.pr-cue-list');
+                if (!list) return;
+                list.textContent = '';
+                sorted().forEach(q => {
+                    const K = KINDS[q.kind] || KINDS.interval;
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'pr-cue-item';
+                    const ic = document.createElement('span'); ic.className = 'pr-cue-item-icon'; ic.style.setProperty('--c', K.color); ic.textContent = K.icon;
+                    const km = document.createElement('span'); km.className = 'pr-cue-item-km'; km.textContent = q._s ? 'km ' + q._s.km.toFixed(1) : 'km –';
+                    const tx = document.createElement('span'); tx.className = 'pr-cue-item-text'; tx.textContent = q.text || K.label;
+                    b.append(ic, km, tx);
+                    if (q._s && q._s.off > OFF_ROUTE_M) {
+                        const w = document.createElement('span'); w.className = 'pr-cue-item-warn'; w.textContent = 'nicht an der Route';
+                        b.appendChild(w);
+                    }
+                    b.addEventListener('click', () => {
+                        try { if (q._s) map.panTo(q._s.off > OFF_ROUTE_M ? [q.lat, q.lng] : [q._s.lat, q._s.lng]); } catch (e) {}
+                        openEditor(q, false);
+                    });
+                    list.appendChild(b);
+                });
+            });
+        }
+        function sectionFor(panel) {
+            const host = panel.querySelector('.routing-panel-content') || panel.querySelector('.panel-content');
+            if (!host || host.querySelector('.pr-cue-section')) return;
+            const sec = document.createElement('div');
+            sec.className = 'pr-cue-section';
+            const h = document.createElement('div'); h.className = 'pr-cue-head';
+            h.append('Hinweise fürs Navi ');
+            const c = document.createElement('span'); c.className = 'pr-cue-count'; h.appendChild(c);
+            const list = document.createElement('div'); list.className = 'pr-cue-list';
+            const help = document.createElement('p'); help.className = 'pr-cue-help';
+            help.textContent = isTouch()
+                ? 'Lang auf die Route drücken, im Höhenprofil „+ Hinweis“ tippen oder bei Trinkwasser- und Café-POIs „Als Hinweis“ wählen. Das Navi zeigt den Text kurz vor der Stelle an.'
+                : 'Rechtsklick auf die Route, Doppelklick ins Höhenprofil oder bei Trinkwasser- und Café-POIs „Als Hinweis“ wählen. Das Navi zeigt den Text kurz vor der Stelle an.';
+            sec.append(h, list, help);
+            const actions = host.querySelector('.pr-actions');
+            if (actions) host.insertBefore(sec, actions); else host.appendChild(sec);
+            refreshLists();
+        }
+        const panelsEl = document.getElementById('floatingPanels');
+        if (panelsEl) {
+            new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => {
+                if (n.nodeType === 1 && n.dataset && n.dataset.type === 'routing') setTimeout(() => sectionFor(n), 0);
+            }))).observe(panelsEl, { childList: true });
+            panelsEl.querySelectorAll('[data-type="routing"]').forEach(sectionFor);
+        }
+
+        // ── Editor (one dialog for desktop and mobile) ──────────────────────
+        const modal = document.createElement('div');
+        modal.id = 'prCueModal';
+        modal.innerHTML = `
+            <div class="pr-cue-card" role="dialog" aria-modal="true" aria-labelledby="prCueTitle">
+                <div class="pr-cue-card-head">
+                    <div><div id="prCueTitle">Hinweis fürs Navi</div><div class="pr-cue-where" id="prCueWhere"></div></div>
+                    <button type="button" class="pr-cue-x" aria-label="Schließen">×</button>
+                </div>
+                <div class="pr-cue-kinds" role="radiogroup" aria-label="Art des Hinweises"></div>
+                <label class="pr-cue-label" for="prCueText">Text auf dem Navi</label>
+                <div class="pr-cue-input-row">
+                    <input type="text" id="prCueText" maxlength="${MAX_LEN}" autocomplete="off" enterkeyhint="done">
+                    <span class="pr-cue-counter" id="prCueCounter"></span>
+                </div>
+                <div class="pr-cue-presets"></div>
+                <p class="pr-cue-note">Getestet mit Hammerhead Karoo: Pop-up mit diesem Text etwa 150–200 m vor der Stelle. Bei Garmin und Wahoo noch nicht getestet.</p>
+                <div class="pr-cue-actions">
+                    <button type="button" class="pr-cue-del">Löschen</button>
+                    <span></span>
+                    <button type="button" class="pr-cue-cancel">Abbrechen</button>
+                    <button type="button" class="pr-cue-save">Speichern</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        const $m = s => modal.querySelector(s);
+        const input = $m('#prCueText');
+        let editing = null, editingNew = false, editKind = 'interval', lastFocus = null;
+
+        Object.keys(KINDS).forEach(k => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.dataset.kind = k; b.setAttribute('role', 'radio');
+            b.style.setProperty('--c', KINDS[k].color);
+            const i = document.createElement('span'); i.textContent = KINDS[k].icon;
+            const l = document.createElement('span'); l.textContent = KINDS[k].label;
+            b.append(i, l);
+            b.addEventListener('click', () => setKind(k, true));
+            $m('.pr-cue-kinds').appendChild(b);
+        });
+        function setKind(k, fromUser) {
+            const prevPresets = KINDS[editKind].presets.concat(Object.values(KINDS).map(x => x.label));
+            editKind = k;
+            modal.querySelectorAll('.pr-cue-kinds button').forEach(b => {
+                const on = b.dataset.kind === k;
+                b.classList.toggle('pr-on', on);
+                b.setAttribute('aria-checked', on ? 'true' : 'false');
+            });
+            // Switching type while the text is still a preset → take the new type's preset
+            if (fromUser && (!input.value.trim() || prevPresets.includes(input.value.trim()))) input.value = KINDS[k].presets[0];
+            const p = $m('.pr-cue-presets');
+            p.textContent = '';
+            KINDS[k].presets.forEach(t => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.textContent = t;
+                b.addEventListener('click', () => { input.value = t; count(); input.focus(); });
+                p.appendChild(b);
+            });
+            count();
+        }
+        function count() { $m('#prCueCounter').textContent = `${input.value.length}/${MAX_LEN}`; }
+        input.addEventListener('input', count);
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+
+        function openEditor(q, isNew) {
+            editing = q; editingNew = !!isNew;
+            lastFocus = document.activeElement;
+            const s = q._s || snap(q.lat, q.lng);
+            $m('#prCueWhere').textContent = s
+                ? `bei km ${s.km.toFixed(1)}` + (s.off > OFF_ROUTE_M ? ' · liegt nicht mehr an der Route' : '')
+                : 'wird nach der Routenberechnung eingeordnet';
+            $m('.pr-cue-del').style.visibility = isNew ? 'hidden' : 'visible';
+            input.value = q.text || '';
+            setKind(KINDS[q.kind] ? q.kind : 'interval', false);
+            if (!input.value) input.value = KINDS[editKind].presets[0];
+            count();
+            modal.classList.add('pr-open');
+            setTimeout(() => { try { input.focus({ preventScroll: true }); input.select(); } catch (e) {} }, 50);
+        }
+        function closeEditor() {
+            modal.classList.remove('pr-open');
+            editing = null;
+            if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+        }
+        function save() {
+            if (!editing) return;
+            editing.kind = editKind;
+            editing.text = clean(input.value) || KINDS[editKind].label;
+            if (editingNew) {
+                cues.push(editing);
+                if (window.trackPixelRuudEvent) window.trackPixelRuudEvent('Route Cue Added', { title: 'Cue: ' + editKind });
+            }
+            const k = editKind;
+            closeEditor();
+            render();
+            toast(`${KINDS[k].icon} Hinweis gespeichert`, 'success');
+        }
+        function del() {
+            if (!editing) return;
+            cues = cues.filter(c => c !== editing);
+            closeEditor();
+            render();
+            toast('Hinweis gelöscht');
+        }
+        $m('.pr-cue-save').addEventListener('click', save);
+        $m('.pr-cue-cancel').addEventListener('click', closeEditor);
+        $m('.pr-cue-x').addEventListener('click', closeEditor);
+        $m('.pr-cue-del').addEventListener('click', del);
+        modal.addEventListener('click', e => { if (e.target === modal) closeEditor(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('pr-open')) closeEditor(); });
+
+        // ── Ways to add a cue ───────────────────────────────────────────────
+        function addAt(lat, lng, kind, text) {
+            try { if (window.currentSegmentMenu) map.closePopup(window.currentSegmentMenu); } catch (e) {}
+            try { map.closePopup(); } catch (e) {}
+            const s = snap(lat, lng);
+            if (!s) { toast('Erst eine Route berechnen, dann Hinweise setzen'); return; }
+            if (s.off > ADD_MAX_M) { toast('Zu weit von der Route entfernt – näher an der Route setzen'); return; }
+            openEditor({ id: 'cue_' + Date.now() + '_' + (seq++), kind: kind || 'interval', text: text || '', lat: s.lat, lng: s.lng, _s: s }, true);
+        }
+        window.prCueAddAt = addAt;
+        window.prCueAddAtKm = km => { const p = pointAtKm(km); if (p) addAt(p.lat, p.lng); };
+
+        // Elevation profile: remember the last position (hover / finger), "+ Hinweis" button, double click
+        let lastKm = null;
+        const addBtn = document.getElementById('prCueAddBtn');
+        function kmFromEvent(e) {
+            const ch = window.elevationChart;
+            if (!ch || !ch.scales || !ch.scales.x) return null;
+            const r = ch.canvas.getBoundingClientRect();
+            const x = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) - r.left;
+            const sx = ch.scales.x;
+            if (x < sx.left || x > sx.right) return null;
+            return Math.max(sx.min, Math.min(sx.max, sx.getValueForPixel(x)));
+        }
+        function setLastKm(km) {
+            if (km == null) return;
+            lastKm = km;
+            if (addBtn) addBtn.textContent = `+ Hinweis km ${km.toFixed(1)}`;
+        }
+        const canvas = document.getElementById('elevationChart');
+        if (canvas) {
+            ['pointermove', 'pointerdown'].forEach(t => canvas.addEventListener(t, e => setLastKm(kmFromEvent(e)), { passive: true }));
+            canvas.addEventListener('touchmove', e => setLastKm(kmFromEvent(e)), { passive: true });
+            canvas.addEventListener('dblclick', e => { const km = kmFromEvent(e); if (km != null) window.prCueAddAtKm(km); });
+        }
+        if (addBtn) {
+            addBtn.addEventListener('mousedown', e => e.stopPropagation());
+            addBtn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+            addBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                if (lastKm == null) {
+                    toast(isTouch() ? 'Erst mit dem Finger die Stelle im Profil wählen' : 'Mit der Maus auf die Stelle im Profil zeigen oder doppelklicken');
+                    return;
+                }
+                window.prCueAddAtKm(lastKm);
+            });
+        }
+
+        // POI popups (drinking water, cafés, shops): "Als Hinweis fürs Navi"
+        document.addEventListener('click', e => {
+            const b = e.target.closest && e.target.closest('.pr-cue-poi-btn');
+            if (!b) return;
+            e.preventDefault();
+            const name = b.dataset.name && b.dataset.name !== 'Unbenannt' ? b.dataset.name : '';
+            addAt(parseFloat(b.dataset.lat), parseFloat(b.dataset.lon), b.dataset.kind, name);
+        });
+
+        // Address search: "Als Kaffeestopp" → becomes a waypoint at the best position + coffee cue
+        function insertStop(lat, lng) {
+            const n = waypoints.length;
+            addWaypoint(lat, lng);
+            if (waypoints.length !== n + 1) return false;      // e.g. demo limit
+            if (n < 2) return true;
+            const p = { lat, lng };
+            const d = (a, b) => hav(a.lat, a.lng, b.lat, b.lng);
+            let bestI = -1, bestCost = d(waypoints[n - 1], p);  // cost of appending at the end
+            for (let i = 0; i < n - 1; i++) {
+                const cost = d(waypoints[i], p) + d(p, waypoints[i + 1]) - d(waypoints[i], waypoints[i + 1]);
+                if (cost < bestCost) { bestCost = cost; bestI = i; }
+            }
+            if (bestI >= 0) {
+                try {
+                    const idx = bestI + 1;
+                    const w = waypoints.pop(), mk = markers.pop();
+                    waypoints.splice(idx, 0, w);
+                    markers.splice(idx, 0, mk);
+                    waypoints[idx - 1].segmentToNext = null;
+                    waypoints[idx].segmentToNext = null;
+                    if (typeof updateMarkerColors === 'function') updateMarkerColors();
+                    updateList();
+                    if (typeof triggerAutoCalc === 'function') triggerAutoCalc(300);
+                } catch (e) { console.warn('Insert stop failed:', e); }
+            }
+            return true;
+        }
+        document.addEventListener('click', e => {
+            const b = e.target.closest && e.target.closest('.pr-cue-search-btn');
+            if (!b) return;
+            e.preventDefault();
+            e.stopPropagation();   // capture phase: the result row would otherwise add a normal waypoint
+            const row = b.closest('.address-result');
+            if (!row) return;
+            const lat = parseFloat(row.dataset.lat), lng = parseFloat(row.dataset.lng);
+            const name = clean((row.dataset.name || '').split(',')[0]) || 'Kaffeepause';
+            document.querySelectorAll('#addressResults').forEach(el => { el.classList.remove('show'); el.innerHTML = ''; });
+            document.querySelectorAll('#addressInput').forEach(el => { el.value = ''; });
+            if (!insertStop(lat, lng)) return;
+            try { map.setView([lat, lng], Math.max(map.getZoom(), 14), { animate: true }); } catch (err) {}
+            openEditor({ id: 'cue_' + Date.now() + '_' + (seq++), kind: 'food', text: name, lat, lng }, true);
+        }, true);
+
+        // ── GPX export (Karoo upload and file) ──────────────────────────────
+        window.prCueGpx = function() {
+            if (!cues.length || !routeCoords()) return '';
+            let skipped = 0;
+            const items = [];
+            cues.forEach(q => {
+                const s = snap(q.lat, q.lng);
+                if (!s || s.off > OFF_ROUTE_M) { skipped++; return; }
+                items.push({ q, s });
+            });
+            items.sort((a, b) => a.s.km - b.s.km);
+            if (skipped) toast(skipped === 1 ? '1 Hinweis liegt nicht an der Route und wurde nicht exportiert' : `${skipped} Hinweise liegen nicht an der Route und wurden nicht exportiert`);
+            return items.map(({ q, s }) => {
+                const K = KINDS[q.kind] || KINDS.interval, t = xml(q.text || K.label);
+                return `  <wpt lat="${s.lat.toFixed(6)}" lon="${s.lng.toFixed(6)}">\n    <name>${t}</name>\n    <cmt>${t}</cmt>\n    <desc>${t}</desc>\n    <type>${K.gpx}</type>\n  </wpt>\n`;
+            }).join('');
+        };
+
+        // ── Saving / loading / clearing ─────────────────────────────────────
+        window.prCueData = () => cues.map(q => ({ kind: q.kind, text: q.text, lat: +q.lat.toFixed(6), lng: +q.lng.toFixed(6) }));
+        const wrap = (name, after, before) => {
+            const orig = window[name];
+            if (typeof orig !== 'function') return;
+            window[name] = function() {
+                if (before) before.apply(this, arguments);
+                const r = orig.apply(this, arguments);
+                after.call(this, arguments, r);
+                return r;
+            };
+        };
+        wrap('clearAll', () => { cues = []; render(); });
+        wrap('loadRoute', args => {
+            let r = null;
+            try { r = savedRoutes.find(x => x.id === args[0]); } catch (e) {}
+            const saved = r && (r.cues || (r.stats && r.stats.pr_cues));
+            cues = Array.isArray(saved)
+                ? saved.filter(q => q && isFinite(q.lat) && isFinite(q.lng)).map(q => ({ id: 'cue_' + Date.now() + '_' + (seq++), kind: KINDS[q.kind] ? q.kind : 'interval', text: clean(q.text), lat: q.lat, lng: q.lng }))
+                : [];
+            render();
+        });
+        // Route drawn or removed → markers and profile icons follow
+        wrap('showElevationProfile', () => render());
+        wrap('clearRoutes', () => render());
+
+        render();
     })();
     </script>
 
