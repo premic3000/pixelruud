@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.65 | Build: 2026-11-10 11:15 -->
+<!-- PixelRuud v3.66 | Build: 2026-11-10 12:30 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -4743,7 +4743,7 @@
     </style>
     <!-- ═══ MOBILE UI v3.65: tab bar, profile chips, sheets, route bar with time + send ═══ -->
     <style id="pr-mobile-nav">
-        #prChips, #prTabbar, #prSheet, #prSheetBackdrop { display: none; }
+        #prChips, #prTabbar, #prSheet, #prSheetBackdrop, #prCompare { display: none; }
 
         @media (pointer: coarse) {
             /* Long toolbar + control bar are replaced by the tab bar on touch devices.
@@ -4806,7 +4806,7 @@
                 position: fixed;
                 left: 0; right: 0;
                 bottom: var(--pr-chips, 76px);
-                display: flex; gap: 6px;
+                display: flex; gap: 8px; align-items: center;
                 padding: 0 8px;
                 overflow-x: auto;
                 scrollbar-width: none;
@@ -4818,13 +4818,13 @@
             #prChips.pr-hidden { display: none; }
             .pr-chip {
                 flex-shrink: 0;
-                height: 36px; padding: 0 13px;
-                background: rgba(0, 8, 20, 0.9);
-                border: 1px solid rgba(255, 255, 255, 0.16);
-                border-radius: 18px;
-                color: rgba(255, 255, 255, 0.82);
-                font-family: 'Courier New', monospace;
-                font-size: 12px; font-weight: 700;
+                height: 44px; padding: 0 22px;
+                background: rgba(0, 8, 20, 0.92);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 22px;
+                color: #ffffff;
+                font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+                font-size: 16px; font-weight: 700;
                 white-space: nowrap;
                 box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
                 backdrop-filter: blur(10px);
@@ -4834,9 +4834,44 @@
             }
             .pr-chip:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
             .pr-chip.pr-on { background: #00f0ff; border-color: #00f0ff; color: #001018; }
-            .pr-chip-more { min-width: 44px; }
+            .pr-chip-more {
+                display: flex; align-items: center; gap: 4px;
+                padding: 0 10px 0 14px;
+                font-size: 13px; font-weight: 600;
+                color: rgba(255, 255, 255, 0.88);
+            }
+            .pr-chip-more svg { width: 14px; height: 14px; opacity: 0.7; }
             body.pr-calc .pr-chip.pr-on { animation: prChipPulse 1s ease-in-out infinite; }
             @keyframes prChipPulse { 50% { opacity: 0.6; } }
+
+            /* ── Comparison after a profile switch ── */
+            #prCompare {
+                position: fixed;
+                left: 8px;
+                bottom: var(--pr-fab, 130px);
+                max-width: calc(100% - 78px);
+                padding: 10px 14px;
+                background: rgba(0, 8, 20, 0.95);
+                border: 1px solid rgba(204, 255, 0, 0.5);
+                border-radius: 14px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+                color: #e2e8f0;
+                z-index: 1000;
+                cursor: pointer;
+            }
+            #prCompare.pr-show { display: block; }
+            #prCompare strong { display: block; margin-bottom: 2px; color: #ccff00; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+            #prCompare span { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+            /* ── Route bar without a route: hint what to do next ── */
+            .pr-elev-bar.pr-hint { border-color: rgba(255, 255, 255, 0.18); color: #e2e8f0; }
+            .pr-elev-bar.pr-hint .pr-elev-spark,
+            .pr-elev-bar.pr-hint .pr-bar-chev,
+            .pr-elev-bar.pr-hint .pr-bar-time,
+            .pr-elev-bar.pr-hint .pr-bar-send { display: none; }
+            .pr-elev-bar.pr-hint .pr-bar-main { justify-content: center; padding: 0 8px; }
+            .pr-elev-bar.pr-hint .badge-text { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 600; }
+            .pr-elev-bar.pr-hint.pr-hint-action { border-color: rgba(0, 240, 255, 0.5); color: #00f0ff; }
 
             /* ── Sheets (Pixel AI, Mehr, Senden-Ziel) ── */
             #prSheetBackdrop {
@@ -4915,6 +4950,8 @@
                 min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
                 background: #ff6b00; color: #fff; font-size: 11px; line-height: 18px; text-align: center;
             }
+            .pr-sheet-link { display: block; width: 100%; min-height: 44px; margin-top: 4px; background: none; border: 0; color: rgba(226, 232, 240, 0.7); font-size: 13px; text-align: left; padding: 0 2px; cursor: pointer; }
+            .pr-sheet-link u { color: #00f0ff; text-decoration: none; }
             .pr-sheet-note { margin: 10px 2px 0; font-size: 12px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
 
             /* ── Route sheet additions (speed + actions inside the routing panel) ── */
@@ -4959,7 +4996,7 @@
                 cursor: pointer;
             }
             .pr-actions button:disabled { opacity: 0.35; }
-            .pr-actions button.pr-primary { background: rgba(0, 240, 255, 0.14); border-color: rgba(0, 240, 255, 0.45); color: #00f0ff; }
+            .pr-actions button.pr-primary { grid-column: 1 / -1; background: rgba(0, 240, 255, 0.14); border-color: rgba(0, 240, 255, 0.45); color: #00f0ff; }
             .pr-actions button.pr-danger { grid-column: 1 / -1; border-color: rgba(239, 68, 68, 0.45); color: #f87171; }
             .pr-import-row { padding: 0 16px 12px; }
             .pr-import-row button {
@@ -5307,14 +5344,18 @@
         </button>
     </div>
 
-    <!-- Mobile: routing profile chips (one tap switches profile and recalculates) -->
+    <!-- Mobile: routing profile chips (Gravel / Straße; third chip = current variant → fine settings) -->
     <div id="prChips" role="radiogroup" aria-label="Routing-Profil">
-        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="gravel" data-sub="gravel-balanced">Gravel</button>
-        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="gravel" data-sub="gravel-offroad">Gravel Offroad</button>
-        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="road" data-sub="road-fast">Straße schnell</button>
-        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="road" data-sub="road-safety">Straße sicher</button>
-        <button type="button" class="pr-chip pr-chip-more" id="prChipMore" aria-label="Weitere Profile und Einstellungen">⋯</button>
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="gravel">Gravel</button>
+        <button type="button" class="pr-chip" role="radio" aria-checked="false" data-cat="road">Straße</button>
+        <button type="button" class="pr-chip pr-chip-more" id="prChipMore" aria-label="Profil-Variante und Einstellungen">
+            <span id="prChipMoreLabel">Mehr Offroad</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
     </div>
+
+    <!-- Mobile: what changed after a profile switch -->
+    <div id="prCompare" role="status" aria-live="polite"></div>
 
     <!-- Mobile: main navigation (replaces the long toolbar + control bar on touch devices) -->
     <nav id="prTabbar" aria-label="Hauptnavigation">
@@ -17778,14 +17819,14 @@
             STEPS_DE.splice(2, 0, {
                 icon: '🚴',
                 title: 'Profil, Fahrzeit & Senden',
-                content: '<strong>Die drei Dinge für die schnelle Planung:</strong><br><br>• <strong>Profil-Chips</strong> über der Leiste: Gravel, Gravel Offroad, Straße schnell, Straße sicher. Ein Tipp rechnet die Route neu.<br>• <strong>Routenzeile:</strong> Distanz, Höhenmeter und Fahrzeit. Ein Tipp auf die Zeit öffnet den Tempo-Regler.<br>• <strong>Senden:</strong> schickt die Route direkt ans Karoo oder exportiert sie als GPX-Datei.',
+                content: '<strong>Die drei Dinge für die schnelle Planung:</strong><br><br>• <strong>Gravel oder Straße</strong> über der Leiste: ein Tipp rechnet die Route neu. Der dritte Chip zeigt die Variante und führt zu den feineren Einstellungen.<br>• <strong>Routenzeile:</strong> Distanz, Höhenmeter und Fahrzeit. Ein Tipp auf die Zeit öffnet den Tempo-Regler.<br>• <strong>Senden:</strong> passend zu deinem Gerät: direkt ans Karoo oder als GPX-Datei für Garmin, Wahoo und andere.<br>• <strong>Lange auf die Karte drücken:</strong> Start setzen, Ziel anhängen oder die Rundtour schließen.',
                 spotlight: '#prChips',
                 cardPosition: 'center'
             });
             STEPS_EN.splice(2, 0, {
                 icon: '🚴',
                 title: 'Profile, ride time & send',
-                content: '<strong>The three things for quick planning:</strong><br><br>• <strong>Profile chips</strong> above the navigation: Gravel, Gravel Offroad, Straße schnell (road fast), Straße sicher (road safe). One tap recalculates the route.<br>• <strong>Route bar:</strong> distance, elevation gain and ride time. Tap the time to open the speed slider.<br>• <strong>Senden (Send):</strong> sends the route straight to your Karoo or exports it as a GPX file.',
+                content: '<strong>The three things for quick planning:</strong><br><br>• <strong>Gravel or Straße (road)</strong> above the navigation: one tap recalculates the route. The third chip shows the variant and opens the finer settings.<br>• <strong>Route bar:</strong> distance, elevation gain and ride time. Tap the time to open the speed slider.<br>• <strong>Senden (Send):</strong> matched to your device: straight to your Karoo, or as a GPX file for Garmin, Wahoo and others.<br>• <strong>Long-press the map:</strong> set the start, append a destination or close the loop.',
                 spotlight: '#prChips',
                 cardPosition: 'center'
             });
@@ -20140,6 +20181,35 @@
             area.setAttribute('d', a);
         }
 
+        // The bar is always there on mobile: route stats when a route exists, otherwise the next step
+        const wpCount = () => { try { return waypoints.length; } catch (e) { return 0; } };
+        function syncBar() {
+            if (!isMobile()) return;
+            const txt = bar.querySelector('.badge-text');
+            if (profile.classList.contains('show')) {
+                bar.classList.remove('pr-show');
+            } else {
+                const hint = !hasRoute();
+                bar.classList.add('pr-show');
+                bar.classList.toggle('pr-hint', hint);
+                let action = false;
+                if (hint && txt) {
+                    const n = wpCount();
+                    if (n === 0) txt.textContent = 'Tippe auf die Karte für den Start';
+                    else if (n === 1) txt.textContent = 'Jetzt das Ziel antippen';
+                    else {
+                        // Auto-calc on and nothing has failed yet → the route is on its way
+                        let auto = true; try { auto = !!autoCalcEnabled; } catch (e) {}
+                        if (calculating() || (auto && !window._prCalcSettled)) txt.textContent = 'Route wird berechnet …';
+                        else { txt.textContent = 'Route berechnen'; action = true; }
+                    }
+                }
+                bar.classList.toggle('pr-hint-action', action);
+            }
+            layout();
+        }
+        window._prSyncBar = syncBar;
+
         window.showElevationBadge = function() {
             if (!isMobile() || !hasRoute()) return;
             const txt = bar.querySelector('.badge-text');
@@ -20151,12 +20221,16 @@
             }
             if (typeof window._prRefreshBar === 'function') window._prRefreshBar();
             drawSparkline();
-            if (!profile.classList.contains('show')) bar.classList.add('pr-show');
-            layout();
+            syncBar();
         };
 
         // Open/close (bar tap, close button). Rendering happens in the observer below.
         window.toggleElevationFromBadge = function() {
+            if (bar.classList.contains('pr-hint') && !profile.classList.contains('show')) {
+                // No route yet: the bar is a hint, or a "calculate" button when auto-calc did not run
+                if (bar.classList.contains('pr-hint-action') && typeof calculateRoutes === 'function') calculateRoutes();
+                return;
+            }
             if (profile.classList.contains('show')) {
                 window._elevKeepOpen = false;
                 profile.classList.remove('show');
@@ -20213,7 +20287,7 @@
 
             if (shown) {
                 window._elevKeepOpen = true;
-                bar.classList.remove('pr-show');
+                syncBar();
                 // Opened without a rendered chart (e.g. via toolbar button) → render now
                 if (!liveChart() && !rendering) {
                     rendering = true;
@@ -20245,8 +20319,7 @@
                 window._elevScrubReset();
                 // Closed by the user (not by a recalculation) → stay closed next time
                 if (!calculating()) window._elevKeepOpen = false;
-                bar.classList.toggle('pr-show', hasRoute() || (calculating() && bar.classList.contains('pr-show')));
-                layout();
+                syncBar();
             }
         }
         new MutationObserver(onProfileChange).observe(profile, { attributes: true, attributeFilter: ['class'] });
@@ -20256,10 +20329,9 @@
             const origHide = hideElevationProfile;
             window.hideElevationProfile = function() {
                 origHide.apply(this, arguments);
-                if (isMobile() && !hasRoute() && !calculating()) {
-                    bar.classList.remove('pr-show');
+                if (isMobile() && !hasRoute()) {
                     window._elevScrubReset();
-                    layout();
+                    syncBar();
                 }
             };
         }
@@ -20276,7 +20348,7 @@
             });
         }
         onSwipe(bar, (dy, e) => {
-            if (dy < -24 && !profile.classList.contains('show')) { e.preventDefault(); window.toggleElevationFromBadge(); }
+            if (dy < -24 && !profile.classList.contains('show') && !bar.classList.contains('pr-hint')) { e.preventDefault(); window.toggleElevationFromBadge(); }
         });
         const header = document.getElementById('elevationDragHandle');
         if (header) onSwipe(header, dy => {
@@ -20330,12 +20402,12 @@
             fabUndo.addEventListener('click', () => { if (typeof undo === 'function') undo(); });
         }
 
-        layout();
-        window.addEventListener('load', () => { layout(); setTimeout(layout, 800); });
+        syncBar();
+        window.addEventListener('load', () => { syncBar(); setTimeout(syncBar, 800); });
     })();
     </script>
 
-    <!-- ═══ MOBILE UI v3.65: tab bar, profile chips, sheets, speed in route sheet, send button ═══ -->
+    <!-- ═══ MOBILE UI v3.65/3.66: tab bar, profile chips, sheets, speed, send, compare, long press ═══ -->
     <script>
     (function initMobileNav() {
         if (!window.matchMedia('(pointer: coarse)').matches) return;
@@ -20387,8 +20459,11 @@
 
         // ── Generic sheet ───────────────────────────────────────────────────
         let sheetKind = null;
-        function openSheet(kind, title, build) {
+        let sheetOnClose = null;
+        function openSheet(kind, title, build, onClose) {
             closeAllPanels();
+            if (sheetKind) closeSheet();
+            sheetOnClose = onClose || null;
             sheetKind = kind;
             $('#prSheetTitle').textContent = title;
             const body = $('.pr-sheet-body', sheet);
@@ -20404,6 +20479,7 @@
             sheetKind = null;
             sheet.classList.remove('pr-open');
             backdrop.classList.remove('pr-open');
+            if (sheetOnClose) { const f = sheetOnClose; sheetOnClose = null; try { f(); } catch (e) {} }
             syncTabs();
         }
         backdrop.addEventListener('click', closeSheet);
@@ -20466,7 +20542,8 @@
                     p('export', 'Export'),
                     p('api', 'API'),
                     tile(iconOf('#skinBtn'), 'Design', clickOld('#skinBtn')),
-                    tile(iconOf('#tutorialBtn'), 'Hilfe', clickOld('#tutorialBtn'))
+                    tile(iconOf('#tutorialBtn'), 'Hilfe', clickOld('#tutorialBtn')),
+                    tile(iconOf('#prBarSend'), 'Mein Gerät', () => openDeviceSheet(null))
                 );
                 const lo = $('#logoutBtn');
                 if (lo && lo.style.display !== 'none') g.append(tile(iconOf('#logoutBtn'), 'Logout', clickOld('#logoutBtn')));
@@ -20538,25 +20615,28 @@
         const savedSpeed = parseInt(store.get(SPEED_KEY), 10);
         if (savedSpeed >= 15 && savedSpeed <= 40) setSpeed(savedSpeed);
 
-        // ── Routing profile: chips + radios in the route sheet stay in sync ──
-        const MAIN_SUBS = ['gravel-balanced', 'gravel-offroad', 'road-fast', 'road-safety'];
-        const OTHER_LABELS = { 'gravel-max': 'Max Offroad', 'road-safe': 'Wenig Verkehr' };
+        // ── Routing profile: two chips (Gravel / Straße) + variant chip, in sync with the route sheet ──
+        const SUB_LABEL = { 'gravel-balanced': 'Balanced', 'gravel-offroad': 'Mehr Offroad', 'gravel-max': 'Max Offroad',
+                            'road-fast': 'Schnell', 'road-safe': 'Wenig Verkehr', 'road-safety': 'Sicher' };
+        const CAT_LABEL = { gravel: 'Gravel', road: 'Straße' };
+        const catOf  = sub => (String(sub).indexOf('road') === 0 ? 'road' : 'gravel');
         const curSub = () => { try { return currentSubProfile; } catch (e) { return 'gravel-offroad'; } };
-        function syncChips(scroll) {
-            const sub = curSub();
-            let active = null;
-            chips.querySelectorAll('.pr-chip[data-sub]').forEach(c => {
-                const on = c.dataset.sub === sub;
+        // Each category remembers its last variant, so "Straße" brings back e.g. "Sicher"
+        const lastSub = { gravel: 'gravel-offroad', road: 'road-fast' };
+        ['gravel', 'road'].forEach(c => { const v = store.get('pixelruud_sub_' + c); if (v && SUB_LABEL[v] && catOf(v) === c) lastSub[c] = v; });
+        let shownSub = curSub();
+        function syncChips() {
+            const sub = curSub(), cat = catOf(sub);
+            shownSub = sub;
+            lastSub[cat] = sub;
+            store.set('pixelruud_sub_' + cat, sub);
+            chips.querySelectorAll('.pr-chip[data-cat]').forEach(c => {
+                const on = c.dataset.cat === cat;
                 c.classList.toggle('pr-on', on);
                 c.setAttribute('aria-checked', on ? 'true' : 'false');
-                if (on) active = c;
             });
-            const more = $('#prChipMore');
-            const other = !MAIN_SUBS.includes(sub);
-            more.classList.toggle('pr-on', other);
-            more.textContent = other ? (OTHER_LABELS[sub] || 'Profil') : '⋯';
-            if (other) active = more;
-            if (scroll && active && active.scrollIntoView) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+            const l = $('#prChipMoreLabel');
+            if (l) l.textContent = SUB_LABEL[sub] || 'Profil';
         }
         function syncRadios() {
             const r = $(`#floatingPanels input[name="routingProfilePanel"][value="${curSub()}"]`);
@@ -20575,20 +20655,70 @@
                 else if (++tries > 80) clearInterval(iv);
             }, 300);
         }
+
+        // ── After a profile switch: show what changed (distance, climbing, time) ──
+        const compareEl = $('#prCompare');
+        let compareIv = null, compareHide = null;
+        function hideCompare() { if (compareEl) compareEl.classList.remove('pr-show'); clearTimeout(compareHide); }
+        if (compareEl) compareEl.addEventListener('click', hideCompare);
+        function snapshotRoute(sub) {
+            const st = window.routeStats;
+            if (!hasRoute() || !st || !st.totalDistance) return null;
+            return { obj: st, dist: st.totalDistance, asc: st.totalAscent || 0, sub: sub };
+        }
+        function signed(v, digits) {
+            const r = Number(v.toFixed(digits));
+            return (r > 0 ? '+' : r < 0 ? '−' : '±') + Math.abs(r).toFixed(digits);
+        }
+        function showCompare(snap, newSub, st) {
+            if (!compareEl) return;
+            const dKm = (st.totalDistance - snap.dist) / 1000;
+            const dHm = (st.totalAscent || 0) - snap.asc;
+            const dMin = dKm / curSpeed() * 60;
+            const oc = catOf(snap.sub), nc = catOf(newSub);
+            const title = oc !== nc ? `${CAT_LABEL[nc]} statt ${CAT_LABEL[oc]}` : `${SUB_LABEL[newSub]} statt ${SUB_LABEL[snap.sub]}`;
+            const same = Math.abs(dKm) < 0.05 && Math.abs(dHm) < 1;
+            compareEl.textContent = '';
+            const t = document.createElement('strong'); t.textContent = title;
+            const v = document.createElement('span');
+            v.textContent = same ? 'Gleiche Strecke, kein Unterschied' : `${signed(dKm, 1)} km · ${signed(dHm, 0)} hm · ${signed(dMin, 0)} min`;
+            compareEl.append(t, v);
+            compareEl.classList.add('pr-show');
+            clearTimeout(compareHide);
+            compareHide = setTimeout(hideCompare, 8000);
+        }
+        function watchCompare(snap, newSub) {
+            clearInterval(compareIv);
+            hideCompare();
+            if (!snap) return;
+            let ticks = 0;
+            compareIv = setInterval(() => {
+                if (++ticks > 320) { clearInterval(compareIv); return; }
+                if (calculating()) return;
+                const st = window.routeStats;
+                if (!hasRoute() || !st || st === snap.obj) return;   // new result not there yet
+                clearInterval(compareIv);
+                if (curSub() === newSub) showCompare(snap, newSub, st);
+            }, 250);
+        }
+
         function applyProfile(cat, sub) {
-            if (sub === curSub()) return;
+            const prev = curSub();
+            if (sub === prev) return;
+            const snap = snapshotRoute(prev);
             if (typeof setProfile === 'function') setProfile(cat, sub);
-            syncChips(true);
+            syncChips();
             syncRadios();
             recalc();
+            watchCompare(snap, sub);
         }
         chips.addEventListener('click', e => {
             const c = e.target.closest('.pr-chip');
             if (!c) return;
             if (c.id === 'prChipMore') { showPanel('routing'); return; }
-            applyProfile(c.dataset.cat, c.dataset.sub);
+            applyProfile(c.dataset.cat, lastSub[c.dataset.cat]);
         });
-        syncChips(false);
+        syncChips();
 
         // ── Route sheet = routing panel + speed on top + actions below ──────
         function decorateRouting(panel) {
@@ -20610,7 +20740,11 @@
             // Changing profile or elevation preference recalculates right away
             syncRadios();
             host.querySelectorAll('input[name="routingProfilePanel"]').forEach(r => r.addEventListener('change', () => {
-                if (r.checked) { syncChips(true); recalc(); }
+                if (!r.checked) return;
+                const snap = snapshotRoute(shownSub);   // the app's own handler already switched the profile
+                syncChips();
+                recalc();
+                watchCompare(snap, curSub());
             }));
             host.querySelectorAll('input[name="elevationPrefPanel"]').forEach(r => r.addEventListener('change', () => {
                 if (r.checked) recalc();
@@ -20629,8 +20763,9 @@
             act.append(
                 mk(`Wegpunkte (${wpCount()})`, '', null, () => showPanel('waypoints')),
                 mk('Umkehren', '', 'reverseBtn', () => { const r = document.getElementById('reverseBtn'); if (r) r.click(); closeAllPanels(); recalc(); }),
-                mk('Neu berechnen', 'pr-primary', 'calculateBtn'),
+                (() => { const b = mk('Rundtour schließen', '', null, () => { closeAllPanels(); closeLoop(); }); b.disabled = wpCount() < 2; return b; })(),
                 mk('Wiederholen', '', 'redoBtn'),
+                mk('Neu berechnen', 'pr-primary', 'calculateBtn'),
                 mk('Route löschen', 'pr-danger', 'clearBtn')
             );
             host.append(act);
@@ -20657,7 +20792,15 @@
             syncTabs();
         }).observe(panelsEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
-        // ── Send: always offer both targets (Karoo and GPX are used equally often) ──
+        // ── Send: options depend on the rider's device (set once, change under Mehr → Mein Gerät) ──
+        const DEVICE_KEY = 'pixelruud_device';
+        const DEVICES = {
+            karoo:  { name: 'Hammerhead Karoo', sub: 'Direkt senden über das Hammerhead Dashboard' },
+            garmin: { name: 'Garmin', sub: 'GPX-Datei, Import über Garmin Connect', hint: 'Danach die GPX-Datei mit der Garmin-Connect-App öffnen und als Strecke ans Gerät senden.' },
+            wahoo:  { name: 'Wahoo', sub: 'GPX-Datei, Import über die Wahoo-App', hint: 'Danach die GPX-Datei mit der Wahoo-App öffnen, sie landet als Route auf dem ELEMNT.' },
+            other:  { name: 'Anderes Gerät oder keins', sub: 'GPX-Datei für jede App und jedes Gerät', hint: 'Die GPX-Datei lässt sich in jeder Navi-App und auf jedem Radcomputer importieren.' }
+        };
+        const device = () => { const d = store.get(DEVICE_KEY); return DEVICES[d] ? d : null; };
         const sendBtn = $('#prBarSend');
         function doSend(t) {
             if (!hasRoute()) { toast('Erst eine Route berechnen'); return; }
@@ -20668,15 +20811,92 @@
                 exportGPX();
             }
         }
+        function openDeviceSheet(then) {
+            const cur = device();
+            openSheet('device', 'Welches Gerät nutzt du?', body => {
+                Object.keys(DEVICES).forEach(k => body.append(
+                    row(iconOf(k === 'karoo' ? '#prBarSend' : '.floating-toolbar [data-panel="export"]'), DEVICES[k].name, DEVICES[k].sub,
+                        () => { store.set(DEVICE_KEY, k); if (then) then(); else toast('Gerät gespeichert: ' + DEVICES[k].name); }, cur === k)
+                ));
+                body.append(note('Der Senden-Button zeigt danach nur, was zu deinem Gerät passt. Ändern jederzeit unter Mehr → Mein Gerät.'));
+            });
+        }
         function openSendSheet() {
+            const d = device();
+            if (!d) { openDeviceSheet(openSendSheet); return; }
             openSheet('send', 'Route senden', body => {
-                body.append(
-                    row(iconOf('#prBarSend'), 'Auf Karoo senden', 'Route hochladen, Link fürs Hammerhead Dashboard kopieren', () => doSend('karoo')),
-                    row(iconOf('.floating-toolbar [data-panel="export"]'), 'GPX exportieren', 'Als Datei herunterladen', () => doSend('gpx'))
-                );
+                if (d === 'karoo') {
+                    body.append(row(iconOf('#prBarSend'), 'Auf Karoo senden', 'Route hochladen, Link fürs Hammerhead Dashboard kopieren', () => doSend('karoo')));
+                }
+                body.append(row(iconOf('.floating-toolbar [data-panel="export"]'), 'GPX exportieren', 'Als Datei herunterladen', () => doSend('gpx')));
+                if (DEVICES[d].hint) body.append(note(DEVICES[d].hint));
+                const ch = document.createElement('button');
+                ch.type = 'button'; ch.className = 'pr-sheet-link';
+                ch.append('Gerät: ' + DEVICES[d].name + ' · ');
+                const u = document.createElement('u'); u.textContent = 'ändern'; ch.append(u);
+                ch.addEventListener('click', () => openDeviceSheet(openSendSheet));
+                body.append(ch);
             });
         }
         if (sendBtn) sendBtn.addEventListener('click', openSendSheet);
+
+        // ── Long press on the map: start here / append / new start / close the loop ──
+        function closeLoop() {
+            const n = wpCount();
+            if (n < 2 || typeof addWaypoint !== 'function') { toast('Für eine Rundtour braucht es mindestens zwei Punkte'); return; }
+            const f = waypoints[0], l = waypoints[n - 1];
+            if (Math.abs(f.lat - l.lat) < 1e-5 && Math.abs(f.lng - l.lng) < 1e-5) { toast('Die Route endet schon am Start'); return; }
+            addWaypoint(f.lat, f.lng);
+        }
+        function prependWaypoint(ll) {
+            const before = wpCount();
+            addWaypoint(ll.lat, ll.lng);          // saves the undo state, creates the marker
+            if (wpCount() !== before + 1) return;  // e.g. demo limit reached
+            try {
+                waypoints.unshift(waypoints.pop());
+                markers.unshift(markers.pop());
+                waypoints.forEach(w => { w.segmentToNext = null; });
+                updateList();
+                if (typeof updateMarkerColors === 'function') updateMarkerColors();
+                if (typeof triggerAutoCalc === 'function') triggerAutoCalc(300);
+            } catch (e) { console.warn('Prepend waypoint failed:', e); }
+        }
+        const pinIcon = () => iconOf('.floating-toolbar [data-panel="waypoints"]');
+        function onMapHold(e) {
+            if (!e || !e.latlng) return;
+            if (e.originalEvent && e.originalEvent.preventDefault) e.originalEvent.preventDefault();
+            const ll = e.latlng, n = wpCount();
+            let pin = null;
+            try { pin = L.circleMarker(ll, { radius: 9, weight: 3, color: '#00f0ff', fillColor: '#00f0ff', fillOpacity: 0.25, interactive: false }).addTo(map); } catch (err) {}
+            openSheet('hold', 'Dieser Punkt', body => {
+                if (n === 0) {
+                    body.append(row(pinIcon(), 'Start hier', 'Erster Punkt der Route', () => addWaypoint(ll.lat, ll.lng)));
+                } else {
+                    body.append(
+                        row(pinIcon(), 'Ziel hier', 'Punkt ans Ende der Route anhängen', () => addWaypoint(ll.lat, ll.lng)),
+                        row(pinIcon(), 'Neuer Start hier', 'Punkt an den Anfang der Route setzen', () => prependWaypoint(ll))
+                    );
+                }
+                if (n >= 2) body.append(row(iconOf('#reverseBtn'), 'Rundtour schließen', 'Vom letzten Punkt zurück zum Start routen', closeLoop));
+            }, () => { try { if (pin) map.removeLayer(pin); } catch (err) {} });
+        }
+        (function attachHold() {
+            const tryAttach = () => { try { if (map && typeof map.on === 'function') { map.on('contextmenu', onMapHold); return true; } } catch (e) {} return false; };
+            if (!tryAttach()) { const iv = setInterval(() => { if (tryAttach()) clearInterval(iv); }, 500); }
+        })();
+
+        // Keep the hint in the route bar current whenever waypoints change
+        const syncBarNow = () => { if (typeof window._prSyncBar === 'function') window._prSyncBar(); };
+        if (typeof updateList === 'function') {
+            const origUpdateList = updateList;
+            window.updateList = function() {
+                const r = origUpdateList.apply(this, arguments);
+                window._prCalcSettled = false;   // waypoints changed → a new calculation is due
+                syncBarNow();
+                return r;
+            };
+        }
+
         const barTime = $('#prBarTime');
         if (barTime) barTime.addEventListener('click', () => {
             showPanel('routing');
@@ -20686,7 +20906,14 @@
         // ── Small status mirrors ────────────────────────────────────────────
         const loading = document.getElementById('loading');
         if (loading) {
-            const syncCalc = () => document.body.classList.toggle('pr-calc', loading.classList.contains('show'));
+            let wasCalc = false;
+            const syncCalc = () => {
+                const on = loading.classList.contains('show');
+                if (wasCalc && !on) window._prCalcSettled = true;   // finished (with or without a route)
+                wasCalc = on;
+                document.body.classList.toggle('pr-calc', on);
+                syncBarNow();
+            };
             new MutationObserver(syncCalc).observe(loading, { attributes: true, attributeFilter: ['class'] });
             syncCalc();
         }
@@ -20741,7 +20968,7 @@
         syncTabs();
         refreshTime();
         relayout();
-        window.addEventListener('load', () => { syncChips(true); relayout(); });
+        window.addEventListener('load', () => { syncChips(); relayout(); });
     })();
     </script>
 
