@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.67 | Build: 2026-11-10 19:30 -->
+<!-- PixelRuud v3.68 | Build: 2026-11-23 20:30 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -5125,6 +5125,137 @@
             .pr-cue-search-btn { min-height: 40px; font-size: 13px; }
         }
     </style>
+    <!-- ═══ ROUTE WEATHER v3.68 ═══ -->
+    <style id="pr-route-weather">
+        /* old weather buttons in the profile are replaced by the weather line + strip */
+        #toggleWeatherChart, #weatherTimeBtn { display: none !important; }
+
+        .pr-wx-line { display: none; align-items: center; gap: 8px; }
+        .pr-wx-line.pr-on { display: flex; }
+        .pr-wx-dep {
+            flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+            background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 8px;
+            color: #00f0ff; font-family: 'Courier New', monospace; font-weight: 700; cursor: pointer; white-space: nowrap;
+        }
+        .pr-wx-dep::before { content: '🕘'; font-size: 0.95em; }
+        .pr-wx-dep::after { content: '▾'; opacity: 0.7; }
+        .pr-wx-text {
+            flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px;
+            background: none; border: 0; padding: 0; color: #e2e8f0; text-align: left; cursor: pointer;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-weight: 600;
+        }
+        .pr-wx-sum { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pr-wx-text[data-wind="head"] .pr-wx-sum { color: #fecaca; }
+        .pr-wx-text[data-wind="tail"] .pr-wx-sum { color: #bbf7d0; }
+        .pr-wx-dep:focus-visible, .pr-wx-text:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+
+        /* line inside the elevation profile (desktop + mobile sheet) */
+        #prWxLine { padding: 5px 10px; font-size: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); flex-shrink: 0; }
+        #prWxLine .pr-wx-dep { font-size: 11px; padding: 3px 8px; }
+
+        /* desktop: room for the weather line + strip (a height set by resizing still wins) */
+        .elevation-profile.pr-wx { height: 262px; }
+
+        /* weather strip under the profile */
+        #prWxStrip { display: none; position: relative; height: 34px; flex-shrink: 0; }
+        .elevation-profile.pr-wx #prWxStrip.pr-on { display: block; }
+        .pr-wx-band { position: absolute; left: 0; right: 0; top: 0; height: 5px; }
+        .pr-wx-seg { position: absolute; top: 0; height: 5px; }
+        .pr-wx-seg.pr-dry { background: rgba(250, 204, 21, 0.35); }
+        .pr-wx-seg.pr-maybe { background: #7dd3fc; }
+        .pr-wx-seg.pr-rain { background: #3b82f6; }
+        .pr-wx-seg.pr-heavy { background: #1d4ed8; }
+        .pr-wx-seg.pr-snow { background: #e2e8f0; }
+        .pr-wx-seg.pr-storm { background: #a855f7; }
+        .pr-wx-cell {
+            position: absolute; top: 8px; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 2px;
+            background: none; border: 0; padding: 0 2px; cursor: pointer;
+            color: #e2e8f0; font-size: 11px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums;
+        }
+        .pr-wx-arrow { display: inline-block; font-size: 13px; line-height: 1; margin-left: 2px; }
+
+        /* map symbols */
+        .pr-wx-marker { background: none !important; border: 0 !important; }
+        .pr-wx-pin {
+            display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px;
+            background: rgba(5, 12, 24, 0.88); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 12px;
+            color: #f8fafc; font-size: 12px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+        }
+        .pr-wx-pin b { font-weight: 700; font-variant-numeric: tabular-nums; }
+        .pr-wx-pin i { font-style: normal; font-weight: 700; display: inline-block; margin-left: 2px; }
+        .pr-wx-pin.pr-rain, .pr-wx-pin.pr-heavy { border-color: #3b82f6; }
+        .pr-wx-pin.pr-storm { border-color: #a855f7; }
+        .pr-wx-popup .leaflet-popup-content-wrapper { background: #050c18; color: #e2e8f0; border: 1px solid rgba(0, 240, 255, 0.3); }
+        .pr-wx-popup .leaflet-popup-tip { background: #050c18; }
+        .pr-wx-pop { font-size: 13px; line-height: 1.55; }
+        .pr-wx-pop-head { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+
+        /* departure row in the routing panel */
+        .pr-dep-row {
+            display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; margin: 0 0 14px; padding: 8px 12px;
+            background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.22); border-radius: 12px;
+            color: #e2e8f0; text-align: left; cursor: pointer;
+        }
+        .pr-dep-lab { font-size: 12px; font-weight: 700; color: rgba(226, 232, 240, 0.75); white-space: nowrap; }
+        .pr-dep-val { flex: 1; min-width: 0; color: #00f0ff; font-family: 'Courier New', monospace; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+        .pr-dep-chev { color: rgba(226, 232, 240, 0.5); font-size: 20px; }
+
+        /* departure picker */
+        #prWxModal { display: none; position: fixed; inset: 0; z-index: 10060; background: rgba(0, 0, 0, 0.55); align-items: center; justify-content: center; padding: 16px; }
+        #prWxModal.pr-open { display: flex; }
+        .pr-wx-card {
+            width: 100%; max-width: 460px; max-height: calc(100dvh - 32px); overflow-y: auto; padding: 16px;
+            background: #050c18; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 16px; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            color: #e2e8f0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        .pr-wx-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        #prWxTitle { font-size: 17px; font-weight: 700; color: #fff; }
+        .pr-wx-arr { margin-top: 2px; font-size: 13px; color: rgba(226, 232, 240, 0.7); }
+        .pr-wx-x { width: 36px; height: 36px; flex-shrink: 0; background: rgba(255, 255, 255, 0.06); border: 0; border-radius: 10px; color: rgba(255, 255, 255, 0.8); font-size: 22px; line-height: 1; cursor: pointer; }
+        .pr-wx-step { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .pr-wx-step button { min-width: 64px; height: 48px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .pr-wx-step button:disabled { opacity: 0.3; cursor: default; }
+        .pr-wx-now { text-align: center; color: #00f0ff; font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .pr-wx-lab { margin: 4px 0 6px; font-size: 12px; font-weight: 600; color: rgba(226, 232, 240, 0.7); }
+        .pr-wx-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: thin; }
+        .pr-wx-days button { flex-shrink: 0; min-height: 38px; padding: 0 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 19px; color: #e2e8f0; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .pr-wx-hours { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 12px; }
+        .pr-wx-hours button { min-height: 38px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; color: #e2e8f0; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; cursor: pointer; }
+        .pr-wx-hours button:disabled { opacity: 0.25; cursor: default; }
+        .pr-wx-days button.pr-on, .pr-wx-hours button.pr-on { background: #00f0ff; border-color: #00f0ff; color: #001018; }
+        .pr-wx-card button:focus-visible, .pr-wx-maptoggle input:focus-visible { outline: 2px solid #00f0ff; outline-offset: 2px; }
+        .pr-wx-result { padding: 10px 12px; margin-bottom: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; font-size: 14px; font-weight: 600; line-height: 1.45; }
+        .pr-wx-maptoggle { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 13px; cursor: pointer; }
+        .pr-wx-maptoggle input { width: 18px; height: 18px; accent-color: #00f0ff; }
+        .pr-wx-note { margin: 6px 0 12px; font-size: 12px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
+        .pr-wx-done { width: 100%; min-height: 46px; background: #00f0ff; border: 0; border-radius: 12px; color: #001018; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+        /* mobile: compact line above the route bar */
+        #prWxBar { display: none !important; }
+        @media (pointer: coarse) {
+            #prWxBar.pr-on.pr-visible { display: flex !important; }
+            #prWxBar {
+                position: fixed; left: 8px; right: 8px; bottom: var(--pr-wx, 128px); height: 40px; padding: 0 4px;
+                background: rgba(0, 8, 20, 0.92); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                z-index: 1001; font-size: 13px;
+            }
+            #prWxBar .pr-wx-dep { height: 32px; padding: 0 8px; font-size: 12px; }
+            #prWxBar .pr-wx-text { height: 100%; }
+            #prWxLine .pr-wx-dep { min-height: 32px; font-size: 12px; }
+            .elevation-profile.pr-wx { height: clamp(220px, 36vh, 300px) !important; max-height: 55vh !important; }
+            .pr-wx-cell { font-size: 12px; top: 9px; }
+            .pr-wx-card { max-width: none; border-radius: 20px 20px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-height: 90dvh; }
+            #prWxModal { align-items: flex-end; padding: 0; }
+            .pr-wx-hours { grid-template-columns: repeat(6, 1fr); }
+            .pr-wx-hours button, .pr-wx-days button { min-height: 44px; }
+        }
+        @media (pointer: coarse) and (max-height: 500px) {
+            #prWxLine { display: none !important; }
+            .elevation-profile.pr-wx { height: 48vh !important; }
+        }
+    </style>
 </head>
 <body>
     <div id="loadingMessage">Lade Karte...</div>
@@ -5452,6 +5583,12 @@
             <span id="prBarSendLabel">Senden</span>
         </button>
     </div>
+
+    <!-- Mobile: weather line above the route bar -->
+    <div id="prWxBar" class="pr-wx-line">
+            <button type="button" class="pr-wx-dep" aria-label="Abfahrtszeit ändern"></button>
+            <button type="button" class="pr-wx-text" aria-label="Wetter entlang der Route"></button>
+        </div>
 
     <!-- Mobile: routing profile chips (Gravel / Straße; third chip = current variant → fine settings) -->
     <div id="prChips" role="radiogroup" aria-label="Routing-Profil">
@@ -5904,6 +6041,12 @@
             </div>
         </div>
 
+        <!-- Route weather: departure + summary (desktop; mobile inside the sheet) -->
+        <div id="prWxLine" class="pr-wx-line">
+            <button type="button" class="pr-wx-dep" aria-label="Abfahrtszeit ändern"></button>
+            <button type="button" class="pr-wx-text" aria-label="Wetter entlang der Route"></button>
+        </div>
+
         <!-- Chart Toggle Buttons -->
         <div class="chart-toggles" style="padding: 3px 10px 0; flex-shrink: 0;">
             <button class="chart-toggle-btn active" id="toggleElevationChart" title="Höhenprofil anzeigen/ausblenden">
@@ -5955,6 +6098,8 @@
         <div id="elevationChartWrap" style="flex:1; min-height:0; position:relative; width:100%;">
             <canvas id="elevationChart" style="display:block; width:100%; height:100%;"></canvas>
         </div>
+        <!-- Route weather strip, aligned with the km axis -->
+        <div id="prWxStrip" aria-label="Wetter entlang der Route"></div>
     </div>
 
     <div class="control-panel" id="controlPanel">
@@ -17223,7 +17368,7 @@ ${cueWpts}  <trk>
                             ℹ️ <strong>Hinweis:</strong> Diese Karten-Layer zeigen nur <strong>aktuelles Wetter</strong>.
                         </p>
                         <p style="color: var(--primary-05); font-size: 10px; margin: 0; line-height: 1.5;">
-                            Für Wettervorhersage entlang deiner Route nutze den <strong>🌤️ Wetter-Button im Höhenprofil</strong> – dort kannst du die Abfahrtszeit wählen und siehst Wetter-Icons direkt in der Route!
+                            Das Wetter entlang deiner Route zur jeweiligen Ankunftszeit erscheint automatisch, sobald eine Route steht: im <strong>Höhenprofil</strong> (am Handy in der Zeile über der Routenleiste). Dort mit 🕘 die Abfahrtszeit wählen.
                         </p>
                     </div>
                     
@@ -20262,6 +20407,14 @@ ${cueWpts}  <trk>
             const sheetOpen = profile.classList.contains('show');
             if (sheetOpen) above += profile.getBoundingClientRect().height + 6;
             else if (bar.classList.contains('pr-show')) above += bar.offsetHeight + 6;
+            // Weather line sits right above the route bar (only with a route and a closed profile)
+            const wxEl = document.getElementById('prWxBar');
+            if (wxEl) {
+                const showWx = !sheetOpen && bar.classList.contains('pr-show') && !bar.classList.contains('pr-hint')
+                    && wxEl.classList.contains('pr-on') && window.innerHeight - above > 260;
+                wxEl.classList.toggle('pr-visible', showWx);
+                if (showWx) { root.style.setProperty('--pr-wx', above + 'px'); above += wxEl.offsetHeight + 6; }
+            }
             const chipsEl = document.getElementById('prChips');
             if (chipsEl) {
                 chipsEl.classList.toggle('pr-hidden', window.innerHeight - above < 150);
@@ -21442,7 +21595,7 @@ ${cueWpts}  <trk>
         function setLastKm(km) {
             if (km == null) return;
             lastKm = km;
-            if (addBtn) addBtn.textContent = `+ Hinweis km ${km.toFixed(1)}`;
+            if (addBtn) addBtn.textContent = isTouch() ? '+ Hinweis' : `+ Hinweis km ${km.toFixed(1)}`;
         }
         const canvas = document.getElementById('elevationChart');
         if (canvas) {
@@ -21561,6 +21714,527 @@ ${cueWpts}  <trk>
         wrap('clearRoutes', () => render());
 
         render();
+    })();
+    </script>
+
+    <!-- ═══ ROUTE WEATHER v3.68: weather at arrival time along the route (Open-Meteo) ═══ -->
+    <script>
+    (function initRouteWeather() {
+        const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+        const DEP_KEY = 'pixelruud_departure', MAP_KEY = 'pixelruud_wx_map';
+        const MAX_DAYS = 14;                 // departure can be planned up to two weeks ahead
+        const STALE_MS = 60 * 60 * 1000;     // refresh forecast data after an hour
+        const toast = (msg, type) => { if (typeof showToast === 'function') showToast(msg, type || 'info'); };
+        const store = {
+            get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }
+        };
+        const DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+        const pad = n => String(n).padStart(2, '0');
+        const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+
+        // ── Departure time (hourly, today … +14 days) ───────────────────────
+        function nextFullHour() { const d = new Date(); d.setMinutes(0, 0, 0); d.setHours(d.getHours() + 1); return d; }
+        function validDeparture(d) {
+            const min = new Date(); min.setMinutes(0, 0, 0);
+            const max = new Date(); max.setDate(max.getDate() + MAX_DAYS); max.setHours(23, 0, 0, 0);
+            return d instanceof Date && !isNaN(d) && d >= min && d <= max;
+        }
+        let departure = (() => { const v = new Date(store.get(DEP_KEY) || ''); return validDeparture(v) ? v : nextFullHour(); })();
+        function setDeparture(d) {
+            d = new Date(d); d.setMinutes(0, 0, 0);
+            if (!validDeparture(d)) return;
+            departure = d;
+            store.set(DEP_KEY, d.toISOString());
+            compute(); renderAll();
+        }
+        function dayLabel(d) {
+            const t = new Date(); t.setHours(0, 0, 0, 0);
+            const x = new Date(d); x.setHours(0, 0, 0, 0);
+            const diff = Math.round((x - t) / 86400000);
+            if (diff === 0) return 'Heute';
+            if (diff === 1) return 'Morgen';
+            return `${DAYS[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth() + 1)}.`;
+        }
+        const depLabel = () => `${dayLabel(departure)} ${hhmm(departure)}`;
+        const speed = () => { try { return averageSpeed || 25; } catch (e) { return 25; } };
+
+        // ── Route geometry ──────────────────────────────────────────────────
+        function routeCoords() {
+            try { const c = routes[0] && routes[0].coordinates; return (c && c.length > 1) ? c : null; } catch (e) { return null; }
+        }
+        function hav(a, b) {
+            const R = 6371, r = Math.PI / 180, dLat = (b[0] - a[0]) * r, dLng = (b[1] - a[1]) * r;
+            const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLng / 2) ** 2;
+            return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+        }
+        function bearing(a, b) {
+            const r = Math.PI / 180, y = Math.sin((b[1] - a[1]) * r) * Math.cos(b[0] * r);
+            const x = Math.cos(a[0] * r) * Math.sin(b[0] * r) - Math.sin(a[0] * r) * Math.cos(b[0] * r) * Math.cos((b[1] - a[1]) * r);
+            return (Math.atan2(y, x) / r + 360) % 360;
+        }
+        // Points every ~30 min of riding (6–24 points), each with km and riding direction
+        function buildSamples(c) {
+            const cum = [0];
+            for (let i = 1; i < c.length; i++) cum.push(cum[i - 1] + hav(c[i - 1], c[i]));
+            const total = cum[cum.length - 1];
+            if (total < 0.2) return null;
+            const n = Math.max(6, Math.min(24, Math.ceil(total / (speed() * 0.5)) + 1));
+            const at = km => {
+                km = Math.max(0, Math.min(total, km));
+                let i = 1; while (i < c.length - 1 && cum[i] < km) i++;
+                const t = (km - cum[i - 1]) / Math.max(cum[i] - cum[i - 1], 1e-9);
+                return [c[i - 1][0] + (c[i][0] - c[i - 1][0]) * t, c[i - 1][1] + (c[i][1] - c[i - 1][1]) * t];
+            };
+            const pts = [];
+            for (let k = 0; k < n; k++) {
+                const km = total * k / (n - 1);
+                const p = at(km);
+                const d = Math.min(0.3, total / 10);   // riding direction from 300 m before to 300 m after the point
+                const b = bearing(at(km - d), at(km + d));
+                pts.push({ km, lat: p[0], lng: p[1], heading: isFinite(b) ? b : 0 });
+            }
+            return { total, pts };
+        }
+
+        // ── Forecast data: one request for all points, 16 days hourly ───────
+        let geoKey = null, samples = null, data = null, fetchedAt = 0, loading = false, failed = false, reqId = 0;
+        let rows = [];   // computed per point for the current departure + speed
+        const keyOf = c => [c.length, c[0][0].toFixed(4), c[0][1].toFixed(4), c[c.length - 1][0].toFixed(4), c[c.length - 1][1].toFixed(4), c[Math.floor(c.length / 2)][0].toFixed(4)].join('|');
+
+        async function fetchForecast() {
+            if (!samples) return;
+            const id = ++reqId;
+            loading = true; failed = false; renderAll();
+            const lat = samples.pts.map(p => p.lat.toFixed(4)).join(',');
+            const lng = samples.pts.map(p => p.lng.toFixed(4)).join(',');
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lng +
+                '&hourly=temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
+                '&wind_speed_unit=kmh&timeformat=unixtime&timezone=GMT&forecast_days=16';
+            try {
+                const res = await fetch(url, { signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                let json = await res.json();
+                if (id !== reqId) return;
+                if (!Array.isArray(json)) json = [json];
+                if (json.length !== samples.pts.length || !json[0].hourly) throw new Error('unexpected response');
+                data = json.map(j => j.hourly);
+                fetchedAt = Date.now();
+                if (window.trackPixelRuudEvent) window.trackPixelRuudEvent('Route Weather Loaded', { title: 'Weather: ' + samples.pts.length + ' points' });
+            } catch (e) {
+                if (id !== reqId) return;
+                console.warn('Route weather failed:', e);
+                failed = true; data = null;
+            }
+            loading = false;
+            compute(); renderAll();
+        }
+
+        function onRouteChanged() {
+            const c = routeCoords();
+            if (!c) { geoKey = null; samples = null; data = null; rows = []; renderAll(); return; }
+            const k = keyOf(c);
+            if (k === geoKey && data && Date.now() - fetchedAt < STALE_MS) { compute(); renderAll(); return; }
+            geoKey = k;
+            samples = buildSamples(c);
+            data = null; rows = [];
+            if (!samples) { renderAll(); return; }
+            clearTimeout(onRouteChanged.t);
+            onRouteChanged.t = setTimeout(fetchForecast, 900);   // route segments arrive one by one → wait for the final line
+            renderAll();
+        }
+
+        // ── Value at the arrival time of each point ─────────────────────────
+        function windRel(fromDeg, heading) {
+            // angle between where the wind comes from and where the rider goes: 0 = straight headwind
+            return ((fromDeg - heading + 540) % 360) - 180;
+        }
+        function classify(r) {
+            if (r.code >= 95) return 'storm';
+            if ((r.code >= 71 && r.code <= 77) || r.code === 85 || r.code === 86) return r.precip >= 0.1 || r.prob >= 50 ? 'snow' : 'maybe';
+            if (r.precip >= 2) return 'heavy';
+            if (r.precip >= 0.3 || (r.prob >= 60 && r.code >= 51)) return 'rain';
+            if (r.prob >= 30 || r.precip >= 0.1) return 'maybe';
+            return 'dry';
+        }
+        function compute() {
+            rows = [];
+            if (!samples || !data) return;
+            const dep = departure.getTime(), v = speed();
+            samples.pts.forEach((p, i) => {
+                const h = data[i], t = h.time;
+                const ts = (dep + p.km / v * 3600000) / 1000;
+                if (ts < t[0] || ts > t[t.length - 1]) { rows.push({ p, ts, out: true }); return; }
+                let j = 0; while (j < t.length - 2 && t[j + 1] <= ts) j++;
+                const f = Math.max(0, Math.min(1, (ts - t[j]) / (t[j + 1] - t[j])));
+                const lin = a => (a[j] == null || a[j + 1] == null) ? (a[j] ?? a[j + 1]) : a[j] + (a[j + 1] - a[j]) * f;
+                const near = f < 0.5 ? j : j + 1;
+                const hourOf = Math.min(t.length - 1, j + 1);   // precipitation = sum of the preceding hour
+                const r = {
+                    p, ts,
+                    temp: lin(h.temperature_2m),
+                    precip: h.precipitation[hourOf] || 0,
+                    prob: h.precipitation_probability ? (h.precipitation_probability[hourOf] || 0) : 0,
+                    code: h.weather_code[near] || 0,
+                    wind: lin(h.wind_speed_10m) || 0,
+                    gust: lin(h.wind_gusts_10m) || 0,
+                    dir: h.wind_direction_10m[near] || 0
+                };
+                r.rel = windRel(r.dir, p.heading);
+                r.head = r.wind * Math.cos(r.rel * Math.PI / 180);   // > 0 headwind, < 0 tailwind
+                r.windKind = r.wind < 8 ? 'calm' : Math.abs(r.rel) <= 45 ? 'head' : Math.abs(r.rel) >= 135 ? 'tail' : 'cross';
+                r.cls = classify(r);
+                rows.push(r);
+            });
+            const ok = rows.filter(r => !r.out);
+            if (ok.length) {
+                // Pixel Wardrobe reads these
+                window.lastWeatherTemp = Math.round(ok[0].temp * 10) / 10;
+                const temps = ok.map(r => r.temp);
+                window.weatherRouteMin = Math.round(Math.min(...temps) * 10) / 10;
+                window.weatherRouteMax = Math.round(Math.max(...temps) * 10) / 10;
+            }
+        }
+
+        const ICON = { dry: c => c === 0 ? '☀️' : c <= 2 ? '🌤️' : (c >= 45 && c <= 48) ? '🌫️' : '☁️', maybe: () => '🌦️', rain: () => '🌧️', heavy: () => '🌧️', snow: () => '🌨️', storm: () => '⛈️' };
+        const iconOf = r => (ICON[r.cls] || ICON.dry)(r.code);
+        const WIND_LABEL = { head: 'Gegenwind', tail: 'Rückenwind', cross: 'Seitenwind', calm: 'kaum Wind' };
+        const WIND_COLOR = { head: '#f87171', tail: '#4ade80', cross: '#fbbf24', calm: '#94a3b8' };
+        const arrival = () => samples ? new Date(departure.getTime() + samples.total / speed() * 3600000) : null;
+
+        function summary() {
+            const ok = rows.filter(r => !r.out);
+            if (!ok.length) return null;
+            const temps = ok.map(r => Math.round(r.temp));
+            const tMin = Math.min(...temps), tMax = Math.max(...temps);
+            const temp = tMin === tMax ? `${tMin}°` : `${tMin}–${tMax}°`;
+            const wet = r => ['rain', 'heavy', 'snow', 'storm'].includes(r.cls);
+            const firstWet = ok.find(wet), firstMaybe = ok.find(r => r.cls === 'maybe');
+            let rain, rainShort, rainIcon;
+            if (firstWet) {
+                const lastWet = [...ok].reverse().find(wet);
+                const what = ok.some(r => r.cls === 'snow') ? 'Schnee' : ok.some(r => r.cls === 'storm') ? 'Gewitter' : 'Regen';
+                if (ok.every(wet)) { rain = `${what} auf der ganzen Strecke`; rainShort = `${what} durchgehend`; }
+                else if (firstWet === ok[0]) { rain = `${what} ab Start bis km ${Math.round(lastWet.p.km)}`; rainShort = `${what} bis km ${Math.round(lastWet.p.km)}`; }
+                else { rain = `${what} ab km ${Math.round(firstWet.p.km)} (ca. ${hhmm(new Date(firstWet.ts * 1000))})`; rainShort = `${what} ab km ${Math.round(firstWet.p.km)}`; }
+                rainIcon = iconOf(firstWet);
+            } else if (firstMaybe) {
+                rain = `Schauer möglich ab km ${Math.round(firstMaybe.p.km)}`; rainShort = `Schauer ab km ${Math.round(firstMaybe.p.km)}`; rainIcon = '🌦️';
+            } else {
+                rain = 'trocken'; rainShort = 'trocken';
+                const codes = ok.map(r => r.code); rainIcon = ICON.dry(Math.round(codes.reduce((a, b) => a + b, 0) / codes.length));
+            }
+            const avgHead = ok.reduce((a, r) => a + r.head, 0) / ok.length;
+            const avgWind = ok.reduce((a, r) => a + r.wind, 0) / ok.length;
+            let wind, windKind;
+            if (avgWind < 8) { wind = 'kaum Wind'; windKind = 'calm'; }
+            else if (avgHead >= 4) { wind = `meist Gegenwind (Ø ${Math.round(avgWind)} km/h)`; windKind = 'head'; }
+            else if (avgHead <= -4) { wind = `meist Rückenwind (Ø ${Math.round(avgWind)} km/h)`; windKind = 'tail'; }
+            else { wind = `Seitenwind (Ø ${Math.round(avgWind)} km/h)`; windKind = 'cross'; }
+            const gust = Math.max(...ok.map(r => r.gust));
+            if (gust >= 45) wind += `, Böen bis ${Math.round(gust)} km/h`;
+            const partial = rows.some(r => r.out);
+            return { temp, rain, rainShort, rainIcon, wind, windKind, partial,
+                     text: `${temp} · ${rain} · ${wind}`, short: `${temp} · ${rainShort} · ${WIND_LABEL[windKind]}` };
+        }
+
+        // ── UI: summary line (mobile above the route bar, desktop + mobile inside the profile) ──
+        const bar = document.getElementById('prWxBar');
+        const line = document.getElementById('prWxLine');
+        const strip = document.getElementById('prWxStrip');
+        const profileEl = document.getElementById('elevationProfile');
+
+        function statusText() {
+            if (!samples) return null;
+            if (loading && !data) return { text: 'Wetter wird geladen …', short: 'Wetter wird geladen …', icon: '⏳' };
+            if (failed) return { text: 'Wetter gerade nicht verfügbar – antippen zum erneut Laden', short: 'Wetter nicht verfügbar – neu laden', icon: '⚠️', retry: true };
+            const s = summary();
+            if (!s) {
+                const first = rows[0];
+                return { text: 'Für diese Abfahrt gibt es noch keine Vorhersage (max. 16 Tage)', short: 'Noch keine Vorhersage', icon: '📅', noData: true, first };
+            }
+            return { text: s.text + (s.partial ? ' · Vorhersage reicht nicht bis zum Ziel' : ''), short: s.short, icon: s.rainIcon, windKind: s.windKind };
+        }
+        function fillLine(el, compact) {
+            if (!el) return;
+            const st = statusText();
+            el.classList.toggle('pr-on', !!st);
+            if (!st) return;
+            const dep = el.querySelector('.pr-wx-dep'), txt = el.querySelector('.pr-wx-text');
+            if (dep) dep.textContent = depLabel();
+            if (txt) {
+                txt.textContent = '';
+                const i = document.createElement('span'); i.className = 'pr-wx-ico'; i.textContent = st.icon;
+                const t = document.createElement('span'); t.className = 'pr-wx-sum'; t.textContent = compact ? st.short : st.text;
+                txt.append(i, t);
+                if (st.windKind && !compact) txt.dataset.wind = st.windKind; else delete txt.dataset.wind;
+                txt.dataset.retry = st.retry ? '1' : '';
+                txt.title = st.text;
+            }
+        }
+        function renderAll() {
+            fillLine(bar, true);
+            fillLine(line, isTouch());
+            if (profileEl) profileEl.classList.toggle('pr-wx', !!samples);
+            const td = document.getElementById('weatherTimeDisplay');
+            if (td) td.textContent = depLabel();        // Pixel Wardrobe reads the start time here
+            refreshDepRows();
+            try { renderStrip(); } catch (e) { console.warn('Weather strip:', e); }
+            try { renderMap(); } catch (e) { console.warn('Weather map:', e); }
+            if (typeof window._prLayout === 'function') window._prLayout();
+            if (picker.classList.contains('pr-open')) fillPicker();
+        }
+
+        // ── Weather strip under the elevation profile ───────────────────────
+        function renderStrip() {
+            if (!strip) return;
+            strip.textContent = '';
+            const ch = window.elevationChart;
+            const ok = rows.filter(r => !r.out);
+            if (!ok.length || !ch || !ch.canvas || !ch.scales || !ch.scales.x || !ch.chartArea || !profileEl.classList.contains('show')) { strip.classList.remove('pr-on'); return; }
+            strip.classList.add('pr-on');
+            const sx = ch.scales.x, wrapRect = strip.getBoundingClientRect(), canRect = ch.canvas.getBoundingClientRect();
+            const off = canRect.left - wrapRect.left;
+            const ratio = samples && samples.total ? (sx.max || samples.total) / samples.total : 1;
+            const xs = ok.map(r => off + sx.getPixelForValue(r.p.km * ratio));
+            // rain band: one segment per point, reaching halfway to the neighbours
+            const band = document.createElement('div'); band.className = 'pr-wx-band';
+            ok.forEach((r, i) => {
+                const l = i ? (xs[i - 1] + xs[i]) / 2 : off + ch.chartArea.left;
+                const rr = i < ok.length - 1 ? (xs[i] + xs[i + 1]) / 2 : off + ch.chartArea.right;
+                const s = document.createElement('span');
+                s.className = 'pr-wx-seg pr-' + r.cls;
+                s.style.left = l + 'px'; s.style.width = Math.max(1, rr - l) + 'px';
+                band.appendChild(s);
+            });
+            strip.appendChild(band);
+            const spacing = ok.length > 1 ? (xs[xs.length - 1] - xs[0]) / (ok.length - 1) : 999;
+            const every = Math.max(1, Math.ceil(58 / Math.max(spacing, 1)));
+            ok.forEach((r, i) => {
+                if (i % every !== 0 && i !== ok.length - 1) return;
+                if (i === ok.length - 1 && i % every !== 0 && spacing * (i % every) < 40) return;
+                const c = document.createElement('button');
+                c.type = 'button'; c.className = 'pr-wx-cell';
+                c.style.left = xs[i] + 'px';
+                c.title = detailText(r);
+                const a = document.createElement('span'); a.className = 'pr-wx-arrow'; a.textContent = '↑';
+                a.style.color = WIND_COLOR[r.windKind];
+                a.style.transform = `rotate(${Math.round(r.rel + 180)}deg)`;
+                c.append(iconOf(r), ' ' + Math.round(r.temp) + '°', a);
+                c.addEventListener('click', () => showDetail(r));
+                strip.appendChild(c);
+            });
+        }
+        function detailText(r) {
+            const t = new Date(r.ts * 1000);
+            return `km ${r.p.km.toFixed(1)} · ca. ${hhmm(t)} · ${Math.round(r.temp)} °C · ` +
+                (r.precip >= 0.1 ? `${r.precip.toFixed(1)} mm` : 'kein Niederschlag') + ` (${Math.round(r.prob)} %) · ` +
+                `${WIND_LABEL[r.windKind]} ${Math.round(r.wind)} km/h` + (r.gust >= 30 ? `, Böen ${Math.round(r.gust)}` : '');
+        }
+        function showDetail(r) {
+            try {
+                L.popup({ className: 'pr-wx-popup', autoPan: true }).setLatLng([r.p.lat, r.p.lng]).setContent(popupHtml(r)).openOn(map);
+            } catch (e) {}
+        }
+        function popupHtml(r) {
+            const t = new Date(r.ts * 1000);
+            const precip = r.precip >= 0.1 ? `${r.precip.toFixed(1)} mm/h` : 'kein Niederschlag';
+            return `<div class="pr-wx-pop"><div class="pr-wx-pop-head">${iconOf(r)} ${Math.round(r.temp)} °C</div>` +
+                `<div>km ${r.p.km.toFixed(1)} · Ankunft ca. ${hhmm(t)}</div>` +
+                `<div>${precip} · Regenrisiko ${Math.round(r.prob)} %</div>` +
+                `<div style="color:${WIND_COLOR[r.windKind]}">${WIND_LABEL[r.windKind]} ${Math.round(r.wind)} km/h` + (r.gust >= 30 ? ` · Böen ${Math.round(r.gust)} km/h` : '') + `</div></div>`;
+        }
+        try {
+            if (window.Chart && typeof Chart.register === 'function') {
+                Chart.register({ id: 'prWxStrip', afterRender(chart) {
+                    if (chart.canvas && chart.canvas.id === 'elevationChart') { cancelAnimationFrame(renderStrip.raf); renderStrip.raf = requestAnimationFrame(() => { try { renderStrip(); } catch (e) {} }); }
+                } });
+            }
+        } catch (e) {}
+        window.addEventListener('resize', () => { cancelAnimationFrame(renderStrip.raf); renderStrip.raf = requestAnimationFrame(() => { try { renderStrip(); } catch (e) {} }); });
+        if (profileEl) new MutationObserver(() => requestAnimationFrame(() => { try { renderStrip(); } catch (e) {} })).observe(profileEl, { attributes: true, attributeFilter: ['class'] });
+
+        // ── Weather symbols on the map ──────────────────────────────────────
+        let mapLayer = null;
+        const mapOn = () => store.get(MAP_KEY) !== '0';
+        function renderMap() {
+            if (!mapLayer) { try { mapLayer = L.layerGroup().addTo(map); } catch (e) { return; } }
+            mapLayer.clearLayers();
+            const ok = rows.filter(r => !r.out);
+            if (!mapOn() || !ok.length) return;
+            const every = Math.max(1, Math.ceil(ok.length / 10));
+            ok.forEach((r, i) => {
+                if (i % every !== 0 && i !== ok.length - 1) return;
+                const html = `<div class="pr-wx-pin pr-${r.cls}"><span>${iconOf(r)}</span><b>${Math.round(r.temp)}°</b>` +
+                    `<i style="color:${WIND_COLOR[r.windKind]};transform:rotate(${Math.round(r.rel + 180)}deg)">↑</i></div>`;
+                L.marker([r.p.lat, r.p.lng], {
+                    icon: L.divIcon({ className: 'pr-wx-marker', html, iconSize: [64, 26], iconAnchor: [32, 34] }),
+                    keyboard: false, interactive: true, zIndexOffset: 300
+                }).bindPopup(popupHtml(r), { className: 'pr-wx-popup' }).addTo(mapLayer);
+            });
+        }
+
+        // ── Departure picker (one dialog for desktop and mobile) ────────────
+        const picker = document.createElement('div');
+        picker.id = 'prWxModal';
+        picker.innerHTML = `
+            <div class="pr-wx-card" role="dialog" aria-modal="true" aria-labelledby="prWxTitle">
+                <div class="pr-wx-card-head">
+                    <div><div id="prWxTitle">Abfahrt</div><div class="pr-wx-arr" id="prWxArr"></div></div>
+                    <button type="button" class="pr-wx-x" aria-label="Schließen">×</button>
+                </div>
+                <div class="pr-wx-step">
+                    <button type="button" class="pr-wx-minus" aria-label="Eine Stunde früher">−1 h</button>
+                    <div class="pr-wx-now" id="prWxNow" aria-live="polite"></div>
+                    <button type="button" class="pr-wx-plus" aria-label="Eine Stunde später">+1 h</button>
+                </div>
+                <div class="pr-wx-lab">Tag</div>
+                <div class="pr-wx-days" role="radiogroup" aria-label="Tag"></div>
+                <div class="pr-wx-lab">Uhrzeit</div>
+                <div class="pr-wx-hours" role="radiogroup" aria-label="Uhrzeit"></div>
+                <div class="pr-wx-result" id="prWxResult"></div>
+                <label class="pr-wx-maptoggle"><input type="checkbox" id="prWxMapChk"> Wetter-Symbole auf der Karte zeigen</label>
+                <p class="pr-wx-note">Ankunftszeiten aus deinem Ø-Tempo, ohne Steigungen. Vorhersage: Open-Meteo, stündlich, bis 16 Tage – ab dem dritten Tag eher ein Trend.</p>
+                <button type="button" class="pr-wx-done">Fertig</button>
+            </div>`;
+        document.body.appendChild(picker);
+        const $p = s => picker.querySelector(s);
+        let lastFocus = null;
+        function fillPicker() {
+            $p('#prWxNow').textContent = depLabel();
+            const arr = arrival();
+            $p('#prWxArr').textContent = arr
+                ? `Ankunft ca. ${dayLabel(arr) === dayLabel(departure) ? '' : dayLabel(arr) + ' '}${hhmm(arr)} · ${Math.floor(samples.total / speed())}:${pad(Math.round(samples.total / speed() * 60) % 60)} h bei ${speed()} km/h`
+                : 'Ankunftszeit erscheint, sobald eine Route steht';
+            const st = statusText();
+            $p('#prWxResult').textContent = st ? st.text : '';
+            $p('#prWxResult').style.display = st ? '' : 'none';
+            const minH = new Date(); minH.setMinutes(0, 0, 0);
+            const days = $p('.pr-wx-days'); days.textContent = '';
+            for (let k = 0; k <= MAX_DAYS; k++) {
+                const d = new Date(); d.setDate(d.getDate() + k); d.setHours(departure.getHours(), 0, 0, 0);
+                const b = document.createElement('button');
+                b.type = 'button'; b.setAttribute('role', 'radio');
+                const on = d.toDateString() === departure.toDateString();
+                b.className = on ? 'pr-on' : ''; b.setAttribute('aria-checked', on ? 'true' : 'false');
+                b.textContent = dayLabel(d);
+                b.addEventListener('click', () => { let x = new Date(d); if (x < minH) x = nextFullHour(); setDeparture(x); });
+                days.appendChild(b);
+            }
+            const hours = $p('.pr-wx-hours'); hours.textContent = '';
+            for (let h = 0; h < 24; h++) {
+                const d = new Date(departure); d.setHours(h, 0, 0, 0);
+                const b = document.createElement('button');
+                b.type = 'button'; b.setAttribute('role', 'radio'); b.textContent = pad(h);
+                const on = h === departure.getHours();
+                b.className = on ? 'pr-on' : ''; b.setAttribute('aria-checked', on ? 'true' : 'false');
+                b.disabled = !validDeparture(d);
+                b.addEventListener('click', () => setDeparture(d));
+                hours.appendChild(b);
+            }
+            $p('.pr-wx-minus').disabled = !validDeparture(new Date(departure.getTime() - 3600000));
+            $p('.pr-wx-plus').disabled = !validDeparture(new Date(departure.getTime() + 3600000));
+            $p('#prWxMapChk').checked = mapOn();
+            const sel = days.querySelector('.pr-on'); if (sel && sel.scrollIntoView) sel.scrollIntoView({ inline: 'center', block: 'nearest' });
+        }
+        function openPicker() {
+            if (!validDeparture(departure)) departure = nextFullHour();
+            if (samples && data && Date.now() - fetchedAt > STALE_MS) fetchForecast();
+            lastFocus = document.activeElement;
+            fillPicker();
+            picker.classList.add('pr-open');
+            setTimeout(() => { try { $p('.pr-wx-days .pr-on').focus({ preventScroll: true }); } catch (e) {} }, 50);
+        }
+        function closePicker() {
+            picker.classList.remove('pr-open');
+            if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+        }
+        window.prOpenDeparture = openPicker;
+        $p('.pr-wx-minus').addEventListener('click', () => setDeparture(new Date(departure.getTime() - 3600000)));
+        $p('.pr-wx-plus').addEventListener('click', () => setDeparture(new Date(departure.getTime() + 3600000)));
+        $p('.pr-wx-x').addEventListener('click', closePicker);
+        $p('.pr-wx-done').addEventListener('click', closePicker);
+        $p('#prWxMapChk').addEventListener('change', e => { store.set(MAP_KEY, e.target.checked ? '1' : '0'); renderMap(); });
+        picker.addEventListener('click', e => { if (e.target === picker) closePicker(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && picker.classList.contains('pr-open')) closePicker(); });
+
+        // Lines: departure part opens the picker, summary part opens the profile (or retries)
+        [bar, line].forEach(el => {
+            if (!el) return;
+            const dep = el.querySelector('.pr-wx-dep'), txt = el.querySelector('.pr-wx-text');
+            if (dep) dep.addEventListener('click', e => { e.stopPropagation(); openPicker(); });
+            if (dep) dep.addEventListener('mousedown', e => e.stopPropagation());
+            if (txt) txt.addEventListener('click', e => {
+                e.stopPropagation();
+                if (txt.dataset.retry === '1') { fetchForecast(); return; }
+                if (el === bar && typeof window.toggleElevationFromBadge === 'function') window.toggleElevationFromBadge();
+                else openPicker();
+            });
+        });
+
+        // "Abfahrt" row in the routing panel (route sheet on mobile), right under the speed
+        function refreshDepRows() {
+            document.querySelectorAll('.pr-dep-row').forEach(b => {
+                const arr = arrival();
+                b.querySelector('.pr-dep-val').textContent = depLabel() + (arr ? ` → Ankunft ${hhmm(arr)}` : '');
+            });
+        }
+        function addDepRow(panel) {
+            const host = panel.querySelector('.routing-panel-content') || panel.querySelector('.panel-content');
+            if (!host || host.querySelector('.pr-dep-row')) return;
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'pr-dep-row';
+            const l = document.createElement('span'); l.className = 'pr-dep-lab'; l.textContent = '🕘 Abfahrt';
+            const v = document.createElement('span'); v.className = 'pr-dep-val';
+            const c = document.createElement('span'); c.className = 'pr-dep-chev'; c.textContent = '›';
+            b.append(l, v, c);
+            b.addEventListener('click', openPicker);
+            const sp = host.querySelector('.pr-speed');
+            if (sp) sp.after(b); else host.prepend(b);
+            refreshDepRows();
+        }
+        const panelsEl = document.getElementById('floatingPanels');
+        if (panelsEl) new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => {
+            if (n.nodeType === 1 && n.dataset && n.dataset.type === 'routing') setTimeout(() => addDepRow(n), 0);
+        }))).observe(panelsEl, { childList: true });
+
+        // Speed changes only move the arrival times → recompute without a new request
+        document.addEventListener('input', e => {
+            if (e.target && (e.target.id === 'speedSlider' || e.target.id === 'prSpeedSlider')) {
+                clearTimeout(compute.t);
+                compute.t = setTimeout(() => { compute(); renderAll(); }, 60);
+            }
+        });
+
+        // Mobile scrub readout: add arrival time + weather at the touched point
+        if (typeof window._elevScrub === 'function') {
+            const origScrub = window._elevScrub;
+            window._elevScrub = function(d) {
+                origScrub.apply(this, arguments);
+                const ok = rows.filter(r => !r.out);
+                const si = document.getElementById('elevationScrubInfo');
+                if (!ok.length || !si || !d) return;
+                let best = ok[0];
+                const ch = window.elevationChart, cmax = ch && ch.scales && ch.scales.x ? ch.scales.x.max : 0;
+                const km = cmax && samples ? d.distance / cmax * samples.total : d.distance;
+                ok.forEach(r => { if (Math.abs(r.p.km - km) < Math.abs(best.p.km - km)) best = r; });
+                const t = new Date(departure.getTime() + km / speed() * 3600000);
+                si.textContent += ` · ${hhmm(t)} ${iconOf(best)}${Math.round(best.temp)}°`;
+            };
+        }
+
+        // Route drawn / removed → follow
+        const wrap = (name, after) => {
+            const orig = window[name];
+            if (typeof orig !== 'function') return;
+            window[name] = function() { const r = orig.apply(this, arguments); try { after(); } catch (e) { console.warn(e); } return r; };
+        };
+        wrap('showElevationProfile', onRouteChanged);
+        wrap('clearRoutes', onRouteChanged);
+        // Refresh the departure if the page stayed open past it
+        setInterval(() => { if (!validDeparture(departure)) { departure = nextFullHour(); compute(); renderAll(); } }, 5 * 60 * 1000);
+
+        onRouteChanged();
     })();
     </script>
 
