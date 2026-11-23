@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PixelRuud v3.68 | Build: 2026-11-23 20:30 -->
+<!-- PixelRuud v3.69 | Build: 2026-11-23 23:15 -->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -5058,6 +5058,25 @@
         .pr-cue-item-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
         .pr-cue-item-warn { flex-basis: 100%; padding-left: 34px; color: #f59e0b; font-size: 11px; }
         .pr-cue-help { margin: 8px 0 0; font-size: 11px; line-height: 1.5; color: rgba(226, 232, 240, 0.55); }
+
+        /* Desktop: hint + menu near the route */
+        #prCueHoverTip {
+            display: none; position: absolute; z-index: 1000; pointer-events: none;
+            padding: 4px 9px; border-radius: 6px;
+            background: rgba(5, 12, 24, 0.92); border: 1px solid rgba(204, 255, 0, 0.5);
+            color: #ccff00; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: 600; white-space: nowrap;
+        }
+        .pr-cue-near-popup .leaflet-popup-content-wrapper { background: #050c18; border: 1px solid rgba(204, 255, 0, 0.45); border-radius: 10px; }
+        .pr-cue-near-popup .leaflet-popup-content { margin: 8px; }
+        .pr-cue-near-popup .leaflet-popup-tip { background: #050c18; }
+        .pr-cue-near-btn {
+            display: block; width: 100%; padding: 8px 12px;
+            background: rgba(204, 255, 0, 0.12); border: 1px solid rgba(204, 255, 0, 0.5); border-radius: 8px;
+            color: #ccff00; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer;
+        }
+        .pr-cue-near-btn:hover { background: rgba(204, 255, 0, 0.22); }
+        .pr-cue-near-btn:focus-visible { outline: 2px solid #ccff00; outline-offset: 2px; }
+        .pr-cue-near-km { margin-top: 5px; text-align: center; color: rgba(226, 232, 240, 0.6); font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; }
 
         /* Buttons in POI popups and search results */
         .pr-cue-poi-btn, .pr-cue-search-btn {
@@ -21444,7 +21463,7 @@ ${cueWpts}  <trk>
             const help = document.createElement('p'); help.className = 'pr-cue-help';
             help.textContent = isTouch()
                 ? 'Lang auf die Route drücken, im Höhenprofil „+ Hinweis“ tippen oder bei Trinkwasser- und Café-POIs „Als Hinweis“ wählen. Das Navi zeigt den Text kurz vor der Stelle an.'
-                : 'Rechtsklick auf die Route, Doppelklick ins Höhenprofil oder bei Trinkwasser- und Café-POIs „Als Hinweis“ wählen. Das Navi zeigt den Text kurz vor der Stelle an.';
+                : 'Rechtsklick auf oder neben die Route, Doppelklick ins Höhenprofil oder bei Trinkwasser- und Café-POIs „Als Hinweis“ wählen. Das Navi zeigt den Text kurz vor der Stelle an.';
             sec.append(h, list, help);
             const actions = host.querySelector('.pr-actions');
             if (actions) host.insertBefore(sec, actions); else host.appendChild(sec);
@@ -21578,6 +21597,79 @@ ${cueWpts}  <trk>
             openEditor({ id: 'cue_' + Date.now() + '_' + (seq++), kind: kind || 'interval', text: text || '', lat: s.lat, lng: s.lng, _s: s }, true);
         }
         window.prCueAddAt = addAt;
+
+        // ── Desktop: right-click NEAR the route (the line itself is hard to hit) ──
+        (function desktopNearRoute() {
+            if (isTouch()) return;
+            const NEAR_PX = 32;
+            let tipEl = null, dot = null, restTimer = null, lastMove = 0;
+            const nearPoint = latlng => {
+                const s = snap(latlng.lat, latlng.lng);
+                if (!s) return null;
+                try {
+                    const a = map.latLngToContainerPoint(latlng), b = map.latLngToContainerPoint([s.lat, s.lng]);
+                    return a.distanceTo(b) <= NEAR_PX ? s : null;
+                } catch (e) { return null; }
+            };
+            function hideHint() {
+                clearTimeout(restTimer);
+                if (tipEl) tipEl.style.display = 'none';
+                if (dot) { try { map.removeLayer(dot); } catch (e) {} dot = null; }
+            }
+            function showHint(s, containerPt) {
+                if (!tipEl) {
+                    tipEl = document.createElement('div');
+                    tipEl.id = 'prCueHoverTip';
+                    tipEl.textContent = 'Rechtsklick: Hinweis fürs Navi';
+                    map.getContainer().appendChild(tipEl);
+                }
+                tipEl.style.left = (containerPt.x + 14) + 'px';
+                tipEl.style.top = (containerPt.y + 14) + 'px';
+                tipEl.style.display = 'block';
+                if (dot) dot.setLatLng([s.lat, s.lng]);
+                else dot = L.circleMarker([s.lat, s.lng], { radius: 6, weight: 2, color: '#ffffff', fillColor: '#ccff00', fillOpacity: 1, interactive: false }).addTo(map);
+            }
+            function attach() {
+                let trailing = null;
+                const onMove = e => {
+                    clearTimeout(restTimer);
+                    const s = nearPoint(e.latlng);
+                    if (!s) { hideHint(); return; }
+                    // show after a short rest, so it does not flicker while moving across the route
+                    restTimer = setTimeout(() => showHint(s, e.containerPoint), dot ? 0 : 250);
+                };
+                map.on('mousemove', e => {
+                    // throttle the distance check, but always handle the last position
+                    clearTimeout(trailing);
+                    const now = Date.now();
+                    if (now - lastMove < 60) { trailing = setTimeout(() => { lastMove = Date.now(); onMove(e); }, 70); return; }
+                    lastMove = now;
+                    onMove(e);
+                });
+                map.on('mouseout movestart zoomstart', () => { clearTimeout(trailing); hideHint(); });
+                map.on('contextmenu', e => {
+                    // waypoint markers keep their own right-click; the segment menu stops the event itself.
+                    // Weather symbols and notes sit on the route → a right-click on them still counts as "near the route".
+                    const t = e.originalEvent && e.originalEvent.target;
+                    if (t && t.closest && t.closest('.custom-marker')) return;
+                    const s = nearPoint(e.latlng);
+                    if (!s) return;
+                    hideHint();
+                    const btn = `<button type="button" class="pr-cue-near-btn" data-lat="${s.lat}" data-lng="${s.lng}">📍 Hinweis fürs Navi hier</button>`;
+                    L.popup({ className: 'pr-cue-near-popup', closeButton: false, offset: [0, -4] })
+                        .setLatLng([s.lat, s.lng])
+                        .setContent(`<div class="pr-cue-near">${btn}<div class="pr-cue-near-km">km ${s.km.toFixed(1)}</div></div>`)
+                        .openOn(map);
+                });
+                document.addEventListener('click', e => {
+                    const b = e.target.closest && e.target.closest('.pr-cue-near-btn');
+                    if (!b) return;
+                    addAt(parseFloat(b.dataset.lat), parseFloat(b.dataset.lng));
+                });
+            }
+            const tryAttach = () => { try { if (map && typeof map.on === 'function') { attach(); return true; } } catch (e) {} return false; };
+            if (!tryAttach()) { const iv = setInterval(() => { if (tryAttach()) clearInterval(iv); }, 500); }
+        })();
         window.prCueAddAtKm = km => { const p = pointAtKm(km); if (p) addAt(p.lat, p.lng); };
 
         // Elevation profile: remember the last position (hover / finger), "+ Hinweis" button, double click
